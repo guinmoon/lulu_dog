@@ -1,4 +1,6 @@
+#include "pin_config.h"
 #include "gyro_helper.h"
+#include "character.h"
 #include "SensorQMI8658.hpp"
 
 SensorQMI8658 qmi;
@@ -22,7 +24,7 @@ int direction = 0;
 void doOnGyro()
 {
     // Реализация вашей функции, вызываемой при обнаружении удара
-    USBSerial.println("doOnGyro called!");
+    log_d("doOnGyro called!");
     doRandomReact();
 }
 
@@ -74,17 +76,17 @@ void gyroAndAccelReadTask(void *params)
                 if (deltaX > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.x - prevAcc.x > 0) ? "right" : "left";
+                    direction = (acc.x - prevAcc.x > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
                 }
                 if (deltaY > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.y - prevAcc.y > 0) ? "forward" : "backward";
+                    direction = (acc.y - prevAcc.y > 0) ? GYRO_D_FORWARD: GYRO_D_BACKWARD;
                 }
                 if (deltaZ > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.z - prevAcc.z > 0) ? "up" : "down";
+                    direction = (acc.z - prevAcc.z > 0) ? GYRO_D_UP : GYRO_D_DOWN;
                 }
 
                 // Сохранение текущего значения как предыдущее для следующей итерации
@@ -100,17 +102,17 @@ void gyroAndAccelReadTask(void *params)
                 if (deltaGyrX > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.x - prevGyr.x > 0) ? "rotate right" : "rotate left";
+                    direction = (gyr.x - prevGyr.x > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
                 }
                 if (deltaGyrY > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.y - prevGyr.y > 0) ? "tilt forward" : "tilt backward";
+                    direction = (gyr.y - prevGyr.y > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
                 }
                 if (deltaGyrZ > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.z - prevGyr.z > 0) ? "tilt up" : "tilt down";
+                    direction = (gyr.z - prevGyr.z > 0) ? GYRO_D_TILT_UP: GYRO_D_TILT_DOWN;
                 }
 
                 // Сохранение текущего значения как предыдущее для следующей итерации
