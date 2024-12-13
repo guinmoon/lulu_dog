@@ -5,9 +5,10 @@
 #include "gif_helper.h"
 #include "gyro_helper.h"
 #include "commands.h"
-#include <ESP_I2S.h>
+// #include <ESP_I2S.h>
 
-// #include "Audio.h"
+#include "Audio.h"
+
 // #include "AudioGeneratorWAV.h"
 // #include "AudioFileSourcePROGMEM.h"
 // // #include "AudioOutputI2S.h"
@@ -15,11 +16,11 @@
 
 #define I2S_DOUT 17 // Используем GPIO18 для Data Out
 #define I2S_BCLK 18 // Используем GPIO17 для Bit Clock
-#define I2S_LRC 2   // Используем GPIO3 для Left/Right Clock (Word Select)
+#define I2S_LRC 16   // Используем GPIO3 для Left/Right Clock (Word Select)
 
 // AudioGeneratorWAV *wav;
 // AudioFileSourcePROGMEM *progMemFile;
-// // AudioOutputI2S *out;
+// // // AudioOutputI2S *out;
 // AudioOutputI2SNoDAC *out;
 
 const int voltageDividerPin = 1;
@@ -91,22 +92,36 @@ void initFS()
     }
 }
 
-// Audio audio(false,0,0);
+Audio audio;
+
+void initAudio(){
+    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    audio.setVolume(21);
+    audio.connecttoFS(LittleFS,"/example3.wav");
+     // audio.forceMono(true);
+
+    // audio.i2s_mclk_pin_select(3);
+    // audio.setI2SCommFMT_LSB(true);
+}
+
+
 
 const int frequency = 440;   // frequency of square wave in Hz
 const int amplitude = 500;   // amplitude of square wave
 const int sampleRate = 8000; // sample rate in Hz
 
-i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
-i2s_mode_t mode = I2S_MODE_STD;
-i2s_slot_mode_t slot = I2S_SLOT_MODE_STEREO;
+// i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
+// i2s_mode_t mode = I2S_MODE_STD;
+// i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
 
 const int halfWavelength = (sampleRate / frequency); // half wavelength of square wave
 
 int32_t sample = amplitude; // current sample value
 int count = 0;
 
-I2SClass i2s;
+// I2SClass i2s;
+
+// https://aliexpress.ru/item/1005007552403202.html?sku_id=12000041264231643&spm=a2g2w.productlist.search_results.0.27e25c64JaDElS
 
 void setup(void)
 {
@@ -119,45 +134,32 @@ void setup(void)
 
     initPSRAM();
     initFS();
-    InitDisplay();
+    InitDisplay();    
     // initGyro();
-    // pinMode(voltageDividerPin, INPUT);
+    // playGif("/eye3.gif");
+    // initAudio();
+    pinMode(voltageDividerPin, INPUT);
 
-    // audio = new Audio(false,0);
-    // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    // audio.forceMono(true);
+    
+    
+   
 
-    // // audio.i2s_mclk_pin_select(3);
-    // // audio.setI2SCommFMT_LSB(true);
+    
 
-    // // audio.setVolume(21);
-    // // audio.connecttoFS(LittleFS,"/R2-D2_17_8k.mp3");
-    // audio.connecttoFS(LittleFS,"/example2.wav");
+    
 
     // out = new AudioOutputI2S();
     // out = new AudioOutputI2SNoDAC();
 
     // out->SetPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    // // out->SetBitsPerSample(16);
-    // out->SetRate(16000);
-    // // out->set
-    // // out->SetGain(4.0);
-    // // out->SetOutputModeMono(true);
+    // // // out->SetBitsPerSample(16);
+    // // out->SetRate(16000);
+    // // // out->set
+    // // // out->SetGain(4.0);
+    // // // out->SetOutputModeMono(true);
     // out->begin();
 
-    // Загружаем WAV в память
-    if (loadWAVToMemory("/example.wav"))
-    { // Замените на путь к вашему файлу
-        // Используем AudioFileSourcePROGMEM для воспроизведения из памяти
-        log_d("loaded wav");
-        log_d("%d", wavSize);
-        // progMemFile = new AudioFileSourcePROGMEM(wavData, wavSize);
-        // wav = new AudioGeneratorWAV();
-        // log_d("inited wav");
-        // wav->begin(progMemFile, out);
-    }
-
-    // playGif("/eye3.gif");
+    
 
     // pinMode(2, INPUT);
 
@@ -176,30 +178,46 @@ void setup(void)
     // delay(2000);
     // sendCommand(COMMAND_SET_TAIL_SPEED,0);
     // delay(2000);
-    i2s.setPins(I2S_BCLK,I2S_LRC,I2S_DOUT);
-    i2s.setInverted(false,true);
-    if (!i2s.begin(mode, sampleRate, bps, slot))
-    {
-        Serial.println("Failed to initialize I2S!");
-        while (1)
-            ; // do nothing
-    }
+
+    // i2s.setPins(I2S_BCLK,I2S_LRC,I2S_DOUT);
+    // i2s.setInverted(false,true);
+    // if (!i2s.begin(mode, sampleRate, bps, slot))
+    // {
+    //     Serial.println("Failed to initialize I2S!");
+    //     while (1)
+    //         delay(1000); // do nothing
+    // }
+    // Загружаем WAV в память
+
+    // if (loadWAVToMemory("/example2.wav"))
+    // { // Замените на путь к вашему файлу
+    //     // Используем AudioFileSourcePROGMEM для воспроизведения из памяти
+    //     log_d("loaded wav");
+    //     log_d("%d", wavSize);
+    //     // i2s.playWAV(wavData,wavSize);
+    //     progMemFile = new AudioFileSourcePROGMEM(wavData, wavSize);
+    //     wav = new AudioGeneratorWAV();
+    //     log_d("inited wav");
+    //     wav->begin(progMemFile, out);
+        
+    // }
 }
 
 void loop()
 {
-    if (count % halfWavelength == 0)
-    {
-        // invert the sample every half wavelength count multiple to generate square wave
-        sample = -1 * sample;
-    }
+    // if (count % halfWavelength == 0)
+    // {
+    //     // invert the sample every half wavelength count multiple to generate square wave
+    //     sample = -1 * sample;
+    // }
 
-    i2s.write(sample); // Right channel
-    i2s.write(sample); // Left channel
+    // i2s.write(sample); // Right channel
+    // i2s.write(sample); // Left channel
 
-    // increment the counter for the next sample
-    count++;
-    // audio.loop();
+    // // increment the counter for the next sample
+    // count++;
+    
+    audio.loop();
     // log_d("loop");
     // delay(1000);
     // log_d("WAV plaing\n");
@@ -209,10 +227,10 @@ void loop()
     //     if (!wav->loop())
     //         wav->stop();
     // }
-    // else
+    // else   
     // {
-    // log_d("WAV done\n");
-    delay(1000);
+    //     log_d("WAV done\n");
+    //     delay(1000);
     // }
     // int adcValue = analogRead(voltageDividerPin);
 

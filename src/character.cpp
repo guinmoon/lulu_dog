@@ -3,7 +3,7 @@
 #include "commands.h"
 #include "gif_helper.h"
 
-#define WIRE Wire1
+#define WIRE Wire
 
 void sendCommand(int command)
 {
