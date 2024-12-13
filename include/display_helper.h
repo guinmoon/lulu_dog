@@ -9,3 +9,5 @@ bool loadGIFToMemory(const char *filename);
 void playInfinite(void *pvParameters);
 void InitDisplay();
 void playGif(const char *fname);
+void printOnDisplay(char *text);
+void setVoltageBuf(float voltage);

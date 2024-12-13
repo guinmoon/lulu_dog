@@ -2,8 +2,9 @@
 #include "pin_config.h"
 #include <Wire.h>
 #include "LittleFS.h"
-#include "gif_helper.h"
+#include "display_helper.h"
 #include "gyro_helper.h"
+#include "battery_helper.h"
 #include "commands.h"
 // #include <ESP_I2S.h>
 
@@ -23,10 +24,7 @@
 // // // AudioOutputI2S *out;
 // AudioOutputI2SNoDAC *out;
 
-const int voltageDividerPin = 1;
-float vRef = 3.3;    // Power supply voltage of ESP32-S3 (unit: volts)
-float R1 = 200000.0; // Resistance value of the first resistor (unit: ohms)
-float R2 = 100000.0;
+
 
 uint8_t *wavData = nullptr;
 size_t wavSize = 0;
@@ -69,19 +67,6 @@ void initPSRAM()
     log_d("Free PSRAM: %d", ESP.getFreePsram());
 }
 
-void initGyro()
-{
-    gyroInit();
-
-    xTaskCreatePinnedToCore(
-        gyroAndAccelReadTask, /* Task function. */
-        "Task3",              /* name of task. */
-        10000,                /* Stack size of task */
-        NULL,                 /* parameter of the task */
-        3,                    /* priority of the task */
-        NULL,                 /* Task handle to keep track of created task */
-        1);
-}
 
 void initFS()
 {
@@ -123,6 +108,8 @@ int count = 0;
 
 // https://aliexpress.ru/item/1005007552403202.html?sku_id=12000041264231643&spm=a2g2w.productlist.search_results.0.27e25c64JaDElS
 
+
+
 void setup(void)
 {
     // USBSerial.begin(115200);
@@ -131,77 +118,19 @@ void setup(void)
     // Wire1.begin(17, 18);
 
     log_d("LuLu2 hello");
-
+    init_battery();
     initPSRAM();
     initFS();
-    InitDisplay();    
-    // initGyro();
-    // playGif("/eye3.gif");
+    InitDisplay();
+    gyroInit();    
+    playGif("/eye3.gif");
     // initAudio();
-    pinMode(voltageDividerPin, INPUT);
-
-    
-    
-   
-
     
 
-    
 
-    // out = new AudioOutputI2S();
-    // out = new AudioOutputI2SNoDAC();
-
-    // out->SetPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    // // // out->SetBitsPerSample(16);
-    // // out->SetRate(16000);
-    // // // out->set
-    // // // out->SetGain(4.0);
-    // // // out->SetOutputModeMono(true);
-    // out->begin();
-
-    
-
-    // pinMode(2, INPUT);
-
-    // xTaskCreatePinnedToCore(
-    //     touchReadTask, /* Task function. */
-    //     "Task2",       /* name of task. */
-    //     10000,         /* Stack size of task */
-    //     NULL,          /* parameter of the task */
-    //     2,             /* priority of the task */
-    //     NULL,          /* Task handle to keep track of created task */
-    //     1);
-
-    // sendCommand(COMMAND_SET_TAIL_SPEED,2);
-    // delay(2000);
-    // sendCommand(COMMAND_SET_TAIL_SPEED,4);
-    // delay(2000);
-    // sendCommand(COMMAND_SET_TAIL_SPEED,0);
-    // delay(2000);
-
-    // i2s.setPins(I2S_BCLK,I2S_LRC,I2S_DOUT);
-    // i2s.setInverted(false,true);
-    // if (!i2s.begin(mode, sampleRate, bps, slot))
-    // {
-    //     Serial.println("Failed to initialize I2S!");
-    //     while (1)
-    //         delay(1000); // do nothing
-    // }
-    // Загружаем WAV в память
-
-    // if (loadWAVToMemory("/example2.wav"))
-    // { // Замените на путь к вашему файлу
-    //     // Используем AudioFileSourcePROGMEM для воспроизведения из памяти
-    //     log_d("loaded wav");
-    //     log_d("%d", wavSize);
-    //     // i2s.playWAV(wavData,wavSize);
-    //     progMemFile = new AudioFileSourcePROGMEM(wavData, wavSize);
-    //     wav = new AudioGeneratorWAV();
-    //     log_d("inited wav");
-    //     wav->begin(progMemFile, out);
-        
-    // }
 }
+
+
 
 void loop()
 {
@@ -217,31 +146,18 @@ void loop()
     // // increment the counter for the next sample
     // count++;
     
-    audio.loop();
+    // audio.loop();
     // log_d("loop");
     // delay(1000);
-    // log_d("WAV plaing\n");
-    // if (wav->isRunning())
-    // {
+   
+    
 
-    //     if (!wav->loop())
-    //         wav->stop();
-    // }
-    // else   
-    // {
-    //     log_d("WAV done\n");
-    //     delay(1000);
-    // }
-    // int adcValue = analogRead(voltageDividerPin);
+    // Print the actual voltage
+    // log_d("voltage %f, adcValue %d, Actual Voltage: %f V",voltage,adcValue,actualVoltage);
+    // log_d("Actual Voltage: %f V",actualVoltage);
+    // float actualVoltage = get_battery_voltage_cached();
+    // sprintf(print_buf,"Actual Voltage: %f V",actualVoltage);
+    // printOnDisplay(print_buf);
 
-    // // Convert to voltage
-    // float voltage = (float)adcValue * (vRef / 4095.0);
-
-    // // Apply the voltage divider formula to calculate the actual voltage
-    // float actualVoltage = voltage * ((R1 + R2) / R2);
-
-    // // Print the actual voltage
-    // log_d("adcValue %d, Actual Voltage: %d V",adcValue,actualVoltage);
-
-    // delay(1000);
+    delay(1000);
 }

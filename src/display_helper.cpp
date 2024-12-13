@@ -1,4 +1,5 @@
-#include "gif_helper.h"
+#include "display_helper.h"
+#include "battery_helper.h"
 
 #define DISPLAY_WIDTH 280
 
@@ -14,7 +15,8 @@ TaskHandle_t Task1;
 
 bool play = true;
 
-void playGif(const char *fname){    
+void playGif(const char *fname)
+{
     play = false;
     delay(100);
     if (gifData != nullptr)
@@ -34,7 +36,7 @@ void playGif(const char *fname){
         free(gifData);
         return;
     }
-    play = true;    
+    play = true;
     xTaskCreatePinnedToCore(
         playInfinite, /* Task function. */
         "Task1",      /* name of task. */
@@ -46,21 +48,43 @@ void playGif(const char *fname){
     gfx->fillScreen(BLACK);
 }
 
-
-void InitDisplay(){
+void InitDisplay()
+{
     if (!gfx->begin())
     {
         log_d("gfx->begin() failed!");
     }
     gfx->fillScreen(BLACK);
 
-    // pinMode(LCD_BL, OUTPUT);
-    // digitalWrite(LCD_BL, HIGH);
+    pinMode(LCD_BL, OUTPUT);
+    digitalWrite(LCD_BL, HIGH);
 
     gfx->setCursor(10, 10);
     gfx->setTextColor(RED);
     gfx->println("Hello World!");
 }
+
+void fillScreen()
+{
+    gfx->fillScreen(BLACK);
+}
+
+void printOnDisplay(char *text)
+{
+    //
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(RED);    
+    gfx->fillRect(10,10,80,20,0);
+    gfx->println(text);
+}
+
+
+char voltageBuf[15];
+
+void setVoltageBuf(float voltage){
+    sprintf(voltageBuf,"B: %f V",voltage);
+}
+
 
 void GIFDraw(GIFDRAW *pDraw)
 {
@@ -138,7 +162,11 @@ void GIFDraw(GIFDRAW *pDraw)
         for (x = 0; x < iWidth; x++)
             usTemp[x] = usPalette[*s++];
         gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
+        
     }
+    // gfx->setCursor(10, 10);
+    // gfx->setTextColor(RED);
+    // gfx->println(voltageBuf);
 }
 
 bool loadGIFToMemory(const char *filename)
@@ -170,23 +198,23 @@ bool loadGIFToMemory(const char *filename)
     return true;
 }
 
-
-
-
-
 void playInfinite(void *pvParameters)
 {
     while (play)
     {
         int res = gif.playFrame(true, NULL);
+        printOnDisplay(voltageBuf);
         if (res == -1)
         {
             log_d("play error");
             return;
         }
         if (res == 0)
-        {
+        {            
             gif.close();
+            // log_d("%s",voltageBuf);
+            // printOnDisplay(voltageBuf);
+            // delay(500);
             gif.open(gifData, gifSize, GIFDraw);
             // break;
         }

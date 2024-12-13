@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include "character.h"
 #include "commands.h"
-#include "gif_helper.h"
+#include "display_helper.h"
 
 #define WIRE Wire
 
