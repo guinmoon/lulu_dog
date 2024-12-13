@@ -16,7 +16,7 @@ const float impactThresholdAcc = 0.2; // Пороговое значение и�
 const float impactThresholdGyr = 0.9; // Пороговое значение изменений угловой скорости
 
 unsigned long lastGyroActionTime = 0;        // Время последнего вызова doOnGyro
-const unsigned long gyroActionPeriod = 2000; // Время в миллисекундах
+const unsigned long gyroActionPeriod = 3000; // Время в миллисекундах
 bool gyroActionFirstTime = true;
 
 int direction = 0;
@@ -148,7 +148,7 @@ void gyroAndAccelReadTask(void *params)
             }
         }
 
-        delay(100); // Пауза для снижения частоты опроса
+        delay(200); // Пауза для снижения частоты опроса
     }
     vTaskDelete(NULL);
 }
