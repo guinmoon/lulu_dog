@@ -21,11 +21,11 @@ bool gyroActionFirstTime = true;
 
 int direction = 0;
 
-void doOnGyro()
+void doOnGyro(int direction)
 {
     // Реализация вашей функции, вызываемой при обнаружении удара
     log_d("doOnGyro called!");
-    doRandomReact();
+    doRandomReact(direction);
 }
 
 bool gyroInit()
@@ -72,60 +72,59 @@ void gyroAndAccelReadTask(void *params)
         if (qmi.getDataReady())
         {
             bool impactDetected = false;
+            int direction = GYRO_D_NONE;
 
             if (qmi.getAccelerometer(acc.x, acc.y, acc.z))
             {
+                // Вычисление изменений акселерометра
+                float deltaX = acc.x - prevAcc.x;
+                float deltaY = acc.y - prevAcc.y;
+                float deltaZ = acc.z - prevAcc.z;
 
-                // Вычисление изменения ускорения
-                float deltaX = abs(acc.x - prevAcc.x);
-                float deltaY = abs(acc.y - prevAcc.y);
-                float deltaZ = abs(acc.z - prevAcc.z);
-
-                // Проверка изменений ускорения
                 // Определение направления по акселерометру
-                if (deltaX > impactThresholdAcc)
+                if (abs(deltaX) > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.x - prevAcc.x > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
+                    direction = (deltaX > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
                 }
-                if (deltaY > impactThresholdAcc)
+                else if (abs(deltaY) > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.y - prevAcc.y > 0) ? GYRO_D_FORWARD: GYRO_D_BACKWARD;
+                    direction = (deltaY > 0) ? GYRO_D_FORWARD : GYRO_D_BACKWARD;
                 }
-                if (deltaZ > impactThresholdAcc)
+                else if (abs(deltaZ) > impactThresholdAcc)
                 {
                     impactDetected = true;
-                    direction = (acc.z - prevAcc.z > 0) ? GYRO_D_UP : GYRO_D_DOWN;
+                    direction = (deltaZ > 0) ? GYRO_D_UP : GYRO_D_DOWN;
                 }
 
-                // Сохранение текущего значения как предыдущее для следующей итерации
                 prevAcc = acc;
             }
 
             if (qmi.getGyroscope(gyr.x, gyr.y, gyr.z))
             {
-                float deltaGyrX = abs(gyr.x - prevGyr.x);
-                float deltaGyrY = abs(gyr.y - prevGyr.y);
-                float deltaGyrZ = abs(gyr.z - prevGyr.z);
-                // Вычисление изменения угловой скорости
-                if (deltaGyrX > impactThresholdGyr)
+                // Вычисление изменений гироскопа
+                float deltaGyrX = gyr.x - prevGyr.x;
+                float deltaGyrY = gyr.y - prevGyr.y;
+                float deltaGyrZ = gyr.z - prevGyr.z;
+
+                // Определение направления по гироскопу
+                if (abs(deltaGyrX) > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.x - prevGyr.x > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
+                    direction = (deltaGyrX > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
                 }
-                if (deltaGyrY > impactThresholdGyr)
+                else if (abs(deltaGyrY) > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.y - prevGyr.y > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
+                    direction = (deltaGyrY > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
                 }
-                if (deltaGyrZ > impactThresholdGyr)
+                else if (abs(deltaGyrZ) > impactThresholdGyr)
                 {
                     impactDetected = true;
-                    direction = (gyr.z - prevGyr.z > 0) ? GYRO_D_TILT_UP: GYRO_D_TILT_DOWN;
+                    direction = (deltaGyrZ > 0) ? GYRO_D_TILT_UP : GYRO_D_TILT_DOWN;
                 }
 
-                // Сохранение текущего значения как предыдущее для следующей итерации
                 prevGyr = gyr;
             }
 
@@ -134,21 +133,14 @@ void gyroAndAccelReadTask(void *params)
                 unsigned long currentMillis = millis();
                 if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
                 {
-                    if (gyroActionFirstTime)
-                    {
-                        gyroActionFirstTime = false;
-                        continue;
-                    }
-                    log_d("Impact detected!");
-                    doOnGyro();                         // Вызов функции
+                    doOnGyro(direction); 
+                    log_d("Impact %i detected! ", direction);              // Вызов функции с указанием направления
                     lastGyroActionTime = currentMillis; // Обновление времени последнего вызова
                 }
-
-                // Здесь можно вызвать функцию для управления роботом, например, выполнить анимацию.
             }
         }
-
-        delay(200); // Пауза для снижения частоты опроса
+        
+        delay(100); // Пауза для снижения частоты опроса
     }
     vTaskDelete(NULL);
 }

@@ -73,18 +73,17 @@ void printOnDisplay(char *text)
 {
     //
     gfx->setCursor(10, 10);
-    gfx->setTextColor(RED);    
-    gfx->fillRect(10,10,80,20,0);
+    gfx->setTextColor(RED);
+    gfx->fillRect(10, 10, 80, 20, 0);
     gfx->println(text);
 }
 
-
 char voltageBuf[15];
 
-void setVoltageBuf(float voltage){
-    sprintf(voltageBuf,"B: %f V",voltage);
+void setVoltageBuf(float voltage)
+{
+    sprintf(voltageBuf, "B: %f V", voltage);
 }
-
 
 void GIFDraw(GIFDRAW *pDraw)
 {
@@ -162,7 +161,6 @@ void GIFDraw(GIFDRAW *pDraw)
         for (x = 0; x < iWidth; x++)
             usTemp[x] = usPalette[*s++];
         gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
-        
     }
     // gfx->setCursor(10, 10);
     // gfx->setTextColor(RED);
@@ -200,24 +198,26 @@ bool loadGIFToMemory(const char *filename)
 
 void playInfinite(void *pvParameters)
 {
+    int iter = 0;
     while (play)
     {
         int res = gif.playFrame(true, NULL);
-        printOnDisplay(voltageBuf);
+        if (iter == 4)
+        {
+            printOnDisplay(voltageBuf);
+            iter = 0;
+        }
         if (res == -1)
         {
             log_d("play error");
             return;
         }
         if (res == 0)
-        {            
+        {
             gif.close();
-            // log_d("%s",voltageBuf);
-            // printOnDisplay(voltageBuf);
-            // delay(500);
             gif.open(gifData, gifSize, GIFDraw);
-            // break;
         }
+        iter++;
     }
     vTaskDelete(NULL);
 }
