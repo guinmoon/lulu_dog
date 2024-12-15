@@ -11,3 +11,7 @@ void InitDisplay();
 void playGif(const char *fname);
 void printOnDisplay(char *text);
 void setVoltageBuf(float voltage);
+void showSleepAnimation();
+void stopGif();
+void showSleepAnimation();
+void stopSleepAnimation();

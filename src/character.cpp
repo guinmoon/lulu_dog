@@ -6,6 +6,9 @@
 
 #define WIRE Wire
 
+unsigned long lastImpact = millis();
+bool sleeping = false;
+
 void sendCommand(int command)
 {
     WIRE.beginTransmission(8); // Адрес ведомого устройства
@@ -23,9 +26,41 @@ void sendCommand(int command, int arg1)
     log_d("Sended.");
 }
 
+void dogActivitiWatcherThread(void * args){
+    while (true){
+        if ((millis() - lastImpact)/1000>=MAX_INACTIVE_SEC && !sleeping){            
+            sleeping = true;
+            log_d("SLEEP");
+            stopGif();
+            delay(1000);
+            showSleepAnimation();
+        }
+        delay(1000);
+    }
+    vTaskDelete(NULL);
+}
+
+void startDogActivitiWatcher(){
+    xTaskCreatePinnedToCore(
+        dogActivitiWatcherThread, /* Task function. */
+        "Task7",      /* name of task. */
+        10000,        /* Stack size of task */
+        NULL,         /* parameter of the task */
+        1,            /* priority of the task */
+        NULL,       /* Task handle to keep track of created task */
+        0);
+}
+
 void doRandomReact(int direction)
 {
 
+    lastImpact = millis();
+    if (sleeping){
+        sleeping = false;
+        log_d("WAKE");
+        stopSleepAnimation();
+        delay(200);
+    }
     int choice = random(13);
     switch (choice)
     {

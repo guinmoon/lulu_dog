@@ -1,5 +1,11 @@
 #include "display_helper.h"
 #include "battery_helper.h"
+// #include "BmpClass.h"
+#include "1.c"
+#include "2.c"
+#include "3.c"
+#define IMG_WIDTH 280
+#define IMG_HEIGHT 240
 
 #define DISPLAY_WIDTH 280
 
@@ -12,8 +18,50 @@ AnimatedGIF gif;
 uint8_t *gifData = nullptr;
 int32_t gifSize = 0;
 TaskHandle_t Task1;
+char voltageBuf[15];
 
 bool play = true;
+bool wake = false;
+// static BmpClass bmpClass;
+
+// static void bmpDrawCallback(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h)
+// {
+//   // Serial.printf("Draw pos = %d, %d. size = %d x %d\n", x, y, w, h);
+//   gfx->draw16bitRGBBitmap(x, y, bitmap, w, h);
+// }
+
+void stopSleepAnimation(){
+    wake = true;
+    gfx->displayOn();
+}
+
+void showSleepAnimation()
+{
+
+    while (!wake)
+    {
+        
+        gfx->displayOn();
+        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        printOnDisplay(voltageBuf);
+        delay(1000);
+        if (wake)
+            break;
+        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        printOnDisplay(voltageBuf);
+        delay(1000);
+        if (wake)
+            break;
+        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);        
+        printOnDisplay(voltageBuf);
+        delay(3000);
+        if (wake)
+            break;
+        gfx->displayOff();
+        delay(7000);
+    }
+    wake = false;
+}
 
 void playGif(const char *fname)
 {
@@ -78,7 +126,7 @@ void printOnDisplay(char *text)
     gfx->println(text);
 }
 
-char voltageBuf[15];
+
 
 void setVoltageBuf(float voltage)
 {
@@ -196,6 +244,10 @@ bool loadGIFToMemory(const char *filename)
     return true;
 }
 
+void stopGif(){
+    play = false;
+}
+
 void playInfinite(void *pvParameters)
 {
     int iter = 0;
@@ -219,5 +271,6 @@ void playInfinite(void *pvParameters)
         }
         iter++;
     }
+    log_d("play ended");
     vTaskDelete(NULL);
 }

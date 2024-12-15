@@ -9,6 +9,7 @@
 #include "battery_helper.h"
 #include "audio_helper.h"
 #include "commands.h"
+#include "character.h"
 
 
 void initPSRAM()
@@ -38,10 +39,12 @@ void setup(void)
     initPSRAM();
     initFS();
     InitDisplay();
+    // showSleepAnimation();
     gyroInit();
     playGif("/eye3.gif");
     initAudio();
     playWav("/woof2.wav");
+    startDogActivitiWatcher();
 }
 
 void loop()

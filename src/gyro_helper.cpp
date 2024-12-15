@@ -12,8 +12,8 @@ IMUdata gyr;
 IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
 IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
-const float impactThresholdAcc = 0.2; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-const float impactThresholdGyr = 0.9; // Пороговое значение изменений угловой скорости
+const float impactThresholdAcc = 0.4; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+const float impactThresholdGyr = 1.5; // Пороговое значение изменений угловой скорости
 
 unsigned long lastGyroActionTime = 0;        // Время последнего вызова doOnGyro
 const unsigned long gyroActionPeriod = 3000; // Время в миллисекундах
