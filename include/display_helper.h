@@ -1,5 +1,4 @@
 #include "Arduino_GFX_Library.h"
-#include "pin_config.h"
 #include <Wire.h>
 #include <AnimatedGIF.h>
 #include "LittleFS.h"

@@ -1,13 +1,11 @@
 #include "display_helper.h"
 #include "battery_helper.h"
+#include "global_def.h"
 // #include "BmpClass.h"
 #include "1.c"
 #include "2.c"
 #include "3.c"
-#define IMG_WIDTH 280
-#define IMG_HEIGHT 240
 
-#define DISPLAY_WIDTH 280
 
 Arduino_DataBus *bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
@@ -42,17 +40,17 @@ void showSleepAnimation()
     {
         
         gfx->displayOn();
-        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
         printOnDisplay(voltageBuf);
         delay(1000);
         if (wake)
             break;
-        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
         printOnDisplay(voltageBuf);
         delay(1000);
         if (wake)
             break;
-        gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);        
+        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);        
         printOnDisplay(voltageBuf);
         delay(3000);
         if (wake)

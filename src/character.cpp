@@ -3,8 +3,8 @@
 #include "commands.h"
 #include "display_helper.h"
 #include "audio_helper.h"
+#include "global_def.h"
 
-#define WIRE Wire
 
 unsigned long lastImpact = millis();
 bool sleeping = false;
@@ -30,6 +30,7 @@ void dogActivitiWatcherThread(void * args){
     while (true){
         if ((millis() - lastImpact)/1000>=MAX_INACTIVE_SEC && !sleeping){            
             sleeping = true;
+            sendCommand(COMMAND_SET_TAIL_SPEED, 0);
             log_d("SLEEP");
             stopGif();
             delay(1000);

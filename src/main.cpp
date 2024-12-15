@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include "LittleFS.h"
-#include "pin_config.h"
+#include "global_def.h"
 #include "display_helper.h"
 #include "gyro_helper.h"
 #include "battery_helper.h"

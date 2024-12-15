@@ -1,6 +1,7 @@
 #include "audio_helper.h"
 #include "Audio.h"
 #include "LittleFS.h"
+#include "global_def.h"
 // #include <ESP_I2S.h>
 
 // #include "AudioGeneratorWAV.h"

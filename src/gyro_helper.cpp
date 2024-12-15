@@ -1,7 +1,7 @@
-#include "pin_config.h"
 #include "gyro_helper.h"
 #include "character.h"
 #include "SensorQMI8658.hpp"
+#include "global_def.h"
 
 SensorQMI8658 qmi;
 
@@ -12,11 +12,13 @@ IMUdata gyr;
 IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
 IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
-const float impactThresholdAcc = 0.4; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-const float impactThresholdGyr = 1.5; // Пороговое значение изменений угловой скорости
+const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
 
-unsigned long lastGyroActionTime = 0;        // Время последнего вызова doOnGyro
-const unsigned long gyroActionPeriod = 3000; // Время в миллисекундах
+unsigned long lastGyroActionTime = LAST_GYRO_ACTION_TIME;        // Время последнего вызова doOnGyro
+const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
+
+
 bool gyroActionFirstTime = true;
 
 int direction = 0;

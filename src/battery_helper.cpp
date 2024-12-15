@@ -1,11 +1,14 @@
 #include "battery_helper.h"
 #include "display_helper.h"
 #include <Arduino.h>
+#include "global_def.h"
 
-const int voltageDividerPin = 1;
-float vRef = 3.3;    // Power supply voltage of ESP32-S3 (unit: volts)
-float R1 = 200000.0; // Resistance value of the first resistor (unit: ohms)
-float R2 = 100000.0;
+
+
+const int voltageDividerPin = VOLTAGE_DIVEDER_PIN;
+float vRef = VREF;    // Power supply voltage of ESP32-S3 (unit: volts)
+float R1 = BATTERY_R1; // Resistance value of the first resistor (unit: ohms)
+float R2 = BATTERY_R2;
 
 float currentVoltage = 0;
 
