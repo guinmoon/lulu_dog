@@ -11,7 +11,6 @@
 #include "commands.h"
 #include "character.h"
 
-
 void initPSRAM()
 {
     psramInit();
@@ -30,7 +29,6 @@ void initFS()
     }
 }
 
-
 void setup(void)
 {
     Serial.begin(115200);
@@ -39,7 +37,21 @@ void setup(void)
     initPSRAM();
     initFS();
     InitDisplay();
-    // showSleepAnimation();
+
+    // for (int brightness = 0; brightness <= 255; brightness++)
+    // {
+    //     analogWrite(LCD_BL, brightness);
+    //     delay(40); // Задержка для плавного изменения
+    // }
+
+    // // Уменьшение яркости
+    // for (int brightness = 255; brightness >= 0; brightness--)
+    // {
+    //     analogWrite(LCD_BL, brightness);
+    //     delay(40); // Задержка для плавного изменения
+    // }
+
+
     gyroInit();
     playGif("/eye3.gif");
     initAudio();

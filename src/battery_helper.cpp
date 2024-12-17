@@ -11,11 +11,17 @@ float R1 = BATTERY_R1; // Resistance value of the first resistor (unit: ohms)
 float R2 = BATTERY_R2;
 
 float currentVoltage = 0;
+float lastVoltage = -1;
+bool charging = false;
 
 void init_battery()
 {
     pinMode(voltageDividerPin, INPUT);
     start_battery_thread();
+}
+
+bool isCharging(){
+    return charging;
 }
 
 float get_battery_voltage_cached()
@@ -41,6 +47,17 @@ void battery_thread(void *params)
     {
         get_battery_voltage();
         setVoltageBuf(currentVoltage);
+        if (lastVoltage == -1)
+            lastVoltage = currentVoltage;
+        else{
+            if (lastVoltage-currentVoltage>=BATTERY_CHARGING_THR){
+                charging = false;
+            }
+            if (currentVoltage-lastVoltage>=BATTERY_CHARGING_THR || currentVoltage>=BATTERY_CHARGING_V){
+                charging = true;
+            }
+        }
+        lastVoltage = currentVoltage;
         delay(1000);
     }
     vTaskDelete(NULL);

@@ -8,6 +8,8 @@
 
 #define MAX_INACTIVE_SEC 5
 
+// GYRO CONFIG
+
 #define IMPACT_THRESHHOLD_ACC 0.4 // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
 #define IMPACT_THRESHHOLD_GYR 1.5 // Пороговое значение изменений угловой скорости
 
@@ -15,11 +17,13 @@
 #define GYRO_ACTION_PERIOD 3000 // Время в миллисекундах
 
 
+// BATTERY CONFIG
 
 #define VREF  3.3    // Power supply voltage of ESP32-S3 (unit: volts)
 #define BATTERY_R1  200000.0 // Resistance value of the first resistor (unit: ohms)
 #define BATTERY_R2  100000.0
-
+#define BATTERY_CHARGING_THR 0.1
+#define BATTERY_CHARGING_V 4.01
 
 
 
