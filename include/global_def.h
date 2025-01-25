@@ -46,10 +46,17 @@
 #define TP_RST 13
 #define TP_INT 14
 
-#define BUZZER_PIN 33
+// #define BUZZER_PIN 33
+#define BUZZER_PIN 42
+#define SYS_EN_PIN 41
+#define SYS_OUT_PIN 40
 
-#define I2S_DOUT 17 
-#define I2S_BCLK 18 
-#define I2S_LRC 16  
+// #define I2S_DOUT 17 
+// #define I2S_BCLK 18 
+// #define I2S_LRC 16  
+
+#define I2S_DOUT 18 
+#define I2S_BCLK 3 
+#define I2S_LRC 17  
 
 #define VOLTAGE_DIVEDER_PIN 1

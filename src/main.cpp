@@ -29,37 +29,39 @@ void initFS()
     }
 }
 
+void InitPWR(){
+    pinMode(SYS_EN_PIN, OUTPUT);
+    digitalWrite(SYS_EN_PIN, HIGH);
+}
+
 void setup(void)
 {
+    InitPWR();
     Serial.begin(115200);
+    // pinMode(BUZZER_PIN, OUTPUT);    
     log_d("LuLu2 hello");
-    init_battery();
+    initBattery();
     initPSRAM();
     initFS();
-    InitDisplay();
-
-    // for (int brightness = 0; brightness <= 255; brightness++)
-    // {
-    //     analogWrite(LCD_BL, brightness);
-    //     delay(40); // Задержка для плавного изменения
-    // }
-
-    // // Уменьшение яркости
-    // for (int brightness = 255; brightness >= 0; brightness--)
-    // {
-    //     analogWrite(LCD_BL, brightness);
-    //     delay(40); // Задержка для плавного изменения
-    // }
-
-
+    InitDisplay();    
     gyroInit();
-    playGif("/eye3.gif");
     initAudio();
     playWav("/woof2.wav");
+    // playGif("/eye1.gif");
+    // sendCommand(COMMAND_SET_TAIL_SPEED, 7);
+    // delay(200);
+    // sendCommand(COMMAND_DANCE1,4);
+    playGif("/eye5.gif");
     startDogActivitiWatcher();
 }
 
 void loop()
 {
+    // myTone(BUZZER_PIN);
+    // delay(200);
+    // myNoTone(BUZZER_PIN);
+    // tone(BUZZER_PIN, 2000);
+    // delay(1000);
+    // noTone(BUZZER_PIN);
     delay(1000);
 }

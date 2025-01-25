@@ -16,7 +16,7 @@ void sendCommand(int command)
     WIRE.beginTransmission(8); // Адрес ведомого устройства
     WIRE.write(command);
     WIRE.endTransmission();
-    log_d("Sended.");
+    log_d("Sended: %i",command);
 }
 
 void sendCommand(int command, int arg1)
@@ -25,7 +25,7 @@ void sendCommand(int command, int arg1)
     WIRE.write(command);
     WIRE.write(arg1);
     WIRE.endTransmission();
-    log_d("Sended.");
+    log_d("Sended %i",command);
 }
 
 void dogActivitiWatcherThread(void *args)
@@ -62,8 +62,10 @@ int getAllowedChoice()
 {
     bool allowed = false;
     int choice = random(maxChoise);
-    if (!isCharging())
+    // if (!isCharging())
         return choice;
+
+    // Если заряжается то выбираем доступный в этом режиме вариант   
     while (!allowed)
     {
         choice = random(maxChoise);

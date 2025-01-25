@@ -14,7 +14,7 @@ float currentVoltage = 0;
 float lastVoltage = -1;
 bool charging = false;
 
-void init_battery()
+void initBattery()
 {
     pinMode(voltageDividerPin, INPUT);
     start_battery_thread();
@@ -47,6 +47,7 @@ void battery_thread(void *params)
     {
         get_battery_voltage();
         setVoltageBuf(currentVoltage);
+        log_d("V: %f",currentVoltage);
         if (lastVoltage == -1)
             lastVoltage = currentVoltage;
         else{

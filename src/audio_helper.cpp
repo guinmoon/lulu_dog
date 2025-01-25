@@ -1,5 +1,6 @@
 #include "audio_helper.h"
-#include "Audio.h"
+// #include "Audio.h"
+#include <ESP_I2S.h>
 #include "LittleFS.h"
 #include "global_def.h"
 // #include <ESP_I2S.h>
@@ -18,9 +19,11 @@ const int frequency = 440;   // frequency of square wave in Hz
 const int amplitude = 500;   // amplitude of square wave
 const int sampleRate = 8000; // sample rate in Hz
 
-// i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
-// i2s_mode_t mode = I2S_MODE_STD;
-// i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
+I2SClass i2s;
+
+i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
+i2s_mode_t mode = I2S_MODE_STD;
+i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
 
 const int halfWavelength = (sampleRate / frequency); // half wavelength of square wave
 
@@ -31,7 +34,7 @@ int count = 0;
 
 uint8_t *wavData = nullptr;
 size_t wavSize = 0;
-Audio audio;
+// Audio audio;
 
 bool loadWAVToMemory(const char *filename)
 {
@@ -64,36 +67,46 @@ bool loadWAVToMemory(const char *filename)
 
 void initAudio()
 {
-    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    audio.setVolume(22);
-    // audio.forceMono(true);
+    // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    // audio.setVolume(22);
+    // audio.setI2SCommFMT_LSB(true);
+    i2s.setPins( I2S_BCLK,I2S_LRC, I2S_DOUT);
 
-    // audio.i2s_mclk_pin_select(3);
-    audio.setI2SCommFMT_LSB(true);
+    // Initialize the I2S bus in standard mode
+    if (!i2s.begin(I2S_MODE_STD, 44100, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO, I2S_STD_SLOT_BOTH))
+    {
+        log_d("Failed to initialize I2S bus!");
+        return;
+    }
 }
 
 void audioThread(void *params)
 {
 
-    while (true)
-    {
-        audio.loop();
+    i2s.playWAV(wavData,wavSize);
+    // i2s.
+    // while (true)
+    // {
+    //     audio.loop();
 
-        // log_d("%i",audio.isRunning());
-        if (!audio.isRunning())
-            break;
-    }
+    //     // log_d("%i",audio.isRunning());
+    //     if (!audio.isRunning())
+    //         break;
+    // }
+    log_d("Wav finished");
     vTaskDelete(NULL);
 }
 
 void playWav(char *fname)
 {
-    audio.stopSong();
-    audio.connecttoFS(LittleFS, fname);
+    // audio.stopSong();
+    delay(100);
+    loadWAVToMemory(fname);
+    // audio.connecttoFS(LittleFS, fname);
     xTaskCreatePinnedToCore(
         audioThread, /* Task function. */
         "Task5",     /* name of task. */
-        10000,       /* Stack size of task */
+        4096,        /* Stack size of task */
         NULL,        /* parameter of the task */
         10,          /* priority of the task */
         NULL,        /* Task handle to keep track of created task */

@@ -2,9 +2,9 @@
 #include "battery_helper.h"
 #include "global_def.h"
 
-#include "1.c"
-#include "2.c"
-#include "3.c"
+// #include "1.c"
+// #include "2.c"
+// #include "3.c"
 
 Arduino_DataBus *bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
 
@@ -37,17 +37,17 @@ void showSleepAnimation()
 
         gfx->displayOn();
         // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-        printOnDisplay(voltageBuf);
+        // drawBatteryheart();
         delay(1000);
         if (wake)
             break;
         // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-        printOnDisplay(voltageBuf);
+        // drawBatteryheart();
         delay(1000);
         if (wake)
             break;
         // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-        printOnDisplay(voltageBuf);
+        // drawBatteryheart();
         delay(3000);
         if (wake)
             break;
@@ -63,7 +63,7 @@ void InitDisplay()
     {
         log_d("gfx->begin() failed!");
     }
-    gfx->fillScreen(BLACK);
+    fillScreen();
 
     pinMode(LCD_BL, OUTPUT);
     digitalWrite(LCD_BL, HIGH);
@@ -71,9 +71,15 @@ void InitDisplay()
     gfx->setCursor(10, 10);
     gfx->setTextColor(RED);
     gfx->println("Hello World!");
-    // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280*240), MALLOC_CAP_8BIT);
-    // pFrameBuffer = (uint8_t *)heap_caps_malloc(280*240*sizeof(uint16_t), MALLOC_CAP_8BIT);
+    // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
+    // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
+
+void *GIFAlloc(uint32_t u32Size)
+{
+    // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
+    return (uint8_t *)ps_malloc(u32Size);
+} /* GIFAlloc() */
 
 void playGif(const char *fname)
 {
@@ -91,6 +97,8 @@ void playGif(const char *fname)
     }
 
     // gif.begin(GIF_PALETTE_RGB888);
+    // gif.begin(GIF_PALETTE_RGB565_BE);
+
     if (!gif.open(gifData, gifSize, GIFDraw))
     {
         log_d("Failed to open GIF from memory");
@@ -100,6 +108,8 @@ void playGif(const char *fname)
     // gif.setDrawType(GIF_DRAW_COOKED);
     // gif.setFrameBuf(pFrameBuffer); // for Turbo+cooked, we need to supply a full sized output framebuffer
     // gif.setTurboBuf(pTurboBuffer);
+    // gif.allocFrameBuf(GIFAlloc);
+    // gif.allocTurboBuf(GIFAlloc);
 
     play = true;
     xTaskCreatePinnedToCore(
@@ -110,7 +120,7 @@ void playGif(const char *fname)
         1,            /* priority of the task */
         &Task1,       /* Task handle to keep track of created task */
         0);
-    gfx->fillScreen(BLACK);
+    fillScreen();
 }
 
 void fillScreen()
@@ -127,6 +137,30 @@ void printOnDisplay(char *text)
     gfx->println(text);
 }
 
+void drawHeart(int x, int y, uint16_t color)
+{
+    gfx->fillRect(x + 15, y + 15, 10, 10, color);
+    gfx->fillRect(x + 28, y + 15, 10, 10, color);
+    gfx->fillRect(x + 22, y + 21, 10, 10, color);
+}
+
+void drawBatteryheart()
+{
+    float volt = get_battery_voltage();
+    if (volt <= 3.1)
+        drawHeart(0, 0, BLACK);
+    else
+        drawHeart(0, 0, RED);
+    if (volt <= 3.5)
+        drawHeart(30, 0, BLACK);
+    else
+        drawHeart(30, 0, RED);
+    if (volt <= 3.7)
+        drawHeart(60, 0, BLACK);
+    else
+        drawHeart(60, 0, RED);
+}
+
 void setVoltageBuf(float voltage)
 {
     if (isCharging())
@@ -138,6 +172,20 @@ void setVoltageBuf(float voltage)
         sprintf(voltageBuf, "B: %f V", voltage);
     }
 }
+
+// void GIFDraw_turbo(GIFDRAW *pDraw)
+// {
+//   uint16_t *pPixels = (uint16_t*)pDraw->pPixels;
+//   int xWidth = pDraw->iWidth;
+//   int yPos =  pDraw->iY + pDraw->y;
+
+//   // Используем более эффективный метод для Arduino_GFX
+//   gfx->startWrite();
+//   for (int x = 0; x < xWidth; x++) {
+//     gfx->writePixel( pDraw->iX + x, yPos, pPixels[x]);
+//   }
+//   gfx->endWrite();
+// }
 
 void GIFDraw_24bit(GIFDRAW *pDraw)
 {
@@ -309,9 +357,6 @@ void GIFDraw(GIFDRAW *pDraw)
 
         gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
     }
-    // gfx->setCursor(10, 10);
-    // gfx->setTextColor(RED);
-    // gfx->println(voltageBuf);
 }
 
 bool loadGIFToMemory(const char *filename)
@@ -357,6 +402,7 @@ void playInfinite(void *pvParameters)
         if (iter == 4)
         {
             printOnDisplay(voltageBuf);
+            // drawBatteryheart();
             iter = 0;
         }
         if (res == -1)

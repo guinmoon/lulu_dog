@@ -14,3 +14,5 @@ void showSleepAnimation();
 void stopGif();
 void showSleepAnimation();
 void stopSleepAnimation();
+void drawBatteryheart();
+void fillScreen();
