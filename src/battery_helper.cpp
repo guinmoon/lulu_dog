@@ -14,9 +14,10 @@ float currentVoltage = 0;
 float lastVoltage = -1;
 bool charging = false;
 
-void initBattery()
+void InitBattery()
 {
     pinMode(voltageDividerPin, INPUT);
+    randomSeed(analogRead(voltageDividerPin));
     start_battery_thread();
 }
 
@@ -54,7 +55,8 @@ void battery_thread(void *params)
             if (lastVoltage-currentVoltage>=BATTERY_CHARGING_THR){
                 charging = false;
             }
-            if (currentVoltage-lastVoltage>=BATTERY_CHARGING_THR || currentVoltage>=BATTERY_CHARGING_V){
+            if (currentVoltage>BATTERY_CHARGING_V_MIN && 
+                (currentVoltage-lastVoltage>=BATTERY_CHARGING_THR || currentVoltage>=BATTERY_CHARGING_V)) {
                 charging = true;
             }
         }

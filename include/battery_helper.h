@@ -1,5 +1,5 @@
 
-void initBattery();
+void InitBattery();
 float get_battery_voltage_cached();
 float get_battery_voltage();
 void start_battery_thread();

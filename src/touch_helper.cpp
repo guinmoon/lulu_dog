@@ -1,0 +1,101 @@
+#include "touch_helper.h"
+#include "global_def.h"
+#include "character.h"
+#include "TouchDrvCSTXXX.hpp"
+
+TouchDrvCSTXXX touch;
+int16_t x[5], y[5];
+bool isPressed = false;
+
+unsigned long lastTouchTime = 0;
+bool longPressDetected = false;
+bool doubleTapDetected = false;
+
+bool wasPressed = false;
+
+unsigned long pressStartTime = 0;
+unsigned long lastReleaseTime = 0;
+
+// Константы для настройки временных интервалов
+const unsigned long longPressThreshold = 1000; // 1000 мс (1 секунда)
+const unsigned long doubleTapTimeout = 500;  
+
+void detectLongOrDoubleTap() {
+    unsigned long currentTime = millis();
+
+    if (isPressed && !wasPressed) {
+        // Начало нового нажатия
+        pressStartTime = currentTime;
+    } else if (!isPressed && wasPressed) {
+        // Конец нажатия
+        if (currentTime - lastReleaseTime < doubleTapTimeout) {
+            DoSceneReact(x[0],y[0]);
+            log_d("Double Tap Detected");
+        }
+        lastReleaseTime = currentTime;
+    }
+
+    if (isPressed && wasPressed && (currentTime - pressStartTime >= longPressThreshold) ) {
+        log_d("Long Press Detected");
+        pressStartTime = currentTime + 999999; // Исключаем повторное обнаружение длительного нажатия
+    }
+
+    wasPressed = isPressed;
+    
+}
+
+void TouchReadTask(void *params)
+{
+    while (true)
+    {
+        if (isPressed)
+        {
+            uint8_t touched = touch.getPoint(x, y, touch.getSupportTouchPoint());
+            if (touched)
+            {
+                 
+                for (int i = 0; i < touched; ++i)
+                {
+                    log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
+                }
+            }
+        }
+        // Вызов функции определения длительного или двойного касания
+        detectLongOrDoubleTap();        
+        isPressed = false;
+        delay(30);
+    }
+    vTaskDelete(NULL);
+}
+
+void InitTouch()
+{
+
+    pinMode(TP_RST, OUTPUT);
+    digitalWrite(TP_RST, LOW);
+    delay(30);
+    digitalWrite(TP_RST, HIGH);
+    delay(50);
+    touch.setPins(TP_RST, TP_INT);
+    bool result = touch.begin(Wire, CST816_SLAVE_ADDRESS, IIC_SDA, IIC_SCL);
+    if (result == false)
+    {
+        while (1)
+        {
+            log_d("Failed to initialize CST series touch, please check the connection...");
+            delay(1000);
+        }
+    }
+    log_d("Touch Model : %i", touch.getModelName());
+    attachInterrupt(TP_INT, []()
+                    { isPressed = true; }, FALLING);
+
+    xTaskCreatePinnedToCore(
+        TouchReadTask,    /* Task function. */
+        "Task5",          /* name of task. */
+        10000,            /* Stack size of task */
+        NULL,             /* parameter of the task */
+        tskIDLE_PRIORITY, /* priority of the task */
+        NULL,             /* Task handle to keep track of created task */
+        1);
+}

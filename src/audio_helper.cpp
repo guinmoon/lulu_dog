@@ -108,7 +108,7 @@ void playWav(char *fname)
         "Task5",     /* name of task. */
         4096,        /* Stack size of task */
         NULL,        /* parameter of the task */
-        10,          /* priority of the task */
+        tskIDLE_PRIORITY,          /* priority of the task */
         NULL,        /* Task handle to keep track of created task */
         1);
 }

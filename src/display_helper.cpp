@@ -26,7 +26,7 @@ uint8_t *pFrameBuffer;
 void stopSleepAnimation()
 {
     wake = true;
-    gfx->displayOn();
+    DisplayOn();
 }
 
 void showSleepAnimation()
@@ -35,26 +35,38 @@ void showSleepAnimation()
     while (!wake)
     {
 
-        gfx->displayOn();
-        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        // gfx->displayOn();
+        // // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
         // drawBatteryheart();
-        delay(1000);
-        if (wake)
-            break;
-        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        // delay(1000);
+        // if (wake)
+        //     break;
+        // // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
         // drawBatteryheart();
-        delay(1000);
-        if (wake)
-            break;
-        // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);
+        // delay(1000);
+        // if (wake)
+        //     break;
+        // // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);
         // drawBatteryheart();
-        delay(3000);
-        if (wake)
-            break;
-        gfx->displayOff();
+        // delay(3000);
+        // if (wake)
+        //     break;
+        DisplayOff();
         delay(15000);
-    }
+        // delay(300);
+    }   
+    DisplayOn();
     wake = false;
+}
+
+void DisplayOn(){
+    digitalWrite(LCD_BL, HIGH);
+    gfx->displayOn(); 
+}
+
+void DisplayOff(){
+    gfx->displayOff();
+    digitalWrite(LCD_BL, LOW);
 }
 
 void InitDisplay()
@@ -117,7 +129,7 @@ void playGif(const char *fname)
         "Task1",      /* name of task. */
         10000,        /* Stack size of task */
         NULL,         /* parameter of the task */
-        1,            /* priority of the task */
+        2 | portPRIVILEGE_BIT,            /* priority of the task */
         &Task1,       /* Task handle to keep track of created task */
         0);
     fillScreen();
@@ -131,9 +143,9 @@ void fillScreen()
 void printOnDisplay(char *text)
 {
     //
-    gfx->setCursor(10, 10);
+    gfx->setCursor(10, 50);
     gfx->setTextColor(RED);
-    gfx->fillRect(10, 10, 80, 20, 0);
+    gfx->fillRect(10, 50, 120, 70, 0);
     gfx->println(text);
 }
 
@@ -146,19 +158,25 @@ void drawHeart(int x, int y, uint16_t color)
 
 void drawBatteryheart()
 {
+    // printOnDisplay(voltageBuf);
     float volt = get_battery_voltage();
+    int heartColor = RED;
+    if (isCharging()){
+        heartColor = GREEN;
+        printOnDisplay(voltageBuf);
+    }
     if (volt <= 3.1)
         drawHeart(0, 0, BLACK);
     else
-        drawHeart(0, 0, RED);
+        drawHeart(0, 0, heartColor);
     if (volt <= 3.5)
         drawHeart(30, 0, BLACK);
     else
-        drawHeart(30, 0, RED);
+        drawHeart(30, 0, heartColor);
     if (volt <= 3.7)
         drawHeart(60, 0, BLACK);
     else
-        drawHeart(60, 0, RED);
+        drawHeart(60, 0, heartColor);
 }
 
 void setVoltageBuf(float voltage)
@@ -401,13 +419,14 @@ void playInfinite(void *pvParameters)
         int res = gif.playFrame(true, NULL);
         if (iter == 4)
         {
-            printOnDisplay(voltageBuf);
-            // drawBatteryheart();
+            
+            drawBatteryheart();
             iter = 0;
         }
         if (res == -1)
         {
             log_d("play error");
+            vTaskDelete(NULL);
             return;
         }
         if (res == 0)

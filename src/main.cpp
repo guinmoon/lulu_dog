@@ -10,6 +10,8 @@
 #include "audio_helper.h"
 #include "commands.h"
 #include "character.h"
+#include "touch_helper.h"
+
 
 void initPSRAM()
 {
@@ -29,21 +31,24 @@ void initFS()
     }
 }
 
-void InitPWR(){
+void InitPWR()
+{
     pinMode(SYS_EN_PIN, OUTPUT);
     digitalWrite(SYS_EN_PIN, HIGH);
 }
 
+
 void setup(void)
-{
+{ 
     InitPWR();
     Serial.begin(115200);
-    // pinMode(BUZZER_PIN, OUTPUT);    
+    // pinMode(BUZZER_PIN, OUTPUT);
     log_d("LuLu2 hello");
-    initBattery();
+    InitBattery();
     initPSRAM();
     initFS();
-    InitDisplay();    
+    InitDisplay();
+    InitTouch();
     gyroInit();
     initAudio();
     playWav("/woof2.wav");

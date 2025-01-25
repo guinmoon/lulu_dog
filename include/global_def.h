@@ -23,7 +23,8 @@
 #define BATTERY_R1  200000.0 // Resistance value of the first resistor (unit: ohms)
 #define BATTERY_R2  100000.0
 #define BATTERY_CHARGING_THR 0.1
-#define BATTERY_CHARGING_V 4.01
+#define BATTERY_CHARGING_V 3.95
+#define BATTERY_CHARGING_V_MIN 3.9
 
 
 

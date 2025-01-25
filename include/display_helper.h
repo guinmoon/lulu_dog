@@ -16,3 +16,5 @@ void showSleepAnimation();
 void stopSleepAnimation();
 void drawBatteryheart();
 void fillScreen();
+void DisplayOff();
+void DisplayOn();
