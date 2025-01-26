@@ -140,12 +140,12 @@ void fillScreen()
     gfx->fillScreen(BLACK);
 }
 
-void printOnDisplay(char *text)
+void printOnDisplay(char *text, int x, int y)
 {
     //
-    gfx->setCursor(10, 50);
+    gfx->setCursor(x, y);
     gfx->setTextColor(RED);
-    gfx->fillRect(10, 50, 120, 70, 0);
+    gfx->fillRect(x, y, x+110, y+20, 0);
     gfx->println(text);
 }
 
@@ -163,7 +163,7 @@ void drawBatteryheart()
     int heartColor = RED;
     if (isCharging()){
         heartColor = GREEN;
-        printOnDisplay(voltageBuf);
+        // printOnDisplay(voltageBuf,10,50);
     }
     if (volt <= 3.1)
         drawHeart(0, 0, BLACK);

@@ -17,8 +17,8 @@ unsigned long pressStartTime = 0;
 unsigned long lastReleaseTime = 0;
 
 // Константы для настройки временных интервалов
-const unsigned long longPressThreshold = 1000; // 1000 мс (1 секунда)
-const unsigned long doubleTapTimeout = 500;  
+const unsigned long longPressThreshold = 1500; // 1000 мс (1 секунда)
+const unsigned long doubleTapTimeout = 800;  
 
 void detectLongOrDoubleTap() {
     unsigned long currentTime = millis();

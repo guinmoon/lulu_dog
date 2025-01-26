@@ -5,6 +5,7 @@
 #include "audio_helper.h"
 #include "global_def.h"
 #include "battery_helper.h"
+#include <Adafruit_SleepyDog.h>
 
 unsigned long lastImpact = millis();
 bool sleeping = false;
@@ -12,7 +13,18 @@ int allowedOnCharging[4] = {0, 10, 11, 12};
 int maxChoise = 13;
 
 // float probabilities[] = {0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.3, 0.5, 0.3, 0.5, 0.5, 0.5};
-float probabilities[] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.9, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+float probabilities[] = {0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
+                         0.4, /*sendCommand(COMMAND_SIT, 4);*/
+                         0.5, /*sendCommand(COMMAND_SIT, 5);*/
+                         0.4, /*sendCommand(COMMAND_STAND, 2);*/
+                         0.3, /*SendCommand(COMMAND_LAYDOWN, 4);*/
+                         0.3, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
+                         0.9, /*SendCommand(COMMAND_LEFTHAND, 4);*/
+                         0.2, /*SendCommand(COMMAND_LAYDOWN, 3); tail 6*/
+                         0.5, /*SendCommand(COMMAND_LAYDOWN, 3); tail 0*/
+                         0.7, /*SendCommand(COMMAND_HALFLAYDOWN, 2);*/
+                         0.2, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/                                                  
+                         };
 int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 int generateRandomWithProbabilities(float probabilities[], int size)
@@ -33,8 +45,8 @@ int generateRandomWithProbabilities(float probabilities[], int size)
     {
         if (randomValue < cumulativeProbabilities[i])
         {
-            // Возвращаем i+1, чтобы числа были 1 до n
-            return i + 1;
+            // Возвращаем i+1, чтобы числа были 1 до n, i чтобы от 0..n-1
+            return i ;
         }
     }
 
@@ -63,7 +75,7 @@ void sendCommand(int command)
     log_d("Sended: %i", command);
 }
 
-void sendCommand(int command, int arg1)
+void SendCommand(int command, int arg1)
 {
     WIRE.beginTransmission(8); // Адрес ведомого устройства
     WIRE.write(command);
@@ -72,18 +84,38 @@ void sendCommand(int command, int arg1)
     log_d("Sended %i:%i", command, arg1);
 }
 
+#define THRESHOLD 40
+
+void GoToSleep()
+{
+    log_d("PREPARE to SLEEP: %i ms", 2000);
+    // esp_sleep_enable_touchpad_wakeup();
+    // touchSleepWakeUpEnable(10,10);
+    // touchSleepWakeUpEnable(11,10);
+    // touchSleepWakeUpEnable(14,10);
+    // touchSleepWakeUpEnable(14,10);
+
+    // int sleepMS = Watchdog.sleep(2000);
+    gpio_deep_sleep_hold_en();
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
+    esp_deep_sleep_start();
+    log_d("SLEEPING FOR: %i ms", 2000);
+}
+
 void dogActivitiWatcherThread(void *args)
 {
     while (true)
     {
         if ((millis() - lastImpact) / 1000 >= MAX_INACTIVE_SEC && !sleeping)
         {
+
             sleeping = true;
-            sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+            SendCommand(COMMAND_SET_TAIL_SPEED, 0);
             log_d("SLEEP");
             stopGif();
             delay(1000);
             showSleepAnimation();
+            GoToSleep();
         }
         delay(1000);
     }
@@ -126,12 +158,14 @@ int getAllowedRandomReact()
     return choice;
 }
 
-int GetAllowedSceneReact(){
+int GetAllowedSceneReact()
+{
     int choice = random(2);
     return choice;
 }
 
-void _wake(){
+void _wake()
+{
     if (sleeping)
     {
         sleeping = false;
@@ -144,7 +178,13 @@ void _wake(){
 void doRandomReact(int direction)
 {
 
-    lastImpact = millis();
+    int current_time = millis();
+    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
+    {
+        lastImpact = current_time;
+        return;
+    }
+    lastImpact = current_time;
     _wake();
 
     int choice = getAllowedRandomReact();
@@ -152,85 +192,77 @@ void doRandomReact(int direction)
     switch (choice)
     {
     case 0:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         playGif("/eye1.gif");
         break;
     case 1:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 6);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 6);
         delay(200);
-        sendCommand(COMMAND_SIT, 4);
+        SendCommand(COMMAND_SIT, 4);
         playGif("/eye1.gif");
         playWav("woof2.wav");
         break;
     case 2:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
-        sendCommand(COMMAND_SIT, 5);
+        SendCommand(COMMAND_SIT, 5);
         playGif("/eye1.gif");
         playWav("woof2.wav");
         break;
     case 3:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         delay(200);
-        sendCommand(COMMAND_STAND, 2);
+        SendCommand(COMMAND_STAND, 2);
         playWav("woof1.wav");
         playGif("/eye2.gif");
         break;
     case 4:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
-        sendCommand(COMMAND_LAYDOWN, 4);
+        SendCommand(COMMAND_LAYDOWN, 4);
         playGif("/eye3.gif");
         break;
     case 5:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
         // sendCommand(COMMAND_HAPPY, 3);
         playGif("/eye4.gif");
         break;
     case 6:
-        sendCommand(COMMAND_LEFTHAND, 4);
+        SendCommand(COMMAND_LEFTHAND, 4);
         delay(200);
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         playWav("woof3.wav");
         // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
         playGif("/eye4.gif");
         break;
     case 7:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 6);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 6);
         delay(200);
-        sendCommand(COMMAND_LAYDOWN, 3);
+        SendCommand(COMMAND_LAYDOWN, 3);
         playGif("/eye3.gif");
         playWav("woof2.wav");
         break;
 
     case 8:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         delay(200);
-        sendCommand(COMMAND_LAYDOWN, 3);
+        SendCommand(COMMAND_LAYDOWN, 3);
         playGif("/eye3.gif");
         playWav("woof2.wav");
         break;
 
     case 9:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 7);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
-        sendCommand(COMMAND_HALFLAYDOWN, 2);
+        SendCommand(COMMAND_HALFLAYDOWN, 2);
         playGif("/eye3.gif");
         playWav("woof2.wav");
         break;
 
     case 10:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         playWav("woof1.wav");
-        playGif("/eye3.gif");
-        break;
-    case 11:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playGif("/eye2.gif");
-        break;
-    case 12:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
         playGif("/eye5.gif");
         break;
     // case 12:
@@ -241,37 +273,45 @@ void doRandomReact(int direction)
     //     break;
     default:
         // sendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         playGif("/eye5.gif");
         break;
     }
 }
 
-void DoSceneReact(int x, int y){
-    lastImpact = millis();
+void DoSceneReact(int x, int y)
+{
+    int current_time = millis();
+    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
+    {
+        lastImpact = current_time;
+        return;
+    }
+    lastImpact = current_time;
     _wake();
 
     int choice = GetAllowedSceneReact();
     switch (choice)
     {
     case 0:
-        sendCommand(COMMAND_LEFTHAND, 4);
+        SendCommand(COMMAND_LEFTHAND, 4);
         delay(200);
-        sendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         playWav("woof3.wav");
-        // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
         playGif("/eye4.gif");
         break;
     case 1:
-        sendCommand(COMMAND_SET_TAIL_SPEED, 7);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
-        sendCommand(COMMAND_DANCE1,4);
+        SendCommand(COMMAND_DANCE1, 4);
         playGif("/eye5.gif");
         break;
     default:
-        // sendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        sendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playGif("/eye5.gif");
+        SendCommand(COMMAND_LEFTHAND, 4);
+        delay(200);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        playWav("woof3.wav");
+        playGif("/eye4.gif");
         break;
     }
 }

@@ -8,7 +8,7 @@ bool loadGIFToMemory(const char *filename);
 void playInfinite(void *pvParameters);
 void InitDisplay();
 void playGif(const char *fname);
-void printOnDisplay(char *text);
+void printOnDisplay(char *text, int x, int y);
 void setVoltageBuf(float voltage);
 void showSleepAnimation();
 void stopGif();
