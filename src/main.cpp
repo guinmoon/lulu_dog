@@ -35,6 +35,7 @@ void InitPWR()
 {
     pinMode(SYS_EN_PIN, OUTPUT);
     digitalWrite(SYS_EN_PIN, HIGH);
+    
 }
 
 
@@ -51,7 +52,7 @@ void setup(void)
     InitTouch();
     gyroInit();
     initAudio();
-    playWav("/woof2.wav");
+    playWav("/woof1.wav");
     // playGif("/eye1.gif");
     // sendCommand(COMMAND_SET_TAIL_SPEED, 7);
     // delay(200);

@@ -97,6 +97,7 @@ void GoToSleep()
 
     // int sleepMS = Watchdog.sleep(2000);
     gpio_deep_sleep_hold_en();
+    gpio_hold_en((gpio_num_t)SYS_EN_PIN);
     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
     esp_deep_sleep_start();
     log_d("SLEEPING FOR: %i ms", 2000);
@@ -114,7 +115,8 @@ void dogActivitiWatcherThread(void *args)
             log_d("SLEEP");
             stopGif();
             delay(1000);
-            showSleepAnimation();
+            SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+            // showSleepAnimation();
             GoToSleep();
         }
         delay(1000);
