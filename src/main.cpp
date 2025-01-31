@@ -13,7 +13,7 @@
 #include "touch_helper.h"
 
 
-void initPSRAM()
+void InitPSRAM()
 {
     psramInit();
     log_d("Total heap: %d", ESP.getHeapSize());
@@ -22,7 +22,7 @@ void initPSRAM()
     log_d("Free PSRAM: %d", ESP.getFreePsram());
 }
 
-void initFS()
+void InitFS()
 {
     if (!LittleFS.begin())
     {
@@ -46,19 +46,19 @@ void setup(void)
     // pinMode(BUZZER_PIN, OUTPUT);
     log_d("LuLu2 hello");
     InitBattery();
-    initPSRAM();
-    initFS();
+    InitPSRAM();
+    InitFS();
     InitDisplay();
     InitTouch();
-    gyroInit();
-    initAudio();
-    playWav("/woof1.wav");
+    InitGyro();
+    InitAudio();
+    PlayWav("/woof1.wav");
     // playGif("/eye1.gif");
     // sendCommand(COMMAND_SET_TAIL_SPEED, 7);
     // delay(200);
     // sendCommand(COMMAND_DANCE1,4);
-    playGif("/eye5.gif");
-    startDogActivitiWatcher();
+    PlayGif("/eye5.gif");
+    StartDogActivitiWatcher();
 }
 
 void loop()

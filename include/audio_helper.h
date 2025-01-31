@@ -1,4 +1,4 @@
 
 
-void playWav(char *fname);
-void initAudio();
+void PlayWav(char *fname);
+void InitAudio();

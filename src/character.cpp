@@ -8,23 +8,26 @@
 #include <Adafruit_SleepyDog.h>
 
 unsigned long lastImpact = millis();
+bool deepSleeping = false;
 bool sleeping = false;
 int allowedOnCharging[4] = {0, 10, 11, 12};
 int maxChoise = 13;
 
 // float probabilities[] = {0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.3, 0.5, 0.3, 0.5, 0.5, 0.5};
-float probabilities[] = {0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
-                         0.4, /*sendCommand(COMMAND_SIT, 4);*/
-                         0.5, /*sendCommand(COMMAND_SIT, 5);*/
-                         0.4, /*sendCommand(COMMAND_STAND, 2);*/
-                         0.3, /*SendCommand(COMMAND_LAYDOWN, 4);*/
-                         0.3, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
-                         0.9, /*SendCommand(COMMAND_LEFTHAND, 4);*/
-                         0.2, /*SendCommand(COMMAND_LAYDOWN, 3); tail 6*/
-                         0.5, /*SendCommand(COMMAND_LAYDOWN, 3); tail 0*/
-                         0.7, /*SendCommand(COMMAND_HALFLAYDOWN, 2);*/
-                         0.2, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/                                                  
-                         };
+float probabilities[] = {
+    0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
+    0.4, /*sendCommand(COMMAND_SIT, 4);*/
+    0.5, /*sendCommand(COMMAND_SIT, 5);*/
+    0.4, /*sendCommand(COMMAND_STAND, 2);*/
+    0.3, /*SendCommand(COMMAND_LAYDOWN, 4);*/
+    0.3, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
+    0.9, /*SendCommand(COMMAND_LEFTHAND, 4);*/
+    0.2, /*SendCommand(COMMAND_LAYDOWN, 3); tail 6*/
+    0.5, /*SendCommand(COMMAND_LAYDOWN, 3); tail 0*/
+    0.7, /*SendCommand(COMMAND_HALFLAYDOWN, 2);*/
+    0.2, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
+    0.9, /*SendCommand(COMMAND_RIGHTHAND, 4);*/
+};
 int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 int generateRandomWithProbabilities(float probabilities[], int size)
@@ -46,7 +49,7 @@ int generateRandomWithProbabilities(float probabilities[], int size)
         if (randomValue < cumulativeProbabilities[i])
         {
             // Возвращаем i+1, чтобы числа были 1 до n, i чтобы от 0..n-1
-            return i ;
+            return i;
         }
     }
 
@@ -86,16 +89,20 @@ void SendCommand(int command, int arg1)
 
 #define THRESHOLD 40
 
-void GoToSleep()
-{
-    log_d("PREPARE to SLEEP: %i ms", 2000);
-    // esp_sleep_enable_touchpad_wakeup();
-    // touchSleepWakeUpEnable(10,10);
-    // touchSleepWakeUpEnable(11,10);
-    // touchSleepWakeUpEnable(14,10);
-    // touchSleepWakeUpEnable(14,10);
+void SleepPrepare(){
+    SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+    log_d("SLEEP");
+    StopGif();
+    delay(1000);
+    SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+}
 
-    // int sleepMS = Watchdog.sleep(2000);
+void GoToDeepSleep()
+{  
+    log_d("PREPARE to SLEEP: %i ms", 2000);
+    sleeping = true;
+    deepSleeping = true;
+    SleepPrepare();
     gpio_deep_sleep_hold_en();
     gpio_hold_en((gpio_num_t)SYS_EN_PIN);
     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
@@ -103,28 +110,31 @@ void GoToSleep()
     log_d("SLEEPING FOR: %i ms", 2000);
 }
 
+void GoToSleep()
+{
+    SleepPrepare();
+    sleeping = true;
+    showSleepAnimation();
+}
+
 void dogActivitiWatcherThread(void *args)
 {
     while (true)
     {
-        if ((millis() - lastImpact) / 1000 >= MAX_INACTIVE_SEC && !sleeping)
+        if ((millis() - lastImpact) / 1000 >= SLEEP_AFTER && !sleeping)
         {
-
-            sleeping = true;
-            SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-            log_d("SLEEP");
-            stopGif();
-            delay(1000);
-            SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-            // showSleepAnimation();
             GoToSleep();
+        }
+        if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !isCharging())
+        {
+            GoToDeepSleep();
         }
         delay(1000);
     }
     vTaskDelete(NULL);
 }
 
-void startDogActivitiWatcher()
+void StartDogActivitiWatcher()
 {
     NormalizeProbabilities();
     xTaskCreatePinnedToCore(
@@ -195,77 +205,85 @@ void doRandomReact(int direction)
     {
     case 0:
         SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playGif("/eye1.gif");
+        PlayGif("/eye1.gif");
         break;
     case 1:
         SendCommand(COMMAND_SET_TAIL_SPEED, 6);
         delay(200);
         SendCommand(COMMAND_SIT, 4);
-        playGif("/eye1.gif");
-        playWav("woof2.wav");
+        PlayGif("/eye1.gif");
+        PlayWav("woof2.wav");
         break;
     case 2:
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
         SendCommand(COMMAND_SIT, 5);
-        playGif("/eye1.gif");
-        playWav("woof2.wav");
+        PlayGif("/eye1.gif");
+        PlayWav("woof2.wav");
         break;
     case 3:
         SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         delay(200);
         SendCommand(COMMAND_STAND, 2);
-        playWav("woof1.wav");
-        playGif("/eye2.gif");
+        PlayWav("woof1.wav");
+        PlayGif("/eye2.gif");
         break;
     case 4:
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
         SendCommand(COMMAND_LAYDOWN, 4);
-        playGif("/eye3.gif");
+        PlayGif("/eye3.gif");
         break;
     case 5:
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
         delay(200);
         // sendCommand(COMMAND_HAPPY, 3);
-        playGif("/eye4.gif");
+        PlayGif("/eye4.gif");
         break;
     case 6:
         SendCommand(COMMAND_LEFTHAND, 4);
         delay(200);
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        playWav("woof3.wav");
+        PlayWav("woof3.wav");
         // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playGif("/eye4.gif");
+        PlayGif("/eye4.gif");
         break;
     case 7:
         SendCommand(COMMAND_SET_TAIL_SPEED, 6);
         delay(200);
         SendCommand(COMMAND_LAYDOWN, 3);
-        playGif("/eye3.gif");
-        playWav("woof2.wav");
+        PlayGif("/eye3.gif");
+        PlayWav("woof2.wav");
         break;
 
     case 8:
         SendCommand(COMMAND_SET_TAIL_SPEED, 0);
         delay(200);
         SendCommand(COMMAND_LAYDOWN, 3);
-        playGif("/eye3.gif");
-        playWav("woof2.wav");
+        PlayGif("/eye3.gif");
+        PlayWav("woof2.wav");
         break;
 
     case 9:
         SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
         SendCommand(COMMAND_HALFLAYDOWN, 2);
-        playGif("/eye3.gif");
-        playWav("woof2.wav");
+        PlayGif("/eye3.gif");
+        PlayWav("woof2.wav");
         break;
 
     case 10:
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        playWav("woof1.wav");
-        playGif("/eye5.gif");
+        PlayWav("woof1.wav");
+        PlayGif("/eye5.gif");
+        break;
+    case 11:
+        SendCommand(COMMAND_RIGHTHAND, 4);
+        delay(200);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        PlayWav("woof3.wav");
+        // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        PlayGif("/eye4.gif");
         break;
     // case 12:
     //     sendCommand(COMMAND_SET_TAIL_SPEED, 7);
@@ -276,7 +294,7 @@ void doRandomReact(int direction)
     default:
         // sendCommand(COMMAND_SET_TAIL_SPEED, 4);
         SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playGif("/eye5.gif");
+        PlayGif("/eye5.gif");
         break;
     }
 }
@@ -299,21 +317,21 @@ void DoSceneReact(int x, int y)
         SendCommand(COMMAND_LEFTHAND, 4);
         delay(200);
         SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        playWav("woof3.wav");
-        playGif("/eye4.gif");
+        PlayWav("woof3.wav");
+        PlayGif("/eye4.gif");
         break;
     case 1:
         SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
         SendCommand(COMMAND_DANCE1, 4);
-        playGif("/eye5.gif");
+        PlayGif("/eye5.gif");
         break;
     default:
         SendCommand(COMMAND_LEFTHAND, 4);
         delay(200);
         SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        playWav("woof3.wav");
-        playGif("/eye4.gif");
+        PlayWav("woof3.wav");
+        PlayGif("/eye4.gif");
         break;
     }
 }

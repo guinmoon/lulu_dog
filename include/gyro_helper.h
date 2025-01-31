@@ -14,5 +14,5 @@
 #define GYRO_D_TILT_UP 11
 #define GYRO_D_TILT_DOWN 12
 
-bool gyroInit();
+bool InitGyro();
 void gyroAndAccelReadTask(void *params);

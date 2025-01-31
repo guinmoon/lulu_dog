@@ -15,7 +15,7 @@ IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение углов
 const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
 const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
 
-unsigned long lastGyroActionTime = LAST_GYRO_ACTION_TIME;        // Время последнего вызова doOnGyro
+unsigned long lastGyroActionTime = 0;        // Время последнего вызова doOnGyro
 const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
 
 
@@ -31,7 +31,7 @@ void doOnGyro(int direction)
     doRandomReact(direction);
 }
 
-bool gyroInit()
+bool InitGyro()
 {
     if (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
     {

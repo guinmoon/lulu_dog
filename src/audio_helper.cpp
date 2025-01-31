@@ -65,7 +65,7 @@ bool loadWAVToMemory(const char *filename)
     return true;
 }
 
-void initAudio()
+void InitAudio()
 {
     // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     // audio.setVolume(22);
@@ -97,7 +97,7 @@ void audioThread(void *params)
     vTaskDelete(NULL);
 }
 
-void playWav(char *fname)
+void PlayWav(char *fname)
 {
     // audio.stopSong();
     delay(100);

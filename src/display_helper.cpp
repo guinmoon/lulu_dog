@@ -32,8 +32,8 @@ void stopSleepAnimation()
 void showSleepAnimation()
 {
 
-    while (!wake)
-    {
+    // while (!wake)
+    // {
 
         // gfx->displayOn();
         // // gfx->draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
@@ -54,9 +54,9 @@ void showSleepAnimation()
         DisplayOff();
         delay(15000);
         // delay(300);
-    }   
-    DisplayOn();
-    wake = false;
+    // }   
+    // DisplayOn();
+    // wake = false;
 }
 
 void DisplayOn(){
@@ -93,7 +93,7 @@ void *GIFAlloc(uint32_t u32Size)
     return (uint8_t *)ps_malloc(u32Size);
 } /* GIFAlloc() */
 
-void playGif(const char *fname)
+void PlayGif(const char *fname)
 {
     play = false;
     delay(100);
@@ -406,7 +406,7 @@ bool loadGIFToMemory(const char *filename)
     return true;
 }
 
-void stopGif()
+void StopGif()
 {
     play = false;
 }

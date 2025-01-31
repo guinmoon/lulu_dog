@@ -6,15 +6,16 @@
 
 #define DISPLAY_WIDTH 280
 
-#define MAX_INACTIVE_SEC 15
+#define SLEEP_AFTER 15
+
+#define DEEP_SLEEP_AFTER 150
 
 // GYRO CONFIG
 
-#define IMPACT_THRESHHOLD_ACC 0.4 // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-#define IMPACT_THRESHHOLD_GYR 1.5 // Пороговое значение изменений угловой скорости
-#define LAST_IMPACT_MIN_PERIOD 1500
+#define IMPACT_THRESHHOLD_ACC 0.6 // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+#define IMPACT_THRESHHOLD_GYR 1.8 // Пороговое значение изменений угловой скорости
+#define LAST_IMPACT_MIN_PERIOD 2000
 
-#define LAST_GYRO_ACTION_TIME  0        // Время последнего вызова doOnGyro
 #define GYRO_ACTION_PERIOD 3000 // Время в миллисекундах
 
 
