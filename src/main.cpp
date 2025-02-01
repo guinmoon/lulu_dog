@@ -41,6 +41,11 @@ void InitPWR()
 
 void setup(void)
 { 
+    pinMode(IIC_SDA, OUTPUT);
+    digitalWrite(IIC_SDA, HIGH);
+    pinMode(IIC_SCL, OUTPUT);
+    digitalWrite(IIC_SCL, HIGH);
+
     InitPWR();
     Serial.begin(115200);
     // pinMode(BUZZER_PIN, OUTPUT);

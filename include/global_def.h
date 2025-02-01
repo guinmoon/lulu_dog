@@ -8,7 +8,7 @@
 
 #define SLEEP_AFTER 15
 
-#define DEEP_SLEEP_AFTER 150
+#define DEEP_SLEEP_AFTER 120
 
 // GYRO CONFIG
 

@@ -6,12 +6,15 @@
 #include "global_def.h"
 #include "battery_helper.h"
 #include <Adafruit_SleepyDog.h>
+#include <mutex>
 
 unsigned long lastImpact = millis();
 bool deepSleeping = false;
 bool sleeping = false;
 int allowedOnCharging[4] = {0, 10, 11, 12};
 int maxChoise = 13;
+std::mutex i2c_mutex;
+bool pingPaused = false;
 
 // float probabilities[] = {0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.3, 0.5, 0.3, 0.5, 0.5, 0.5};
 float probabilities[] = {
@@ -27,7 +30,11 @@ float probabilities[] = {
     0.7, /*SendCommand(COMMAND_HALFLAYDOWN, 2);*/
     0.2, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
     0.9, /*SendCommand(COMMAND_RIGHTHAND, 4);*/
+    0.7, /*SendCommand(COMMAND_FULLLAYDOWN, 0);*/
+    0.5, /*SendCommand(COMMAND_TAILLEGSSTAND, 4);*/
+    0.2, /*SendCommand(COMMAND_HALFLAYDOWNTAIL, 2);*/
 };
+
 int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 int generateRandomWithProbabilities(float probabilities[], int size)
@@ -80,6 +87,7 @@ void sendCommand(int command)
 
 void SendCommand(int command, int arg1)
 {
+    std::lock_guard<std::mutex> lck(i2c_mutex);
     WIRE.beginTransmission(8); // Адрес ведомого устройства
     WIRE.write(command);
     WIRE.write(arg1);
@@ -89,7 +97,8 @@ void SendCommand(int command, int arg1)
 
 #define THRESHOLD 40
 
-void SleepPrepare(){
+void SleepPrepare()
+{
     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
     StopGif();
@@ -98,7 +107,7 @@ void SleepPrepare(){
 }
 
 void GoToDeepSleep()
-{  
+{
     log_d("PREPARE to SLEEP: %i ms", 2000);
     sleeping = true;
     deepSleeping = true;
@@ -129,7 +138,19 @@ void dogActivitiWatcherThread(void *args)
         {
             GoToDeepSleep();
         }
+
         delay(1000);
+    }
+    vTaskDelete(NULL);
+}
+
+void rp2040_ping_thread(void *args)
+{
+    while (true)
+    {
+        if (!pingPaused)
+            SendCommand(RP_SYS_COMMAND_PING, 0);
+        delay(2000);
     }
     vTaskDelete(NULL);
 }
@@ -142,8 +163,17 @@ void StartDogActivitiWatcher()
         "Task7",                  /* name of task. */
         10000,                    /* Stack size of task */
         NULL,                     /* parameter of the task */
-        1,                        /* priority of the task */
+        tskIDLE_PRIORITY,         /* priority of the task */
         NULL,                     /* Task handle to keep track of created task */
+        0);
+
+    xTaskCreatePinnedToCore(
+        rp2040_ping_thread, /* Task function. */
+        "Task11",           /* name of task. */
+        10000,              /* Stack size of task */
+        NULL,               /* parameter of the task */
+        tskIDLE_PRIORITY,   /* priority of the task */
+        NULL,               /* Task handle to keep track of created task */
         0);
 }
 
@@ -172,7 +202,7 @@ int getAllowedRandomReact()
 
 int GetAllowedSceneReact()
 {
-    int choice = random(2);
+    int choice = random(1);
     return choice;
 }
 
@@ -184,7 +214,26 @@ void _wake()
         log_d("WAKE");
         stopSleepAnimation();
         delay(200);
+        // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
+}
+
+void doReact(int command, int speed, int tail_speed, char *eye, char *wav)
+{
+    pingPaused = true;
+    if (command != -1)
+        SendCommand(command, speed);
+    if (tail_speed != -1)
+    {
+        delay(200);
+        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
+    }
+    if (eye != nullptr)
+        PlayGif(eye);
+    if (wav != nullptr)
+        PlayWav(wav);
+    delay(3000);
+    pingPaused = false;
 }
 
 void doRandomReact(int direction)
@@ -204,97 +253,126 @@ void doRandomReact(int direction)
     switch (choice)
     {
     case 0:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        PlayGif("/eye1.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        // PlayGif("/eye1.gif");
+        doReact(-1, -1, 0, "/eye1.gif", nullptr);
         break;
     case 1:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 6);
-        delay(200);
-        SendCommand(COMMAND_SIT, 4);
-        PlayGif("/eye1.gif");
-        PlayWav("woof2.wav");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 6);
+        // delay(200);
+        // SendCommand(COMMAND_SIT, 4);
+        // PlayGif("/eye1.gif");
+        // PlayWav("woof2.wav");
+        doReact(COMMAND_SIT, 4, 6, "/eye1.gif", "woof2.wav");
         break;
     case 2:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        delay(200);
-        SendCommand(COMMAND_SIT, 5);
-        PlayGif("/eye1.gif");
-        PlayWav("woof2.wav");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // delay(200);
+        // SendCommand(COMMAND_SIT, 5);
+        // PlayGif("/eye1.gif");
+        // PlayWav("woof2.wav");
+        doReact(COMMAND_SIT, 5, 4, "/eye1.gif", "woof2.wav");
         break;
     case 3:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        delay(200);
-        SendCommand(COMMAND_STAND, 2);
-        PlayWav("woof1.wav");
-        PlayGif("/eye2.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        // delay(200);
+        // SendCommand(COMMAND_STAND, 2);
+        // PlayWav("woof1.wav");
+        // PlayGif("/eye2.gif");
+        doReact(COMMAND_STAND, 2, 0, "/eye2.gif", "woof1.wav");
         break;
     case 4:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        delay(200);
-        SendCommand(COMMAND_LAYDOWN, 4);
-        PlayGif("/eye3.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // delay(200);
+        // SendCommand(COMMAND_LAYDOWN, 4);
+        // PlayGif("/eye3.gif");
+        doReact(COMMAND_LAYDOWN, 4, 4, "/eye2.gif", nullptr);
         break;
     case 5:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        delay(200);
-        // sendCommand(COMMAND_HAPPY, 3);
-        PlayGif("/eye4.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // delay(200);
+        // // sendCommand(COMMAND_HAPPY, 3);
+        // PlayGif("/eye4.gif");
+        doReact(-1, -1, 4, "/eye4.gif", nullptr);
         break;
     case 6:
-        SendCommand(COMMAND_LEFTHAND, 4);
-        delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        PlayWav("woof3.wav");
-        // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        PlayGif("/eye4.gif");
+        // SendCommand(COMMAND_LEFTHAND, 4);
+        // delay(200);
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // PlayWav("woof3.wav");
+        // PlayGif("/eye4.gif");
+        doReact(COMMAND_LEFTHAND, 4, 4, "/eye4.gif", "woof3.wav");
         break;
     case 7:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 6);
-        delay(200);
-        SendCommand(COMMAND_LAYDOWN, 3);
-        PlayGif("/eye3.gif");
-        PlayWav("woof2.wav");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 6);
+        // delay(200);
+        // SendCommand(COMMAND_LAYDOWN, 3);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 6, "/eye3.gif", "woof2.wav");
         break;
 
     case 8:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        delay(200);
-        SendCommand(COMMAND_LAYDOWN, 3);
-        PlayGif("/eye3.gif");
-        PlayWav("woof2.wav");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        // delay(200);
+        // SendCommand(COMMAND_LAYDOWN, 3);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 0, "/eye3.gif", "woof2.wav");
         break;
 
     case 9:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
-        delay(200);
-        SendCommand(COMMAND_HALFLAYDOWN, 2);
-        PlayGif("/eye3.gif");
-        PlayWav("woof2.wav");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 7);
+        // delay(200);
+        // SendCommand(COMMAND_HALFLAYDOWN, 2);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof2.wav");
+        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/eye3.gif", "woof2.wav");
         break;
 
     case 10:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        PlayWav("woof1.wav");
-        PlayGif("/eye5.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // PlayWav("woof1.wav");
+        // PlayGif("/eye5.gif");
+        doReact(-1, -1, 4, "/eye5.gif", "woof1.wav");
         break;
     case 11:
-        SendCommand(COMMAND_RIGHTHAND, 4);
-        delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        PlayWav("woof3.wav");
-        // sendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        PlayGif("/eye4.gif");
+        // SendCommand(COMMAND_RIGHTHAND, 4);
+        // delay(200);
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // PlayWav("woof3.wav");
+        // PlayGif("/eye4.gif");
+        doReact(COMMAND_RIGHTHAND, 4, 4, "/eye4.gif", "woof3.wav");
         break;
-    // case 12:
-    //     sendCommand(COMMAND_SET_TAIL_SPEED, 7);
-    //     delay(200);
-    //     sendCommand(COMMAND_DANCE1,4);
-    //     playGif("/eye5.gif");
-    //     break;
+    case 12:
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        // delay(200);
+        // SendCommand(COMMAND_FULLLAYDOWN, 8);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof1.wav");
+        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/eye3.gif", "woof1.wav");
+        break;
+    case 13:
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+        // delay(200);
+        // SendCommand(COMMAND_TAILLEGSSTAND, 4);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof1.wav");
+        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/eye3.gif", "woof1.wav");
+        break;
+    case 14:
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 3);
+        // delay(200);
+        // SendCommand(COMMAND_HALFLAYDOWNTAIL, 4);
+        // PlayGif("/eye3.gif");
+        // PlayWav("woof1.wav");
+        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/eye3.gif", "woof1.wav");
+        break;
     default:
         // sendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        PlayGif("/eye5.gif");
+        // SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+        // PlayGif("/eye5.gif");
+        doReact(-1, -1, 0, "/eye5.gif", nullptr);
         break;
     }
 }
@@ -302,24 +380,24 @@ void doRandomReact(int direction)
 void DoSceneReact(int x, int y)
 {
     int current_time = millis();
-    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
-    {
-        lastImpact = current_time;
-        return;
-    }
+    // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
+    // {
+    //     lastImpact = current_time;
+    //     return;
+    // }
     lastImpact = current_time;
     _wake();
 
     int choice = GetAllowedSceneReact();
     switch (choice)
     {
-    case 0:
-        SendCommand(COMMAND_LEFTHAND, 4);
-        delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-        PlayWav("woof3.wav");
-        PlayGif("/eye4.gif");
-        break;
+    // case 0:
+    //     SendCommand(COMMAND_LEFTHAND, 4);
+    //     delay(200);
+    //     SendCommand(COMMAND_SET_TAIL_SPEED, 4);
+    //     PlayWav("woof3.wav");
+    //     PlayGif("/eye4.gif");
+    //     break;
     case 1:
         SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
@@ -327,11 +405,10 @@ void DoSceneReact(int x, int y)
         PlayGif("/eye5.gif");
         break;
     default:
-        SendCommand(COMMAND_LEFTHAND, 4);
+        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
         delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-        PlayWav("woof3.wav");
-        PlayGif("/eye4.gif");
+        SendCommand(COMMAND_DANCE1, 4);
+        PlayGif("/eye5.gif");
         break;
     }
 }

@@ -52,7 +52,7 @@ void showSleepAnimation()
         // if (wake)
         //     break;
         DisplayOff();
-        delay(15000);
+        // delay(15000);
         // delay(300);
     // }   
     // DisplayOn();

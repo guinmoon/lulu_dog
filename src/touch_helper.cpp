@@ -50,13 +50,14 @@ void TouchReadTask(void *params)
     {
         if (isPressed)
         {
-            uint8_t touched = touch.getPoint(x, y, touch.getSupportTouchPoint());
+            uint8_t touched = touch.getPoint(y, x, touch.getSupportTouchPoint());
             if (touched)
             {
                  
                 for (int i = 0; i < touched; ++i)
                 {
                     log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
+                    // if (x[i])
                 }
             }
         }
