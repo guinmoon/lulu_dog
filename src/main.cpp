@@ -11,6 +11,7 @@
 #include "commands.h"
 #include "character.h"
 #include "touch_helper.h"
+#include "lvgl.h"
 
 
 void InitPSRAM()
@@ -75,4 +76,6 @@ void loop()
     // delay(1000);
     // noTone(BUZZER_PIN);
     delay(1000);
+    // delay(5);
+    // lv_timer_handler();
 }
