@@ -14,6 +14,7 @@
 #include "lvgl.h"
 
 
+
 void InitPSRAM()
 {
     psramInit();
@@ -57,14 +58,14 @@ void setup(void)
     InitDisplay();
     InitTouch();
     InitGyro();
-    InitAudio();
-    PlayWav("/woof1.wav");
+    audioHelper.InitAudio();
+    audioHelper.PlayWav("/woof1.wav");
     // playGif("/eye1.gif");
     // sendCommand(COMMAND_SET_TAIL_SPEED, 7);
     // delay(200);
     // sendCommand(COMMAND_DANCE1,4);
     PlayGif("/eye5.gif");
-    StartDogActivitiWatcher();
+    luluCharacter.StartDogActivitiWatcher();
 }
 
 void loop()

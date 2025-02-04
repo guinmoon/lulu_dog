@@ -3,6 +3,8 @@
 #include "character.h"
 #include "TouchDrvCSTXXX.hpp"
 
+extern LuLuCharacter luluCharacter;
+
 TouchDrvCSTXXX touch;
 int16_t x[5], y[5];
 bool isPressed = false;
@@ -29,7 +31,7 @@ void detectLongOrDoubleTap() {
     } else if (!isPressed && wasPressed) {
         // Конец нажатия
         if (currentTime - lastReleaseTime < doubleTapTimeout) {
-            DoSceneReact(x[0],y[0]);
+            luluCharacter.DoSceneReact(x[0],y[0]);
             log_d("Double Tap Detected");
         }
         lastReleaseTime = currentTime;

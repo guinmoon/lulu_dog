@@ -15,28 +15,34 @@
 // // // AudioOutputI2S *out;
 // AudioOutputI2SNoDAC *out;
 
-const int frequency = 440;   // frequency of square wave in Hz
-const int amplitude = 500;   // amplitude of square wave
-const int sampleRate = 8000; // sample rate in Hz
+AudioHelper audioHelper;
 
-I2SClass i2s;
+AudioHelper::AudioHelper(){}
 
-i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
-i2s_mode_t mode = I2S_MODE_STD;
-i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
 
-const int halfWavelength = (sampleRate / frequency); // half wavelength of square wave
 
-int32_t sample = amplitude; // current sample value
-int count = 0;
+// const int frequency = 440;   // frequency of square wave in Hz
+// const int amplitude = 500;   // amplitude of square wave
+// const int sampleRate = 8000; // sample rate in Hz
 
 // I2SClass i2s;
 
-uint8_t *wavData = nullptr;
-size_t wavSize = 0;
+// i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
+// i2s_mode_t mode = I2S_MODE_STD;
+// i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
+
+// const int halfWavelength = (sampleRate / frequency); // half wavelength of square wave
+
+// int32_t sample = amplitude; // current sample value
+// int count = 0;
+
+// // I2SClass i2s;
+
+// uint8_t *wavData = nullptr;
+// size_t wavSize = 0;
 // Audio audio;
 
-bool loadWAVToMemory(const char *filename)
+bool AudioHelper::loadWAVToMemory(const char *filename)
 {
     File file = LittleFS.open(filename, "r");
     if (!file)
@@ -65,7 +71,7 @@ bool loadWAVToMemory(const char *filename)
     return true;
 }
 
-void InitAudio()
+void AudioHelper::InitAudio()
 {
     // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     // audio.setVolume(22);
@@ -80,9 +86,7 @@ void InitAudio()
     }
 }
 
-void audioThread(void *params)
-{
-
+void AudioHelper::AudioTask(){
     i2s.playWAV(wavData,wavSize);
     // i2s.
     // while (true)
@@ -94,20 +98,28 @@ void audioThread(void *params)
     //         break;
     // }
     log_d("Wav finished");
+}
+
+void AudioHelper::audioThread(void * _this)
+{
+
+    ((AudioHelper*)_this)->AudioTask();
     vTaskDelete(NULL);
 }
 
-void PlayWav(char *fname)
+void AudioHelper::PlayWav(char *fname)
 {
     // audio.stopSong();
     delay(100);
-    loadWAVToMemory(fname);
+    bool res = loadWAVToMemory(fname);
+    if (!res)
+        return;
     // audio.connecttoFS(LittleFS, fname);
     xTaskCreatePinnedToCore(
-        audioThread, /* Task function. */
+        this->audioThread, /* Task function. */
         "Task5",     /* name of task. */
-        4096,        /* Stack size of task */
-        NULL,        /* parameter of the task */
+        10000,        /* Stack size of task */
+        this,        /* parameter of the task */
         tskIDLE_PRIORITY,          /* priority of the task */
         NULL,        /* Task handle to keep track of created task */
         1);

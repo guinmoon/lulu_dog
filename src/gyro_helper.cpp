@@ -5,6 +5,7 @@
 
 SensorQMI8658 qmi;
 
+
 IMUdata acc;
 IMUdata gyr;
 
@@ -28,7 +29,7 @@ void doOnGyro(int direction)
     // Реализация вашей функции, вызываемой при обнаружении удара
     log_d("doOnGyro called!");
     delay(200);
-    doRandomReact(direction);
+    luluCharacter.doRandomReact(direction);
 }
 
 bool InitGyro()

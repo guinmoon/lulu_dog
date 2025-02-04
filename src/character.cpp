@@ -5,39 +5,14 @@
 #include "audio_helper.h"
 #include "global_def.h"
 #include "battery_helper.h"
-// #include <Adafruit_SleepyDog.h>
+
 #include <mutex>
 
-unsigned long lastImpact = millis();
-bool deepSleeping = false;
-bool sleeping = false;
-int allowedOnCharging[4] = {0, 10, 11, 12};
-int maxChoise = 13;
-std::mutex i2c_mutex;
-bool pingPaused = false;
+LuLuCharacter luluCharacter;
 
-// float probabilities[] = {0.6, 0.5, 0.5, 0.5, 0.5, 0.5, 0.9, 0.3, 0.5, 0.3, 0.5, 0.5, 0.5};
-float probabilities[] = {
-    0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
-    0.4, /*sendCommand(COMMAND_SIT, 4);*/
-    0.5, /*sendCommand(COMMAND_SIT, 5);*/
-    0.4, /*sendCommand(COMMAND_STAND, 2);*/
-    0.3, /*SendCommand(COMMAND_LAYDOWN, 4);*/
-    0.3, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
-    0.9, /*SendCommand(COMMAND_LEFTHAND, 4);*/
-    0.2, /*SendCommand(COMMAND_LAYDOWN, 3); tail 6*/
-    0.5, /*SendCommand(COMMAND_LAYDOWN, 3); tail 0*/
-    0.7, /*SendCommand(COMMAND_HALFLAYDOWN, 2);*/
-    0.2, /*SendCommand(COMMAND_SET_TAIL_SPEED, 4);*/
-    0.9, /*SendCommand(COMMAND_RIGHTHAND, 4);*/
-    0.1, /*SendCommand(COMMAND_FULLLAYDOWN, 0);*/
-    0.5, /*SendCommand(COMMAND_TAILLEGSSTAND, 4);*/
-    0.2, /*SendCommand(COMMAND_HALFLAYDOWNTAIL, 2);*/
-};
+LuLuCharacter::LuLuCharacter(){}
 
-int size = sizeof(probabilities) / sizeof(probabilities[0]);
-
-int generateRandomWithProbabilities(float probabilities[], int size)
+int LuLuCharacter::generateRandomWithProbabilities(float probabilities[], int size)
 {
     // Cуммируем вероятности, чтобы они представляли собой диапазоны
     float cumulativeProbabilities[size];
@@ -64,7 +39,7 @@ int generateRandomWithProbabilities(float probabilities[], int size)
     return 0;
 }
 
-void NormalizeProbabilities()
+void LuLuCharacter::NormalizeProbabilities()
 {
     float sum = 0;
     for (int i = 0; i < size; i++)
@@ -77,7 +52,7 @@ void NormalizeProbabilities()
     }
 }
 
-void sendCommand(int command)
+void LuLuCharacter::sendCommand(int command)
 {
     WIRE.beginTransmission(8); // Адрес ведомого устройства
     WIRE.write(command);
@@ -85,7 +60,7 @@ void sendCommand(int command)
     log_d("Sended: %i", command);
 }
 
-void SendCommand(int command, int arg1)
+void LuLuCharacter::SendCommand(int command, int arg1)
 {
     std::lock_guard<std::mutex> lck(i2c_mutex);
     WIRE.beginTransmission(8); // Адрес ведомого устройства
@@ -95,9 +70,7 @@ void SendCommand(int command, int arg1)
     log_d("Sended %i:%i", command, arg1);
 }
 
-#define THRESHOLD 40
-
-void SleepPrepare()
+void LuLuCharacter::SleepPrepare()
 {
     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
@@ -106,7 +79,7 @@ void SleepPrepare()
     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
 }
 
-void GoToDeepSleep()
+void LuLuCharacter::GoToDeepSleep()
 {
     log_d("PREPARE to SLEEP: %i ms", 2000);
     sleeping = true;
@@ -119,14 +92,14 @@ void GoToDeepSleep()
     log_d("SLEEPING FOR: %i ms", 2000);
 }
 
-void GoToSleep()
+void LuLuCharacter::GoToSleep()
 {
     SleepPrepare();
     sleeping = true;
     showSleepAnimation();
 }
 
-void dogActivitiWatcherThread(void *args)
+void LuLuCharacter::DogActivitiWatcherTask()
 {
     while (true)
     {
@@ -141,10 +114,15 @@ void dogActivitiWatcherThread(void *args)
 
         delay(1000);
     }
+}
+
+void LuLuCharacter::DogActivitiWatcherThread(void *_this)
+{
+    ((LuLuCharacter *)_this)->DogActivitiWatcherTask();
     vTaskDelete(NULL);
 }
 
-void rp2040_ping_thread(void *args)
+void LuLuCharacter::RP2040PingTask()
 {
     while (true)
     {
@@ -152,32 +130,37 @@ void rp2040_ping_thread(void *args)
             SendCommand(RP_SYS_COMMAND_PING, 0);
         delay(2000);
     }
+}
+
+void LuLuCharacter::RP2040PingThread(void *_this)
+{
+    ((LuLuCharacter *)_this)->RP2040PingTask();
     vTaskDelete(NULL);
 }
 
-void StartDogActivitiWatcher()
+void LuLuCharacter::StartDogActivitiWatcher()
 {
     NormalizeProbabilities();
     xTaskCreatePinnedToCore(
-        dogActivitiWatcherThread, /* Task function. */
-        "Task7",                  /* name of task. */
-        10000,                    /* Stack size of task */
-        NULL,                     /* parameter of the task */
-        tskIDLE_PRIORITY,         /* priority of the task */
-        NULL,                     /* Task handle to keep track of created task */
+        this->DogActivitiWatcherThread, /* Task function. */
+        "Task7",                        /* name of task. */
+        4096,                          /* Stack size of task */
+        this,                           /* parameter of the task */
+        tskIDLE_PRIORITY,               /* priority of the task */
+        NULL,                           /* Task handle to keep track of created task */
         0);
 
     xTaskCreatePinnedToCore(
-        rp2040_ping_thread, /* Task function. */
-        "Task11",           /* name of task. */
-        10000,              /* Stack size of task */
-        NULL,               /* parameter of the task */
-        tskIDLE_PRIORITY,   /* priority of the task */
-        NULL,               /* Task handle to keep track of created task */
+        this->RP2040PingThread, /* Task function. */
+        "Task11",               /* name of task. */
+        4096,                  /* Stack size of task */
+        this,                   /* parameter of the task */
+        tskIDLE_PRIORITY,       /* priority of the task */
+        NULL,                   /* Task handle to keep track of created task */
         0);
 }
 
-int getAllowedRandomReact()
+int LuLuCharacter::getAllowedRandomReact()
 {
     bool allowed = false;
     int choice = generateRandomWithProbabilities(probabilities, size);
@@ -200,13 +183,13 @@ int getAllowedRandomReact()
     return choice;
 }
 
-int GetAllowedSceneReact()
+int LuLuCharacter::GetAllowedSceneReact()
 {
     int choice = random(1);
     return choice;
 }
 
-void _wake()
+void LuLuCharacter::_wake()
 {
     if (sleeping)
     {
@@ -218,7 +201,7 @@ void _wake()
     }
 }
 
-void doReact(int command, int speed, int tail_speed, char *eye, char *wav)
+void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, char *wav)
 {
     pingPaused = true;
     if (command != -1)
@@ -231,12 +214,12 @@ void doReact(int command, int speed, int tail_speed, char *eye, char *wav)
     if (eye != nullptr)
         PlayGif(eye);
     if (wav != nullptr)
-        PlayWav(wav);
+        audioHelper.PlayWav(wav);
     delay(3000);
     pingPaused = false;
 }
 
-void doRandomReact(int direction)
+void LuLuCharacter::doRandomReact(int direction)
 {
 
     int current_time = millis();
@@ -256,13 +239,13 @@ void doRandomReact(int direction)
         doReact(-1, -1, 0, "/eye1.gif", nullptr);
         break;
     case 1:
-        doReact(COMMAND_SIT, 4, 6, "/eye1.gif", "woof2.wav");
+        doReact(COMMAND_SIT, 4, 6, "/eye1.gif", "/woof2.wav");
         break;
     case 2:
-        doReact(COMMAND_SIT, 5, 4, "/eye1.gif", "woof2.wav");
+        doReact(COMMAND_SIT, 5, 4, "/eye1.gif", "/woof2.wav");
         break;
     case 3:
-        doReact(COMMAND_STAND, 2, 0, "/eye2.gif", "woof1.wav");
+        doReact(COMMAND_STAND, 2, 0, "/eye2.gif", "/woof1.wav");
         break;
     case 4:
         doReact(COMMAND_LAYDOWN, 4, 4, "/eye2.gif", nullptr);
@@ -271,31 +254,31 @@ void doRandomReact(int direction)
         doReact(-1, -1, 4, "/eye4.gif", nullptr);
         break;
     case 6:
-        doReact(COMMAND_LEFTHAND, 4, 4, "/eye4.gif", "woof3.wav");
+        doReact(COMMAND_LEFTHAND, 4, 4, "/eye4.gif", "/woof3.wav");
         break;
     case 7:
-        doReact(COMMAND_LAYDOWN, 3, 6, "/eye3.gif", "woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 6, "/eye3.gif", "/woof2.wav");
         break;
     case 8:
-        doReact(COMMAND_LAYDOWN, 3, 0, "/eye3.gif", "woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 0, "/eye3.gif", "/woof2.wav");
         break;
     case 9:
-        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/eye3.gif", "woof2.wav");
+        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/eye3.gif", "/woof2.wav");
         break;
     case 10:
-        doReact(-1, -1, 4, "/eye5.gif", "woof1.wav");
+        doReact(-1, -1, 4, "/eye5.gif", "/woof1.wav");
         break;
     case 11:
-        doReact(COMMAND_RIGHTHAND, 4, 4, "/eye4.gif", "woof3.wav");
+        doReact(COMMAND_RIGHTHAND, 4, 4, "/eye4.gif", "/woof3.wav");
         break;
     case 12:
-        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/eye3.gif", "woof1.wav");
+        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/eye3.gif", "/woof1.wav");
         break;
     case 13:
-        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/eye3.gif", "woof1.wav");
+        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/eye3.gif", "/woof1.wav");
         break;
     case 14:
-        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/eye3.gif", "woof1.wav");
+        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/eye3.gif", "/woof1.wav");
         break;
     default:
         doReact(-1, -1, 0, "/eye5.gif", nullptr);
@@ -303,7 +286,7 @@ void doRandomReact(int direction)
     }
 }
 
-void DoSceneReact(int x, int y)
+void LuLuCharacter::DoSceneReact(int x, int y)
 {
     int current_time = millis();
     // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
@@ -321,7 +304,7 @@ void DoSceneReact(int x, int y)
     //     SendCommand(COMMAND_LEFTHAND, 4);
     //     delay(200);
     //     SendCommand(COMMAND_SET_TAIL_SPEED, 4);
-    //     PlayWav("woof3.wav");
+    //     PlayWav("/woof3.wav");
     //     PlayGif("/eye4.gif");
     //     break;
     case 1:
