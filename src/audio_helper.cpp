@@ -1,46 +1,15 @@
 #include "audio_helper.h"
-// #include "Audio.h"
 #include <ESP_I2S.h>
 #include "LittleFS.h"
 #include "global_def.h"
-// #include <ESP_I2S.h>
 
-// #include "AudioGeneratorWAV.h"
-// #include "AudioFileSourcePROGMEM.h"
-// // #include "AudioOutputI2S.h"
-// #include "AudioOutputI2SNoDAC.h"
 
-// AudioGeneratorWAV *wav;
-// AudioFileSourcePROGMEM *progMemFile;
-// // // AudioOutputI2S *out;
-// AudioOutputI2SNoDAC *out;
-
-AudioHelper audioHelper;
+// AudioHelper audioHelper;
 
 AudioHelper::AudioHelper(){}
 
 
 
-// const int frequency = 440;   // frequency of square wave in Hz
-// const int amplitude = 500;   // amplitude of square wave
-// const int sampleRate = 8000; // sample rate in Hz
-
-// I2SClass i2s;
-
-// i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
-// i2s_mode_t mode = I2S_MODE_STD;
-// i2s_slot_mode_t slot = I2S_SLOT_MODE_MONO;
-
-// const int halfWavelength = (sampleRate / frequency); // half wavelength of square wave
-
-// int32_t sample = amplitude; // current sample value
-// int count = 0;
-
-// // I2SClass i2s;
-
-// uint8_t *wavData = nullptr;
-// size_t wavSize = 0;
-// Audio audio;
 
 bool AudioHelper::loadWAVToMemory(const char *filename)
 {
@@ -73,12 +42,7 @@ bool AudioHelper::loadWAVToMemory(const char *filename)
 
 void AudioHelper::InitAudio()
 {
-    // audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    // audio.setVolume(22);
-    // audio.setI2SCommFMT_LSB(true);
     i2s.setPins( I2S_BCLK,I2S_LRC, I2S_DOUT);
-
-    // Initialize the I2S bus in standard mode
     if (!i2s.begin(I2S_MODE_STD, 44100, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO, I2S_STD_SLOT_BOTH))
     {
         log_d("Failed to initialize I2S bus!");
@@ -88,15 +52,6 @@ void AudioHelper::InitAudio()
 
 void AudioHelper::AudioTask(){
     i2s.playWAV(wavData,wavSize);
-    // i2s.
-    // while (true)
-    // {
-    //     audio.loop();
-
-    //     // log_d("%i",audio.isRunning());
-    //     if (!audio.isRunning())
-    //         break;
-    // }
     log_d("Wav finished");
 }
 
@@ -125,14 +80,3 @@ void AudioHelper::PlayWav(char *fname)
         1);
 }
 
-// if (count % halfWavelength == 0)
-// {
-//     // invert the sample every half wavelength count multiple to generate square wave
-//     sample = -1 * sample;
-// }
-
-// i2s.write(sample); // Right channel
-// i2s.write(sample); // Left channel
-
-// // increment the counter for the next sample
-// count++;

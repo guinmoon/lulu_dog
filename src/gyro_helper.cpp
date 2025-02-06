@@ -1,38 +1,48 @@
 #include "gyro_helper.h"
-#include "character.h"
 #include "SensorQMI8658.hpp"
+#include "lulu_dog.h"
 #include "global_def.h"
 
-SensorQMI8658 qmi;
+// SensorQMI8658 qmi;
 
+// IMUdata acc;
+// IMUdata gyr;
 
-IMUdata acc;
-IMUdata gyr;
+// // Дополнительные переменные для отслеживания изменений ускорения и угловой скорости
+// IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
+// IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
-// Дополнительные переменные для отслеживания изменений ускорения и угловой скорости
-IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
-IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
+// const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+// const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
 
-const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
+// unsigned long lastGyroActionTime = 0;                      // Время последнего вызова doOnGyro
+// const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
 
-unsigned long lastGyroActionTime = 0;        // Время последнего вызова doOnGyro
-const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
+// bool gyroActionFirstTime = true;
 
+// int direction = 0;
 
-bool gyroActionFirstTime = true;
+GyroHelper::GyroHelper(LuLuDog* _luluDog){
+    this->luluDog = _luluDog;
+}
 
-int direction = 0;
-
-void doOnGyro(int direction)
+void GyroHelper::doOnGyro(int direction)
 {
     // Реализация вашей функции, вызываемой при обнаружении удара
     log_d("doOnGyro called!");
     delay(200);
-    luluCharacter.doRandomReact(direction);
+    luluDog->luluCharacter->doRandomReact(direction);
 }
 
-bool InitGyro()
+void GyroHelper::PauseGyro(){
+    gyroActive = false;
+}
+
+void GyroHelper::ResumeGyro(){
+    gyroActive = true;
+}
+
+bool GyroHelper::InitGyro()
 {
     if (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
     {
@@ -57,22 +67,31 @@ bool InitGyro()
     qmi.dumpCtrlRegister();
 
     xTaskCreatePinnedToCore(
-        gyroAndAccelReadTask, /* Task function. */
+        this->gyroAndAccelReadThread, /* Task function. */
         "Task3",              /* name of task. */
         10000,                /* Stack size of task */
-        NULL,                 /* parameter of the task */
-        tskIDLE_PRIORITY,                    /* priority of the task */
+        this,                 /* parameter of the task */
+        tskIDLE_PRIORITY,     /* priority of the task */
         NULL,                 /* Task handle to keep track of created task */
         1);
 
     return true;
 }
 
-void gyroAndAccelReadTask(void *params)
+void GyroHelper::gyroAndAccelReadThread(void *_this)
+{
+    ((GyroHelper *)_this)->gyroAndAccelReadTask();
+    vTaskDelete(NULL);
+}
+
+void GyroHelper::gyroAndAccelReadTask()
 {
     while (true)
     {
-
+        if (!gyroActive){
+            delay(300);
+            continue;
+        }
         if (qmi.getDataReady())
         {
             bool impactDetected = false;
@@ -137,14 +156,15 @@ void gyroAndAccelReadTask(void *params)
                 unsigned long currentMillis = millis();
                 if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
                 {
-                    doOnGyro(direction); 
-                    log_d("Impact %i detected! ", direction);              // Вызов функции с указанием направления
-                    lastGyroActionTime = currentMillis; // Обновление времени последнего вызова
+                    doOnGyro(direction);
+                    log_d("Impact %i detected! ", direction); // Вызов функции с указанием направления
+                    lastGyroActionTime = currentMillis;       // Обновление времени последнего вызова
                 }
             }
         }
-        
-        delay(100); // Пауза для снижения частоты опроса
+
+        delay(gyroDelay); // Пауза для снижения частоты опроса
     }
-    vTaskDelete(NULL);
 }
+
+// GyroHelper gyroHelper;

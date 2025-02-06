@@ -1,5 +1,13 @@
+#ifndef CHARACTER_HELPER_H
+#define CHARACTER_HELPER_H
+
 #include <Wire.h>
 #include <mutex>
+#include "display_helper.h"
+#include "audio_helper.h"
+#include "global_def.h"
+#include "commands.h"
+#include "battery_helper.h"
 #define THRESHOLD 40
 // void doRandomReact(int direction);
 // void StartDogActivitiWatcher();
@@ -7,9 +15,12 @@
 // int generateRandomWithProbabilities(float probabilities[], int size);
 // void DoSceneReact(int x, int y);
 
+class LuLuDog;
+
 class LuLuCharacter
 {
 private:
+    LuLuDog* luluDog;
     unsigned long lastImpact = millis();
     bool deepSleeping = false;
     bool sleeping = false;
@@ -38,7 +49,7 @@ private:
     int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 public:
-    LuLuCharacter();
+    LuLuCharacter(LuLuDog* _luluDog);
     static void DogActivitiWatcherThread(void *args);
     static void RP2040PingThread(void *args);
     void _wake();
@@ -59,4 +70,6 @@ public:
     void DogActivitiWatcherTask();
 };
 
-extern LuLuCharacter luluCharacter;
+// extern LuLuCharacter luluCharacter;
+
+#endif

@@ -1,28 +1,33 @@
 #include "touch_helper.h"
 #include "global_def.h"
-#include "character.h"
+#include "lulu_dog.h"
 #include "TouchDrvCSTXXX.hpp"
 
-extern LuLuCharacter luluCharacter;
 
-TouchDrvCSTXXX touch;
-int16_t x[5], y[5];
-bool isPressed = false;
+// TouchDrvCSTXXX touch;
+// int16_t x[5], y[5];
+// bool isPressed = false;
 
-unsigned long lastTouchTime = 0;
-bool longPressDetected = false;
-bool doubleTapDetected = false;
+// unsigned long lastTouchTime = 0;
+// bool longPressDetected = false;
+// bool doubleTapDetected = false;
 
-bool wasPressed = false;
+// bool wasPressed = false;
 
-unsigned long pressStartTime = 0;
-unsigned long lastReleaseTime = 0;
+// unsigned long pressStartTime = 0;
+// unsigned long lastReleaseTime = 0;
 
-// Константы для настройки временных интервалов
-const unsigned long longPressThreshold = 1500; // 1000 мс (1 секунда)
-const unsigned long doubleTapTimeout = 800;  
+// // Константы для настройки временных интервалов
+// const unsigned long longPressThreshold = 1500; // 1000 мс (1 секунда)
+// const unsigned long doubleTapTimeout = 800;  
 
-void detectLongOrDoubleTap() {
+bool TouchHelper::isPressed = false;
+
+TouchHelper::TouchHelper(LuLuDog* _luluDog){
+    luluDog = _luluDog;
+}
+
+void TouchHelper::detectLongOrDoubleTap() {
     unsigned long currentTime = millis();
 
     if (isPressed && !wasPressed) {
@@ -30,8 +35,10 @@ void detectLongOrDoubleTap() {
         pressStartTime = currentTime;
     } else if (!isPressed && wasPressed) {
         // Конец нажатия
+        released = true;
+        longPressActivated = false;
         if (currentTime - lastReleaseTime < doubleTapTimeout) {
-            luluCharacter.DoSceneReact(x[0],y[0]);
+            luluDog->luluCharacter->DoSceneReact(x[0],y[0]);
             log_d("Double Tap Detected");
         }
         lastReleaseTime = currentTime;
@@ -39,6 +46,11 @@ void detectLongOrDoubleTap() {
 
     if (isPressed && wasPressed && (currentTime - pressStartTime >= longPressThreshold) ) {
         log_d("Long Press Detected");
+        if (!longPressActivated){
+            luluDog->ShowMenu();
+        }
+        longPressActivated = true;
+        
         pressStartTime = currentTime + 999999; // Исключаем повторное обнаружение длительного нажатия
     }
 
@@ -46,7 +58,13 @@ void detectLongOrDoubleTap() {
     
 }
 
-void TouchReadTask(void *params)
+void TouchHelper::TouchReadThread(void *_this)
+{
+    ((TouchHelper *)_this)->TouchReadTask();
+    vTaskDelete(NULL);
+}
+
+void TouchHelper::TouchReadTask()
 {
     while (true)
     {
@@ -55,7 +73,7 @@ void TouchReadTask(void *params)
             uint8_t touched = touch.getPoint(y, x, touch.getSupportTouchPoint());
             if (touched)
             {
-                 
+                released = false;
                 for (int i = 0; i < touched; ++i)
                 {
                     log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
@@ -68,10 +86,10 @@ void TouchReadTask(void *params)
         isPressed = false;
         delay(30);
     }
-    vTaskDelete(NULL);
+    
 }
 
-void InitTouch()
+void TouchHelper::InitTouch()
 {
 
     pinMode(TP_RST, OUTPUT);
@@ -94,11 +112,13 @@ void InitTouch()
                     { isPressed = true; }, FALLING);
 
     xTaskCreatePinnedToCore(
-        TouchReadTask,    /* Task function. */
+        this->TouchReadThread,    /* Task function. */
         "Task5",          /* name of task. */
         10000,            /* Stack size of task */
-        NULL,             /* parameter of the task */
+        this,             /* parameter of the task */
         tskIDLE_PRIORITY, /* priority of the task */
         NULL,             /* Task handle to keep track of created task */
         1);
 }
+
+// TouchHelper touchHelper;

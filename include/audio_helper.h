@@ -1,6 +1,8 @@
+#ifndef AUDIO_HELPER_H
+#define AUDIO_HELPER_H
+
+
 #include <ESP_I2S.h>
-
-
 
 // void PlayWav(char *fname);
 // void InitAudio();
@@ -37,4 +39,6 @@ public:
     void AudioTask();
 };
 
-extern AudioHelper audioHelper;
+// extern AudioHelper audioHelper;
+
+#endif

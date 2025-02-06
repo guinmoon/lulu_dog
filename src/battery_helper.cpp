@@ -1,36 +1,40 @@
 #include "battery_helper.h"
-#include "display_helper.h"
 #include <Arduino.h>
 #include "global_def.h"
+#include "lulu_dog.h"
 
 
 
-const int voltageDividerPin = VOLTAGE_DIVEDER_PIN;
-float vRef = VREF;    // Power supply voltage of ESP32-S3 (unit: volts)
-float R1 = BATTERY_R1; // Resistance value of the first resistor (unit: ohms)
-float R2 = BATTERY_R2;
 
-float currentVoltage = 0;
-float lastVoltage = -1;
-bool charging = false;
+BatteryHelper::BatteryHelper(LuLuDog* _luluDog){
+    this->luluDog =  _luluDog;
+}
 
-void InitBattery()
+
+void BatteryHelper::InitBattery()
 {
     pinMode(voltageDividerPin, INPUT);
     randomSeed(analogRead(voltageDividerPin));
-    start_battery_thread();
+    xTaskCreatePinnedToCore(
+        this->battery_thread, /* Task function. */
+        "Task4",        /* name of task. */
+        5000,          /* Stack size of task */
+        this,           /* parameter of the task */
+        3,              /* priority of the task */
+        NULL,           /* Task handle to keep track of created task */
+        1);
 }
 
-bool isCharging(){
+bool BatteryHelper::isCharging(){
     return charging;
 }
 
-float get_battery_voltage_cached()
+float BatteryHelper::get_battery_voltage_cached()
 {
     return currentVoltage;
 }
 
-float get_battery_voltage()
+float BatteryHelper::get_battery_voltage()
 {
     int adcValue = analogRead(voltageDividerPin);
 
@@ -42,12 +46,11 @@ float get_battery_voltage()
     return currentVoltage;
 }
 
-void battery_thread(void *params)
-{
+void BatteryHelper::BatteryTask(){
     while (true)
     {
         get_battery_voltage();
-        setVoltageBuf(currentVoltage);
+        luluDog->setVoltageBuf(currentVoltage);
         log_d("V: %f",currentVoltage);
         if (lastVoltage == -1)
             lastVoltage = currentVoltage;
@@ -63,19 +66,14 @@ void battery_thread(void *params)
         lastVoltage = currentVoltage;
         delay(1000);
     }
+}
+
+void BatteryHelper::battery_thread(void *_this)
+{
+    ((BatteryHelper *)_this)->BatteryTask();
     vTaskDelete(NULL);
 }
 
 
 
-void start_battery_thread()
-{
-    xTaskCreatePinnedToCore(
-        battery_thread, /* Task function. */
-        "Task4",        /* name of task. */
-        10000,          /* Stack size of task */
-        NULL,           /* parameter of the task */
-        3,              /* priority of the task */
-        NULL,           /* Task handle to keep track of created task */
-        1);
-}
+// BatteryHelper batteryHelper;

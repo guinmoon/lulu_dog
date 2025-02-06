@@ -1,16 +1,14 @@
 #include <Wire.h>
 #include "character.h"
-#include "commands.h"
-#include "display_helper.h"
-#include "audio_helper.h"
-#include "global_def.h"
-#include "battery_helper.h"
+#include "lulu_dog.h"
 
 #include <mutex>
 
-LuLuCharacter luluCharacter;
+// LuLuCharacter luluCharacter;
 
-LuLuCharacter::LuLuCharacter(){}
+LuLuCharacter::LuLuCharacter(LuLuDog* _luluDog){
+    luluDog = _luluDog;
+}
 
 int LuLuCharacter::generateRandomWithProbabilities(float probabilities[], int size)
 {
@@ -74,7 +72,7 @@ void LuLuCharacter::SleepPrepare()
 {
     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
-    StopGif();
+    luluDog->displayHelper->StopGif();
     delay(1000);
     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
 }
@@ -96,7 +94,7 @@ void LuLuCharacter::GoToSleep()
 {
     SleepPrepare();
     sleeping = true;
-    showSleepAnimation();
+    luluDog->displayHelper->showSleepAnimation();
 }
 
 void LuLuCharacter::DogActivitiWatcherTask()
@@ -107,7 +105,7 @@ void LuLuCharacter::DogActivitiWatcherTask()
         {
             GoToSleep();
         }
-        if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !isCharging())
+        if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !luluDog->batteryHelper->isCharging())
         {
             GoToDeepSleep();
         }
@@ -195,7 +193,7 @@ void LuLuCharacter::_wake()
     {
         sleeping = false;
         log_d("WAKE");
-        stopSleepAnimation();
+        luluDog->displayHelper->stopSleepAnimation();
         delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
@@ -212,9 +210,9 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, c
         SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
     }
     if (eye != nullptr)
-        PlayGif(eye);
+        luluDog->displayHelper->PlayGif(eye);
     if (wav != nullptr)
-        audioHelper.PlayWav(wav);
+        luluDog->audioHelper->PlayWav(wav);
     delay(3000);
     pingPaused = false;
 }
@@ -308,16 +306,10 @@ void LuLuCharacter::DoSceneReact(int x, int y)
     //     PlayGif("/eye4.gif");
     //     break;
     case 1:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
-        delay(200);
-        SendCommand(COMMAND_DANCE1, 4);
-        PlayGif("/eye5.gif");
+        doReact(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
         break;
     default:
-        SendCommand(COMMAND_SET_TAIL_SPEED, 7);
-        delay(200);
-        SendCommand(COMMAND_DANCE1, 4);
-        PlayGif("/eye5.gif");
+        doReact(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
         break;
     }
 }

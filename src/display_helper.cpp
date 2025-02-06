@@ -1,61 +1,38 @@
 #include "display_helper.h"
-#include "battery_helper.h"
+#include "lulu_dog.h"
+
 #include "global_def.h"
-#include "lv_conf.h"
-#include "demos/lv_demos.h"
 
 // #include "1.c"
 // #include "2.c"
 // #include "3.c"
 
-Arduino_DataBus *bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+Arduino_DataBus* DisplayHelper::bus  = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+Arduino_GFX* DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
+                             1 /* rotation */, true /* IPS */, LCD_WIDTH, LCD_HEIGHT, 0, 20, 0, 0);
+AnimatedGIF DisplayHelper::gif;
 
-Arduino_GFX *gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
-                                      1 /* rotation */, true /* IPS */, LCD_WIDTH, LCD_HEIGHT, 0, 20, 0, 0);
-AnimatedGIF gif;
-// File gifFile;
-uint8_t *gifData = nullptr;
-int32_t gifSize = 0;
-TaskHandle_t Task1;
-char voltageBuf[15];
+// DisplayHelper::DisplayHelper(BatteryHelper* _batteryHelper)
+// {
 
-bool play = true;
-bool wake = false;
+//     this->batteryHelper = _batteryHelper;
+//     // bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+//     // gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
+//                             //  1 /* rotation */, true /* IPS */, LCD_WIDTH, LCD_HEIGHT, 0, 20, 0, 0);
+// }
 
-uint8_t *pTurboBuffer;
-uint8_t *pFrameBuffer;
 
-void stopSleepAnimation()
+DisplayHelper::DisplayHelper(LuLuDog* _luluDog){
+    luluDog = _luluDog;
+}
+
+void DisplayHelper::stopSleepAnimation()
 {
     wake = true;
     DisplayOn();
 }
 
-// #define LV_COLOR_16_SWAP 1
-
-void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-{
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
-
-#if (LV_COLOR_16_SWAP != 0)
-    gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#else
-    gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#endif
-
-    lv_disp_flush_ready(disp);
-}
-
-#define EXAMPLE_LVGL_TICK_PERIOD_MS 2
-
-void example_increase_lvgl_tick(void *arg)
-{
-    /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
-}
-
-void showSleepAnimation()
+void DisplayHelper::showSleepAnimation()
 {
 
     // while (!wake)
@@ -85,73 +62,19 @@ void showSleepAnimation()
     // wake = false;
 }
 
-void DisplayOn()
+void DisplayHelper::DisplayOn()
 {
     digitalWrite(LCD_BL, HIGH);
-    gfx->displayOn();
+    DisplayHelper::gfx->displayOn();
 }
 
-void DisplayOff()
+void DisplayHelper::DisplayOff()
 {
-    gfx->displayOff();
+    DisplayHelper::gfx->displayOff();
     digitalWrite(LCD_BL, LOW);
 }
 
-static const uint16_t screenWidth = 240;
-static const uint16_t screenHeight = 280;
-
-static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * screenHeight / 10];
-lv_obj_t *label;
-
-void InitDisplayLVGL()
-{
-    if (!gfx->begin())
-    {
-        log_d("gfx->begin() failed!");
-    }
-    fillScreen();
-
-    pinMode(LCD_BL, OUTPUT);
-    digitalWrite(LCD_BL, HIGH);
-    lv_init();
-
-    lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * screenHeight / 10);
-
-    /*Initialize the display*/
-    static lv_disp_drv_t disp_drv;
-    lv_disp_drv_init(&disp_drv);
-    /*Change the following line to your display resolution*/
-    disp_drv.hor_res = screenWidth;
-    disp_drv.ver_res = screenHeight;
-    disp_drv.flush_cb = my_disp_flush;
-    disp_drv.draw_buf = &draw_buf;
-    lv_disp_drv_register(&disp_drv);
-
-    const esp_timer_create_args_t lvgl_tick_timer_args = {
-        .callback = &example_increase_lvgl_tick,
-        .name = "lvgl_tick"};
-
-    //   const esp_timer_create_args_t reboot_timer_args = {
-    //     .callback = &example_increase_reboot,
-    //     .name = "reboot"
-    //   };
-
-    esp_timer_handle_t lvgl_tick_timer = NULL;
-    esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-    esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000);
-
-    // esp_timer_handle_t reboot_timer = NULL;
-    // esp_timer_create(&reboot_timer_args, &reboot_timer);
-    // esp_timer_start_periodic(reboot_timer, 2000 * 1000);
-
-    label = lv_label_create(lv_scr_act());
-    lv_label_set_text(label, "Initializing...");
-    
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-}
-
-void InitDisplay()
+void DisplayHelper::InitDisplay()
 {
     if (!gfx->begin())
     {
@@ -169,13 +92,13 @@ void InitDisplay()
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
 
-void *GIFAlloc(uint32_t u32Size)
-{
-    // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
-    return (uint8_t *)ps_malloc(u32Size);
-} /* GIFAlloc() */
+// void *DisplayHelper::GIFAlloc(uint32_t u32Size)
+// {
+//     // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
+//     return (uint8_t *)ps_malloc(u32Size);
+// } /* GIFAlloc() */
 
-void PlayGif(const char *fname)
+void DisplayHelper::PlayGif(const char *fname)
 {
     play = false;
     delay(100);
@@ -207,22 +130,22 @@ void PlayGif(const char *fname)
 
     play = true;
     xTaskCreatePinnedToCore(
-        playInfinite,          /* Task function. */
-        "Task1",               /* name of task. */
-        10000,                 /* Stack size of task */
-        NULL,                  /* parameter of the task */
-        2 | portPRIVILEGE_BIT, /* priority of the task */
-        &Task1,                /* Task handle to keep track of created task */
+        this->PlayInfiniteThread, /* Task function. */
+        "Task1",                  /* name of task. */
+        10000,                    /* Stack size of task */
+        this,                     /* parameter of the task */
+        2 | portPRIVILEGE_BIT,    /* priority of the task */
+        &Task1,                   /* Task handle to keep track of created task */
         0);
     fillScreen();
 }
 
-void fillScreen()
+void DisplayHelper::fillScreen()
 {
     gfx->fillScreen(BLACK);
 }
 
-void printOnDisplay(char *text, int x, int y)
+void DisplayHelper::printOnDisplay(char *text, int x, int y)
 {
     //
     gfx->setCursor(x, y);
@@ -231,19 +154,19 @@ void printOnDisplay(char *text, int x, int y)
     gfx->println(text);
 }
 
-void drawHeart(int x, int y, uint16_t color)
+void DisplayHelper::drawHeart(int x, int y, uint16_t color)
 {
     gfx->fillRect(x + 15, y + 15, 10, 10, color);
     gfx->fillRect(x + 28, y + 15, 10, 10, color);
     gfx->fillRect(x + 22, y + 21, 10, 10, color);
 }
 
-void drawBatteryheart()
+void DisplayHelper::drawBatteryheart()
 {
     // printOnDisplay(voltageBuf);
-    float volt = get_battery_voltage();
+    float volt = luluDog->batteryHelper->get_battery_voltage();
     int heartColor = RED;
-    if (isCharging())
+    if (luluDog->batteryHelper->isCharging())
     {
         heartColor = GREEN;
         // printOnDisplay(voltageBuf,10,50);
@@ -262,9 +185,9 @@ void drawBatteryheart()
         drawHeart(60, 0, heartColor);
 }
 
-void setVoltageBuf(float voltage)
+void DisplayHelper::setVoltageBuf(float voltage)
 {
-    if (isCharging())
+    if (luluDog->batteryHelper->isCharging())
     {
         sprintf(voltageBuf, "B: %f V Charging", voltage);
     }
@@ -288,7 +211,7 @@ void setVoltageBuf(float voltage)
 //   gfx->endWrite();
 // }
 
-void GIFDraw_24bit(GIFDRAW *pDraw)
+void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
 {
     uint8_t *s;
     uint16_t *usPalette;
@@ -380,7 +303,7 @@ void GIFDraw_24bit(GIFDRAW *pDraw)
     }
 }
 
-void GIFDraw(GIFDRAW *pDraw)
+void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
 {
     uint8_t *s;
     uint16_t *d, *usPalette, usTemp[320];
@@ -460,7 +383,7 @@ void GIFDraw(GIFDRAW *pDraw)
     }
 }
 
-bool loadGIFToMemory(const char *filename)
+bool DisplayHelper::loadGIFToMemory(const char *filename)
 {
     File file = LittleFS.open(filename, "r");
     if (!file)
@@ -489,12 +412,18 @@ bool loadGIFToMemory(const char *filename)
     return true;
 }
 
-void StopGif()
+void DisplayHelper::StopGif()
 {
     play = false;
 }
 
-void playInfinite(void *pvParameters)
+void DisplayHelper::PlayInfiniteThread(void *_this)
+{
+    ((DisplayHelper *)_this)->PlayInfiniteTask();
+    vTaskDelete(NULL);
+}
+
+void DisplayHelper::PlayInfiniteTask()
 {
     int iter = 0;
     while (play)
@@ -520,5 +449,6 @@ void playInfinite(void *pvParameters)
         iter++;
     }
     log_d("play ended");
-    vTaskDelete(NULL);
 }
+
+// DisplayHelper displayHelper;
