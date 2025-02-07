@@ -101,6 +101,11 @@ void LuLuCharacter::DogActivitiWatcherTask()
 {
     while (true)
     {
+        if (suspended){
+            lastImpact = millis();
+            delay(1000);
+            continue;
+        }
         if ((millis() - lastImpact) / 1000 >= SLEEP_AFTER && !sleeping)
         {
             GoToSleep();

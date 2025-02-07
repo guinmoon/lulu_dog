@@ -49,6 +49,7 @@ private:
     int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 public:
+    bool suspended = false;
     LuLuCharacter(LuLuDog* _luluDog);
     static void DogActivitiWatcherThread(void *args);
     static void RP2040PingThread(void *args);

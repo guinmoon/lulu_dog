@@ -30,11 +30,15 @@ void LuLuDog::setVoltageBuf(float voltage){
 
 void LuLuDog::PauseDog(){
     displayHelper->StopGif();
-    gyroHelper->PauseGyro();    
+    gyroHelper->PauseGyro();   
+    luluCharacter->suspended = true;
+    touchHelper->suspended = true; 
 }
 
 void LuLuDog::ResumeDog(){    
     gyroHelper->ResumeGyro();
+    luluCharacter->suspended = false;
+    touchHelper->suspended = false; 
 }
 
 void LuLuDog::ShowMenu(){

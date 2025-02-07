@@ -26,7 +26,8 @@ public:
     LVGLHelper(LuLuDog* _luluDog);
     static void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
     void InitDisplayLVGL();
-    static void example_increase_lvgl_tick(void *arg);
+    void BuildApp();
+    // static void example_increase_lvgl_tick(void *arg);
 };
 
 #endif

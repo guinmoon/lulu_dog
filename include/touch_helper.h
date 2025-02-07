@@ -3,6 +3,7 @@
 
 #include "TouchDrvCSTXXX.hpp"
 #include "character.h"
+#include "lvgl.h"
 
 class LuLuDog;
 
@@ -10,10 +11,11 @@ class TouchHelper
 {
 private:
     LuLuDog* luluDog;
-    TouchDrvCSTXXX touch;
-    int16_t x[5];
-    int16_t y[5];
+    static TouchDrvCSTXXX touch;
+    static int16_t x[5];
+    static int16_t y[5];
     static bool isPressed ;
+    
 
     unsigned long lastTouchTime = 0;
     bool longPressDetected = false;
@@ -31,11 +33,13 @@ private:
     const unsigned long doubleTapTimeout = 800;
 
 public:
+    bool suspended = false;
     TouchHelper(LuLuDog* _luluDog);
     void InitTouch();
     void detectLongOrDoubleTap();
     static void TouchReadThread(void *params);
     void TouchReadTask();
+    static void LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
 };
 
 #endif
