@@ -11,10 +11,12 @@
 #include "touch_helper.h"
 #include "lvgl_helper.h"
 
+
 class LuLuDog
 {
 private:
 public:
+    
     DisplayHelper* displayHelper;
     GyroHelper* gyroHelper;
     AudioHelper* audioHelper;

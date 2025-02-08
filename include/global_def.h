@@ -40,8 +40,8 @@
 #define LCD_MOSI 7
 #define LCD_RST 8
 #define LCD_BL 15
-#define LCD_WIDTH 240
-#define LCD_HEIGHT 280
+#define LCD_WIDTH 280
+#define LCD_HEIGHT 240
 
 #define IIC_SDA 11
 #define IIC_SCL 10
@@ -63,3 +63,8 @@
 #define I2S_LRC 17  
 
 #define VOLTAGE_DIVEDER_PIN 1
+
+
+// TOUCH CONFIG
+#define LONGPRESSTHRESHOLD 800
+#define DOUBLETAPTHRESHOLD 800

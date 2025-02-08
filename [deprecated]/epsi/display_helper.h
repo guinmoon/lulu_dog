@@ -2,9 +2,8 @@
 #ifndef DISLPAY_HELPER_H
 #define DISLPAY_HELPER_H
 
-#include "Arduino_GFX_Library.h"
-#include <DigitalRainAnimation.hpp>
-// #include <TFT_eSPI.h>
+// #include "Arduino_GFX_Library.h"
+#include <TFT_eSPI.h>
 #include <Wire.h>
 #include <AnimatedGIF.h>
 #include "LittleFS.h"
@@ -28,15 +27,16 @@ private:
 
     uint8_t *pTurboBuffer;
     uint8_t *pFrameBuffer;
-    static bool showMatrixAnimation;
+
     // BatteryHelper* batteryHelper;
     LuLuDog* luluDog;
 
 public:
-    static Arduino_DataBus *bus;
-    static Arduino_GFX *gfx;
+    // static Arduino_DataBus *bus;
+    // static Arduino_GFX *gfx;
+    static TFT_eSPI* gfx;
     static AnimatedGIF gif;
-    static DigitalRainAnimation<Arduino_GFX> matrix_effect;
+
     // DisplayHelper(BatteryHelper* _batteryHelper);
     DisplayHelper(LuLuDog* _luluDog);
     static void GIFDraw(GIFDRAW *pDraw);
@@ -55,10 +55,6 @@ public:
     void fillScreen();
     void DisplayOff();
     void DisplayOn();
-    void ShowMatrixAnimation();
-    void InitMatrixAnimation();
-    void StopMatrixAnimation();
-    static void MatrixAnimationThread(void* _this);
     void drawHeart(int x, int y, uint16_t color);
 };
 

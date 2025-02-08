@@ -12,17 +12,22 @@
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t *ui_Screen1;
+lv_obj_t *ui_Image1;
 lv_obj_t *ui_Button1;
 lv_obj_t *ui_Button2;
 lv_obj_t *ui_Button3;
 lv_obj_t *ui_Button4;
 lv_obj_t *ui_Button5;
+lv_obj_t *ui_Button6;
 // CUSTOM VARIABLES
 
 // EVENTS
 lv_obj_t *ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+const lv_img_dsc_t *ui_imgset_[1] = {&ui_img_1_png};
+const lv_img_dsc_t *ui_imgset_d[4] = {&ui_img_d1_png, &ui_img_d2_png, &ui_img_d3_png, &ui_img_d4_png};
+const lv_img_dsc_t *ui_imgset_back[1] = {&ui_img_back48_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16

@@ -31,6 +31,8 @@ void GyroHelper::doOnGyro(int direction)
     // Реализация вашей функции, вызываемой при обнаружении удара
     log_d("doOnGyro called!");
     delay(200);
+    if (!luluDog->touchHelper->released)
+        return;
     luluDog->luluCharacter->doRandomReact(direction);
 }
 

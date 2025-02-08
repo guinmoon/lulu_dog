@@ -46,7 +46,8 @@ void TouchHelper::detectLongOrDoubleTap()
         longPressActivated = false;
         if (currentTime - lastReleaseTime < doubleTapTimeout)
         {
-            luluDog->luluCharacter->DoSceneReact(x[0], y[0]);
+            luluDog->ShowMenu();
+            
             log_d("Double Tap Detected");
         }
         lastReleaseTime = currentTime;
@@ -57,7 +58,8 @@ void TouchHelper::detectLongOrDoubleTap()
         log_d("Long Press Detected");
         if (!longPressActivated)
         {
-            luluDog->ShowMenu();
+            // luluDog->luluCharacter->DoSceneReact(x[0], y[0]);
+            // luluDog->ShowMenu();
         }
         longPressActivated = true;
 
@@ -83,8 +85,8 @@ void TouchHelper::LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t
         if (x[0] >= 0 && y[0] >= 0)
         {
             data->point.x = x[0];
-            data->point.y = y[0];
-            log_d("x:%i y:%i ", x[0], y[0]);
+            data->point.y = LCD_HEIGHT - y[0];
+            log_d("x:%i y:%i ", x[0], LCD_HEIGHT - y[0]);
             // USBSerial.printf("Data x: %d, Data y: %d\n", touchX, touchY);
         }
     }

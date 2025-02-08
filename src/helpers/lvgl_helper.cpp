@@ -8,7 +8,11 @@
 
 lv_disp_draw_buf_t LVGLHelper::draw_buf;
 lv_color_t LVGLHelper::buf[screenWidth * screenHeight / 10];
+// TFT_eSPI* LVGLHelper::gfx;
 Arduino_GFX *LVGLHelper::gfx;
+LuLuDog* LVGLHelper::luluDog;
+bool LVGLHelper::lvglExit = false;
+esp_timer_handle_t LVGLHelper::lvgl_tick_timer;
 
 LVGLHelper::LVGLHelper(LuLuDog *_luluDog)
 {
@@ -34,15 +38,15 @@ void LVGLHelper::my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_co
 
 #define EXAMPLE_LVGL_TICK_PERIOD_MS 2
 
-// void LVGLHelper::example_increase_lvgl_tick(void *arg)
-// {
-//     /* Tell LVGL how many milliseconds has elapsed */
-//     lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
-// }
+void LVGLHelper::example_increase_lvgl_tick(void *arg)
+{
+    /* Tell LVGL how many milliseconds has elapsed */
+    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+}
 
 void LVGLHelper::LVGLTimerLoopThread(void *_this)
 {
-    while (true)
+    while (!lvglExit)
     {
         delay(5);
         lv_timer_handler();
@@ -51,51 +55,74 @@ void LVGLHelper::LVGLTimerLoopThread(void *_this)
     vTaskDelete(NULL);
 }
 
-static void event_handler(lv_event_t *e)
+
+void LVGLHelper::ExitMenu(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
-    if (code == LV_EVENT_VALUE_CHANGED)
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
     {
-        char buf[32];
-        lv_roller_get_selected_str(obj, buf, sizeof(buf));
-        LV_LOG_USER("Selected month: %s\n", buf);
+        lvglExit = true;  
+        esp_timer_delete(lvgl_tick_timer);
+        // delay(500);
+        // lv_deinit();
+        // luluDog->displayHelper->fillScreen();
+        luluDog->ResumeDog();
+        delay(200);
+        luluDog->displayHelper->fillScreen();
+
     }
 }
 
-/**
- * An infinite roller with the name of the months
- */
-void lv_example_roller_1(lv_obj_t *parent)
+void LVGLHelper::GoSleep(lv_event_t * e)
 {
-    lv_obj_t *roller1 = lv_roller_create(parent);
-    lv_roller_set_options(roller1,
-                          "January\n"
-                          "February\n"
-                          "March\n"
-                          "April\n"
-                          "May\n"
-                          "June\n"
-                          "July\n"
-                          "August\n"
-                          "September\n"
-                          "October\n"
-                          "November\n"
-                          "December",
-                          LV_ROLLER_MODE_INFINITE);
+    lv_event_code_t event_code = lv_event_get_code(e);
 
-    lv_roller_set_visible_row_count(roller1, 4);
-    lv_obj_center(roller1);
-    lv_obj_add_event_cb(roller1, event_handler, LV_EVENT_ALL, NULL);
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        luluDog->luluCharacter->GoToDeepSleep();
+    }
 }
 
-
-void LVGLHelper::BuildApp(){
-     lv_example_roller_1(lv_scr_act());
+void LVGLHelper::BuildApp()
+{
+    //  lv_example_roller_1(lv_scr_act());
     // label = lv_label_create(lv_scr_act());
     // lv_label_set_text(label, "Initializing...");
 
     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    ui_init();
+    lv_obj_add_event_cb(ui_Button6, ExitMenu, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Button4, GoSleep, LV_EVENT_ALL, NULL);
+}
+
+void LVGLHelper::ShowMenu(){    
+    luluDog->displayHelper->fillScreen();
+    lvglExit = false;
+    const esp_timer_create_args_t lvgl_tick_timer_args = {
+        .callback = &this->example_increase_lvgl_tick,
+        .name = "lvgl_tick"};
+
+    //   const esp_timer_create_args_t reboot_timer_args = {
+    //     .callback = &example_increase_reboot,
+    //     .name = "reboot"
+    //   };
+
+    lvgl_tick_timer = NULL;
+    esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
+    esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000);
+    xTaskCreatePinnedToCore(
+        this->LVGLTimerLoopThread, /* Task function. */
+        "TaskLVGL",                /* name of task. */
+        40000,                     /* Stack size of task */
+        this,                      /* parameter of the task */
+        2 | portPRIVILEGE_BIT,     /* priority of the task */
+        NULL,                      /* Task handle to keep track of created task */
+        0);
+    delay(200);
+    lv_refr_now(lv_disp_get_default());
+    delay(200);
+    lv_refr_now(lv_disp_get_default());
 }
 
 void LVGLHelper::InitDisplayLVGL()
@@ -122,32 +149,19 @@ void LVGLHelper::InitDisplayLVGL()
     indev_drv.read_cb = luluDog->touchHelper->LVGLTouchpadRead;
     lv_indev_drv_register(&indev_drv);
 
-    // const esp_timer_create_args_t lvgl_tick_timer_args = {
-    //     .callback = &this->example_increase_lvgl_tick,
-    //     .name = "lvgl_tick"};
-
-    //   const esp_timer_create_args_t reboot_timer_args = {
-    //     .callback = &example_increase_reboot,
-    //     .name = "reboot"
-    //   };
-
-    // esp_timer_handle_t lvgl_tick_timer = NULL;
-    // esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-    // esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000);
-
+    
+    
     // esp_timer_handle_t reboot_timer = NULL;
     // esp_timer_create(&reboot_timer_args, &reboot_timer);
     // esp_timer_start_periodic(reboot_timer, 2000 * 1000);
 
-//    BuildApp();
-    ui_init();
+    
+    BuildApp();
 
-    xTaskCreatePinnedToCore(
-        this->LVGLTimerLoopThread, /* Task function. */
-        "TaskLVGL",                /* name of task. */
-        40000,                     /* Stack size of task */
-        this,                      /* parameter of the task */
-        2 | portPRIVILEGE_BIT,     /* priority of the task */
-        NULL,                      /* Task handle to keep track of created task */
-        0);
+    
 }
+
+// void Deinit()
+// {
+//     lv_deinit();
+// }

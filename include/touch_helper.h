@@ -4,6 +4,7 @@
 #include "TouchDrvCSTXXX.hpp"
 #include "character.h"
 #include "lvgl.h"
+#include "global_def.h"
 
 class LuLuDog;
 
@@ -20,7 +21,7 @@ private:
     unsigned long lastTouchTime = 0;
     bool longPressDetected = false;
     bool doubleTapDetected = false;
-    bool released = false;
+    
     bool longPressActivated = false;
 
     bool wasPressed = false;
@@ -29,10 +30,11 @@ private:
     unsigned long lastReleaseTime = 0;
 
     // Константы для настройки временных интервалов
-    const unsigned long longPressThreshold = 1500; // 1000 мс (1 секунда)
-    const unsigned long doubleTapTimeout = 800;
+    const unsigned long longPressThreshold = LONGPRESSTHRESHOLD; // 1000 мс (1 секунда)
+    const unsigned long doubleTapTimeout = DOUBLETAPTHRESHOLD;
 
 public:
+    bool released = true;
     bool suspended = false;
     TouchHelper(LuLuDog* _luluDog);
     void InitTouch();

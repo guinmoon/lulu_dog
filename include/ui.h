@@ -28,15 +28,26 @@ extern "C" {
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 extern lv_obj_t *ui_Screen1;
+extern lv_obj_t *ui_Image1;
 extern lv_obj_t *ui_Button1;
 extern lv_obj_t *ui_Button2;
 extern lv_obj_t *ui_Button3;
 extern lv_obj_t *ui_Button4;
 extern lv_obj_t *ui_Button5;
+extern lv_obj_t *ui_Button6;
 // CUSTOM VARIABLES
 
 // EVENTS
 extern lv_obj_t *ui____initial_actions0;
+
+// IMAGES AND IMAGE SETS
+LV_IMG_DECLARE( ui_img_matrix_small_png);   // assets/matrix_small.png
+LV_IMG_DECLARE( ui_img_d4_png);   // assets/d4.png
+LV_IMG_DECLARE( ui_img_d2_png);   // assets/d2.png
+LV_IMG_DECLARE( ui_img_1_png);   // assets/1.png
+LV_IMG_DECLARE( ui_img_d1_png);   // assets/d1.png
+LV_IMG_DECLARE( ui_img_back48_png);   // assets/back48.png
+LV_IMG_DECLARE( ui_img_d3_png);   // assets/d3.png
 
 // UI INIT
 void ui_init(void);

@@ -22,6 +22,8 @@ void LuLuDog::Init(){
     displayHelper->PlayGif("/eye5.gif");
     luluCharacter->StartDogActivitiWatcher();
     lvglHelper->gfx = displayHelper->gfx;
+    lvglHelper->InitDisplayLVGL();
+    displayHelper->InitMatrixAnimation();
 }
 
 void LuLuDog::setVoltageBuf(float voltage){
@@ -32,17 +34,22 @@ void LuLuDog::PauseDog(){
     displayHelper->StopGif();
     gyroHelper->PauseGyro();   
     luluCharacter->suspended = true;
-    touchHelper->suspended = true; 
+    touchHelper->suspended = true;     
 }
 
 void LuLuDog::ResumeDog(){    
     gyroHelper->ResumeGyro();
     luluCharacter->suspended = false;
     touchHelper->suspended = false; 
+    audioHelper->PlayWav("/woof1.wav");
+    displayHelper->PlayGif("/eye5.gif");
 }
 
 void LuLuDog::ShowMenu(){
     PauseDog();
-    lvglHelper->InitDisplayLVGL();
+    displayHelper->ShowMatrixAnimation();
+    delay(1500);
+    displayHelper->StopMatrixAnimation();
+    lvglHelper->ShowMenu();
 }
 

@@ -7,16 +7,22 @@
 // #include "2.c"
 // #include "3.c"
 
-Arduino_DataBus *DisplayHelper::bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
-Arduino_GFX *DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
-                                                     1 /* rotation */, true /* IPS */, LCD_HEIGHT, LCD_WIDTH, 0, 20, 0, 0);
+Arduino_DataBus* DisplayHelper::bus  = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+Arduino_GFX* DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
+                             1 /* rotation */, true /* IPS */, LCD_WIDTH, LCD_HEIGHT, 0, 20, 0, 0);
 AnimatedGIF DisplayHelper::gif;
 
-bool DisplayHelper::showMatrixAnimation = false;
-DigitalRainAnimation<Arduino_GFX> DisplayHelper::matrix_effect = DigitalRainAnimation<Arduino_GFX>();
+// DisplayHelper::DisplayHelper(BatteryHelper* _batteryHelper)
+// {
 
-DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
-{
+//     this->batteryHelper = _batteryHelper;
+//     // bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+//     // gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
+//                             //  1 /* rotation */, true /* IPS */, LCD_WIDTH, LCD_HEIGHT, 0, 20, 0, 0);
+// }
+
+
+DisplayHelper::DisplayHelper(LuLuDog* _luluDog){
     luluDog = _luluDog;
 }
 
@@ -374,7 +380,9 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
             usTemp[x] = usPalette[*s++];
 
         gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
+        
     }
+    
 }
 
 bool DisplayHelper::loadGIFToMemory(const char *filename)
@@ -443,37 +451,6 @@ void DisplayHelper::PlayInfiniteTask()
         iter++;
     }
     log_d("play ended");
-}
-
-void DisplayHelper::MatrixAnimationThread(void* _this){
-    while(showMatrixAnimation){
-        matrix_effect.loop();
-        delay(50);
-    }
-    vTaskDelete(NULL);
-}
-
-void DisplayHelper::ShowMatrixAnimation()
-{
-    showMatrixAnimation = true;
-    xTaskCreatePinnedToCore(
-        this->MatrixAnimationThread, /* Task function. */
-        "Task1",                  /* name of task. */
-        10000,                    /* Stack size of task */
-        this,                     /* parameter of the task */
-        2 | portPRIVILEGE_BIT,    /* priority of the task */
-        &Task1,                   /* Task handle to keep track of created task */
-        0);   
-    
-}
-
-void DisplayHelper::StopMatrixAnimation(){
-    showMatrixAnimation = false;
-}
-
-void DisplayHelper::InitMatrixAnimation()
-{
-    matrix_effect.init(gfx);    
 }
 
 // DisplayHelper displayHelper;
