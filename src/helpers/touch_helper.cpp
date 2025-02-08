@@ -46,8 +46,8 @@ void TouchHelper::detectLongOrDoubleTap()
         longPressActivated = false;
         if (currentTime - lastReleaseTime < doubleTapTimeout)
         {
-            luluDog->ShowMenu();
-            
+            // luluDog->ShowMenu();
+            this->doubleTapCallback(0,0);
             log_d("Double Tap Detected");
         }
         lastReleaseTime = currentTime;
@@ -58,6 +58,7 @@ void TouchHelper::detectLongOrDoubleTap()
         log_d("Long Press Detected");
         if (!longPressActivated)
         {
+            this->longPressCallback(0,0);
             // luluDog->luluCharacter->DoSceneReact(x[0], y[0]);
             // luluDog->ShowMenu();
         }

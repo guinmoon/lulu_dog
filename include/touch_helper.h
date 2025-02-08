@@ -42,6 +42,8 @@ public:
     static void TouchReadThread(void *params);
     void TouchReadTask();
     static void LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
+    void (*doubleTapCallback)(int x, int y);
+    void (*longPressCallback)(int x, int y);
 };
 
 #endif

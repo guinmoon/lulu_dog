@@ -226,13 +226,17 @@ void LuLuCharacter::doRandomReact(int direction)
 {
 
     int current_time = millis();
-    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD)
+    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
     {
         lastImpact = current_time;
         return;
     }
     lastImpact = current_time;
     _wake();
+
+    if (luluDog->displayHelper->showMatrixAnimation){
+        luluDog->displayHelper->StopMatrixAnimation();
+    }
 
     int choice = getAllowedRandomReact();
 

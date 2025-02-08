@@ -28,7 +28,7 @@ private:
 
     uint8_t *pTurboBuffer;
     uint8_t *pFrameBuffer;
-    static bool showMatrixAnimation;
+    
     // BatteryHelper* batteryHelper;
     LuLuDog* luluDog;
 
@@ -60,6 +60,7 @@ public:
     void StopMatrixAnimation();
     static void MatrixAnimationThread(void* _this);
     void drawHeart(int x, int y, uint16_t color);
+    static bool showMatrixAnimation;
 };
 
 

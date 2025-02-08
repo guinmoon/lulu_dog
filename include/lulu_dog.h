@@ -15,6 +15,7 @@
 class LuLuDog
 {
 private:
+    static LuLuDog* instance;
 public:
     
     DisplayHelper* displayHelper;
@@ -30,6 +31,11 @@ public:
     void PauseDog();
     void ResumeDog();
     void ShowMenu();
+    void Action1();
+    void ExitMenu();
+    static void DoubleTapCallBack(int x, int y);
+    static void LongPressCallBack(int x, int y);
+    
 
 };
 

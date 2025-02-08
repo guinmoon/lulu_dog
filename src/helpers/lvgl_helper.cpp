@@ -10,7 +10,7 @@ lv_disp_draw_buf_t LVGLHelper::draw_buf;
 lv_color_t LVGLHelper::buf[screenWidth * screenHeight / 10];
 // TFT_eSPI* LVGLHelper::gfx;
 Arduino_GFX *LVGLHelper::gfx;
-LuLuDog* LVGLHelper::luluDog;
+LuLuDog *LVGLHelper::luluDog;
 bool LVGLHelper::lvglExit = false;
 esp_timer_handle_t LVGLHelper::lvgl_tick_timer;
 
@@ -55,32 +55,44 @@ void LVGLHelper::LVGLTimerLoopThread(void *_this)
     vTaskDelete(NULL);
 }
 
-
-void LVGLHelper::ExitMenu(lv_event_t * e)
+void LVGLHelper::ExitMenu(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        lvglExit = true;  
-        esp_timer_delete(lvgl_tick_timer);
-        // delay(500);
-        // lv_deinit();
-        // luluDog->displayHelper->fillScreen();
-        luluDog->ResumeDog();
-        delay(200);
-        luluDog->displayHelper->fillScreen();
 
+        
+        luluDog->ExitMenu();
     }
 }
 
-void LVGLHelper::GoSleep(lv_event_t * e)
+void LVGLHelper::StopLVGL()
+{
+    // delay(500);
+        // lv_deinit();
+        // luluDog->displayHelper->fillScreen();
+    lvglExit = true;
+    esp_timer_delete(lvgl_tick_timer);
+}
+
+void LVGLHelper::GoSleep(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if (event_code == LV_EVENT_CLICKED)
     {
         luluDog->luluCharacter->GoToDeepSleep();
+    }
+}
+
+void LVGLHelper::Action1(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        luluDog->Action1();
     }
 }
 
@@ -93,10 +105,12 @@ void LVGLHelper::BuildApp()
     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     ui_init();
     lv_obj_add_event_cb(ui_Button6, ExitMenu, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Button5, Action1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Button4, GoSleep, LV_EVENT_ALL, NULL);
 }
 
-void LVGLHelper::ShowMenu(){    
+void LVGLHelper::ShowMenu()
+{
     luluDog->displayHelper->fillScreen();
     lvglExit = false;
     const esp_timer_create_args_t lvgl_tick_timer_args = {
@@ -149,16 +163,11 @@ void LVGLHelper::InitDisplayLVGL()
     indev_drv.read_cb = luluDog->touchHelper->LVGLTouchpadRead;
     lv_indev_drv_register(&indev_drv);
 
-    
-    
     // esp_timer_handle_t reboot_timer = NULL;
     // esp_timer_create(&reboot_timer_args, &reboot_timer);
     // esp_timer_start_periodic(reboot_timer, 2000 * 1000);
 
-    
     BuildApp();
-
-    
 }
 
 // void Deinit()
