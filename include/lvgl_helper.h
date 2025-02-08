@@ -37,6 +37,8 @@ public:
     static void Action1(lv_event_t * e);
     void ShowMenu();
     static void example_increase_lvgl_tick(void *arg);
+    void cleanup_resources();
+    void ui_cleanup(void);
 };
 
 #endif

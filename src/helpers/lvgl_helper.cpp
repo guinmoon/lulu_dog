@@ -23,13 +23,17 @@ LVGLHelper::LVGLHelper(LuLuDog *_luluDog)
 
 void LVGLHelper::my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
+    if (lvglExit){
+        lv_disp_flush_ready(disp);
+        return;
+    }
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
 
 #if (LV_COLOR_16_SWAP != 0)
     gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 #else
-    log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+    // log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
     gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 #endif
 
@@ -67,13 +71,58 @@ void LVGLHelper::ExitMenu(lv_event_t *e)
     }
 }
 
+
+void LVGLHelper::ui_cleanup(void) {
+    // Удаление вашего объекта или экрана
+    if (ui____initial_actions0 != NULL) {
+        lv_obj_del(ui____initial_actions0);
+        ui____initial_actions0 = NULL;
+    }
+
+    // Если ваш дисплей и темы больше не нужны, инициализированные в ui_init, то вы можете их удалить
+    lv_disp_t *dispp = lv_disp_get_default();
+    if (dispp) {
+        lv_disp_remove(dispp);
+    }
+
+    lv_indev_t *indev = lv_indev_get_next(NULL);
+    if (indev != NULL) {
+        lv_indev_delete(indev);
+    }    
+    
+
+    // Отмена всех запущенных или запланированных таймеров или задач, если таковые имеются
+    
+    // Освобождение памяти, если использовали какие-то буферы
+}
+
+void LVGLHelper::cleanup_resources() {
+    if (lvgl_tick_timer != NULL) {
+        esp_timer_stop(lvgl_tick_timer);
+        esp_timer_delete(lvgl_tick_timer);
+        lvgl_tick_timer = NULL;
+    }
+
+    // Stop the task by setting a flag or some other mechanism
+    // For illustrative purposes, assume we have a flag to stop the loop
+    lvglExit = true; // Ensure this flag is checked inside LVGLTimerLoopThread
+
+    // Delete the task if we are handling its exit from within the task itself
+    // Otherwise, pass the task handle to vTaskDelete if stored
+    // vTaskDelete(NULL); // If you are inside the task and want to delete itself
+
+    // Other LVGL cleanup operations
+    ui_cleanup();
+}
+
 void LVGLHelper::StopLVGL()
 {
     // delay(500);
         // lv_deinit();
         // luluDog->displayHelper->fillScreen();
-    lvglExit = true;
-    esp_timer_delete(lvgl_tick_timer);
+    cleanup_resources();
+    // lvglExit = true;
+    // esp_timer_delete(lvgl_tick_timer);
 }
 
 void LVGLHelper::GoSleep(lv_event_t *e)
@@ -111,8 +160,10 @@ void LVGLHelper::BuildApp()
 
 void LVGLHelper::ShowMenu()
 {
-    luluDog->displayHelper->fillScreen();
+    luluDog->displayHelper->fillScreen();    
     lvglExit = false;
+    BuildApp();
+
     const esp_timer_create_args_t lvgl_tick_timer_args = {
         .callback = &this->example_increase_lvgl_tick,
         .name = "lvgl_tick"};
@@ -133,10 +184,10 @@ void LVGLHelper::ShowMenu()
         2 | portPRIVILEGE_BIT,     /* priority of the task */
         NULL,                      /* Task handle to keep track of created task */
         0);
-    delay(200);
-    lv_refr_now(lv_disp_get_default());
-    delay(200);
-    lv_refr_now(lv_disp_get_default());
+    // delay(200);
+    // lv_refr_now(lv_disp_get_default());
+    // delay(200);
+    // lv_refr_now(lv_disp_get_default());
 }
 
 void LVGLHelper::InitDisplayLVGL()
@@ -167,7 +218,7 @@ void LVGLHelper::InitDisplayLVGL()
     // esp_timer_create(&reboot_timer_args, &reboot_timer);
     // esp_timer_start_periodic(reboot_timer, 2000 * 1000);
 
-    BuildApp();
+    
 }
 
 // void Deinit()

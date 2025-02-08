@@ -28,7 +28,7 @@ void LuLuDog::Init()
     displayHelper->PlayGif("/eye5.gif");
     luluCharacter->StartDogActivitiWatcher();
     lvglHelper->gfx = displayHelper->gfx;
-    lvglHelper->InitDisplayLVGL();
+    // lvglHelper->InitDisplayLVGL();
     displayHelper->InitMatrixAnimation();
 }
 
@@ -38,7 +38,7 @@ void LuLuDog::setVoltageBuf(float voltage)
 }
 
 void LuLuDog::DoubleTapCallBack(int x, int y)
-{
+{    
     instance->ShowMenu();
 }
 
@@ -88,5 +88,6 @@ void LuLuDog::ShowMenu()
     displayHelper->ShowMatrixAnimation();
     delay(1500);
     displayHelper->StopMatrixAnimation();
+    lvglHelper->InitDisplayLVGL();
     lvglHelper->ShowMenu();
 }
