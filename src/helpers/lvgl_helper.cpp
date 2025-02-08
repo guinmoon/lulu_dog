@@ -72,30 +72,6 @@ void LVGLHelper::ExitMenu(lv_event_t *e)
 }
 
 
-void LVGLHelper::ui_cleanup(void) {
-    // Удаление вашего объекта или экрана
-    if (ui____initial_actions0 != NULL) {
-        lv_obj_del(ui____initial_actions0);
-        ui____initial_actions0 = NULL;
-    }
-
-    // Если ваш дисплей и темы больше не нужны, инициализированные в ui_init, то вы можете их удалить
-    lv_disp_t *dispp = lv_disp_get_default();
-    if (dispp) {
-        lv_disp_remove(dispp);
-    }
-
-    lv_indev_t *indev = lv_indev_get_next(NULL);
-    if (indev != NULL) {
-        lv_indev_delete(indev);
-    }    
-    
-
-    // Отмена всех запущенных или запланированных таймеров или задач, если таковые имеются
-    
-    // Освобождение памяти, если использовали какие-то буферы
-}
-
 void LVGLHelper::cleanup_resources() {
     if (lvgl_tick_timer != NULL) {
         esp_timer_stop(lvgl_tick_timer);
@@ -112,7 +88,23 @@ void LVGLHelper::cleanup_resources() {
     // vTaskDelete(NULL); // If you are inside the task and want to delete itself
 
     // Other LVGL cleanup operations
-    ui_cleanup();
+    if (ui____initial_actions0 != NULL) {
+        lv_obj_del(ui____initial_actions0);
+        ui____initial_actions0 = NULL;
+    }
+
+    // Если ваш дисплей и темы больше не нужны, инициализированные в ui_init, то вы можете их удалить
+    lv_disp_t *dispp = lv_disp_get_default();
+    if (dispp) {
+        lv_disp_remove(dispp);
+    }
+
+    lv_indev_t *indev = lv_indev_get_next(NULL);
+    if (indev != NULL) {
+        lv_indev_delete(indev);
+    }    
+
+    lv_deinit();
 }
 
 void LVGLHelper::StopLVGL()
