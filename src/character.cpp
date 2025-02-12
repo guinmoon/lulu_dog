@@ -244,52 +244,52 @@ void LuLuCharacter::doRandomReact(int direction)
     switch (choice)
     {
     case 0:
-        doReact(-1, -1, 0, "/eye1.gif", nullptr);
+        doReact(-1, -1, 0, "/imgs/eye1.gif", nullptr);
         break;
     case 1:
-        doReact(COMMAND_SIT, 4, 6, "/eye1.gif", "/woof2.wav");
+        doReact(COMMAND_SIT, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 2:
-        doReact(COMMAND_SIT, 5, 4, "/eye1.gif", "/woof2.wav");
+        doReact(COMMAND_SIT, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 3:
-        doReact(COMMAND_STAND, 2, 0, "/eye2.gif", "/woof1.wav");
+        doReact(COMMAND_STAND, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
         break;
     case 4:
-        doReact(COMMAND_LAYDOWN, 4, 4, "/eye2.gif", nullptr);
+        doReact(COMMAND_LAYDOWN, 4, 4, "/imgs/eye2.gif", nullptr);
         break;
     case 5:
-        doReact(-1, -1, 4, "/eye4.gif", nullptr);
+        doReact(-1, -1, 4, "/imgs/eye4.gif", nullptr);
         break;
     case 6:
-        doReact(COMMAND_LEFTHAND, 4, 4, "/eye4.gif", "/woof3.wav");
+        doReact(COMMAND_LEFTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 7:
-        doReact(COMMAND_LAYDOWN, 3, 6, "/eye3.gif", "/woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 8:
-        doReact(COMMAND_LAYDOWN, 3, 0, "/eye3.gif", "/woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 9:
-        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/eye3.gif", "/woof2.wav");
+        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 10:
-        doReact(-1, -1, 4, "/eye5.gif", "/woof1.wav");
+        doReact(-1, -1, 4, "/imgs/eye5.gif", "/woof1.wav");
         break;
     case 11:
-        doReact(COMMAND_RIGHTHAND, 4, 4, "/eye4.gif", "/woof3.wav");
+        doReact(COMMAND_RIGHTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 12:
-        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/eye3.gif", "/woof1.wav");
+        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 13:
-        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/eye3.gif", "/woof1.wav");
+        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 14:
-        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/eye3.gif", "/woof1.wav");
+        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
         break;
     default:
-        doReact(-1, -1, 0, "/eye5.gif", nullptr);
+        doReact(-1, -1, 0, "/imgs/eye5.gif", nullptr);
         break;
     }
 }

@@ -11,6 +11,7 @@ LuLuDog::LuLuDog()
     gyroHelper = new GyroHelper(this);
     touchHelper = new TouchHelper(this);
     lvglHelper = new LVGLHelper(this);
+    jsRunner = new JSRunner(this);
     instance = this;
     // touchHelper = new TouchHelper();
 }
@@ -24,12 +25,22 @@ void LuLuDog::Init()
     touchHelper->longPressCallback = this->LongPressCallBack;
     gyroHelper->InitGyro();
     audioHelper->InitAudio();
-    audioHelper->PlayWav("/woof1.wav");
-    displayHelper->PlayGif("/eye5.gif");
+    jsRunner->jsInit();
+    audioHelper->PlayWav("/audio/woof1.wav");
+    displayHelper->PlayGif("/imgs/eye5.gif");
     luluCharacter->StartDogActivitiWatcher();
     lvglHelper->gfx = displayHelper->gfx;
     // lvglHelper->InitDisplayLVGL();
     displayHelper->InitMatrixAnimation();
+
+    // jsRunner->jsEval(
+    //     "for (var i=0;i<5;i++){ \
+    //         log_d('Hello, world!'); \
+    //         delay(2000); \
+    //      }"
+    // );
+
+    
 }
 
 void LuLuDog::setVoltageBuf(float voltage)

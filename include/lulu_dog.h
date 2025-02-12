@@ -10,7 +10,7 @@
 #include "character.h"
 #include "touch_helper.h"
 #include "lvgl_helper.h"
-
+#include "js_helper.h"
 
 class LuLuDog
 {
@@ -25,6 +25,7 @@ public:
     BatteryHelper* batteryHelper;
     TouchHelper* touchHelper;
     LVGLHelper* lvglHelper;
+    JSRunner* jsRunner;
     LuLuDog();
     void Init();
     void setVoltageBuf(float voltage);
