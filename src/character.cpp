@@ -206,6 +206,7 @@ void LuLuCharacter::_wake()
 
 void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, char *wav)
 {
+    lastImpact = millis();//Для вызовов не из этого класса
     pingPaused = true;
     if (command != -1)
         SendCommand(command, speed);
