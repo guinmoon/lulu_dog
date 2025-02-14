@@ -32,6 +32,7 @@ void LuLuDog::Init()
     lvglHelper->gfx = displayHelper->gfx;
     // lvglHelper->InitDisplayLVGL();
     displayHelper->InitMatrixAnimation();
+    jsRunner->jsEvalFile("/js/demo.js");
 
     // jsRunner->jsEval(
     //     "for (var i=0;i<5;i++){ \

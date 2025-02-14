@@ -16,8 +16,10 @@ public:
     JSRunner(LuLuDog *_luluDog);
     static duk_ret_t jsLog(duk_context *_ctx);
     static duk_ret_t jsDelay(duk_context *_ctx);
+    static duk_ret_t jsRunLuLuCommand(duk_context *_ctx);
     void jsInit();
     void jsEval(char *code);
+    bool jsEvalFile(char *fname);
 };
 
 #endif
