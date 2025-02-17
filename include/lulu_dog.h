@@ -11,6 +11,7 @@
 #include "touch_helper.h"
 #include "lvgl_helper.h"
 #include "js_helper.h"
+#include "web_server.h"
 
 class LuLuDog
 {
@@ -26,6 +27,8 @@ public:
     TouchHelper* touchHelper;
     LVGLHelper* lvglHelper;
     JSRunner* jsRunner;
+    LuLuWebServer* fsWebServer;
+
     LuLuDog();
     void Init();
     void setVoltageBuf(float voltage);

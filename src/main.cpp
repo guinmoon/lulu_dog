@@ -1,6 +1,7 @@
 #include "lulu_dog.h"
 #include "hw_init.h"
 
+
 static LuLuDog luluDog;
 
 void setup(void)
@@ -12,5 +13,6 @@ void setup(void)
 
 void loop()
 {
+    
     delay(1000);
 }

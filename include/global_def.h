@@ -1,6 +1,11 @@
 
 #define WIRE Wire
 
+#define AUDIO_ON 1
+#define MOVE_ON 1
+#define SLEEP_ON 1
+#define DEEP_SLEEP_ON 1
+
 #define IMG_WIDTH 280
 #define IMG_HEIGHT 240
 

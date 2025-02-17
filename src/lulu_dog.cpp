@@ -1,5 +1,7 @@
 #include "lulu_dog.h"
 
+
+
 LuLuDog *LuLuDog::instance;
 
 LuLuDog::LuLuDog()
@@ -12,12 +14,16 @@ LuLuDog::LuLuDog()
     touchHelper = new TouchHelper(this);
     lvglHelper = new LVGLHelper(this);
     jsRunner = new JSRunner(this);
+    fsWebServer = new LuLuWebServer(this);
+
     instance = this;
     // touchHelper = new TouchHelper();
 }
 
 void LuLuDog::Init()
 {
+
+
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
     touchHelper->InitTouch();
@@ -32,6 +38,10 @@ void LuLuDog::Init()
     lvglHelper->gfx = displayHelper->gfx;
     // lvglHelper->InitDisplayLVGL();
     displayHelper->InitMatrixAnimation();
+
+    fsWebServer->Init();
+    
+
     jsRunner->jsEvalFile("/js/demo.js");
 
     // jsRunner->jsEval(
@@ -100,6 +110,8 @@ void LuLuDog::ShowMenu()
     displayHelper->ShowMatrixAnimation();
     delay(1500);
     displayHelper->StopMatrixAnimation();
+    delay(100);
+    
     lvglHelper->InitDisplayLVGL();
     lvglHelper->ShowMenu();
 }

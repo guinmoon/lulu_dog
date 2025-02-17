@@ -79,6 +79,8 @@ void LuLuCharacter::SleepPrepare()
 
 void LuLuCharacter::GoToDeepSleep()
 {
+    if (!DEEP_SLEEP_ON)
+        return;
     log_d("PREPARE to SLEEP: %i ms", 2000);
     sleeping = true;
     deepSleeping = true;
@@ -92,6 +94,8 @@ void LuLuCharacter::GoToDeepSleep()
 
 void LuLuCharacter::GoToSleep()
 {
+    if (!SLEEP_ON)
+        return;
     SleepPrepare();
     sleeping = true;
     luluDog->displayHelper->showSleepAnimation();
@@ -206,15 +210,17 @@ void LuLuCharacter::_wake()
 
 void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, char *wav)
 {
+    // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
     lastImpact = millis();//Для вызовов не из этого класса
     pingPaused = true;
-    if (command != -1)
-        SendCommand(command, speed);
-    if (tail_speed != -1)
+    if (tail_speed != -1 && MOVE_ON)
     {
         delay(200);
         SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
     }
+    if (command != -1 && MOVE_ON){
+        SendCommand(command, speed);
+    }    
     if (eye != nullptr)
         luluDog->displayHelper->PlayGif(eye);
     if (wav != nullptr)

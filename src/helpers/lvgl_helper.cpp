@@ -24,6 +24,7 @@ LVGLHelper::LVGLHelper(LuLuDog *_luluDog)
 void LVGLHelper::my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
     if (lvglExit){
+        log_d("LVGL EXIT");
         lv_disp_flush_ready(disp);
         return;
     }
@@ -33,7 +34,7 @@ void LVGLHelper::my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_co
 #if (LV_COLOR_16_SWAP != 0)
     gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 #else
-    // log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+    log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
     gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 #endif
 
@@ -50,11 +51,13 @@ void LVGLHelper::example_increase_lvgl_tick(void *arg)
 
 void LVGLHelper::LVGLTimerLoopThread(void *_this)
 {
+    log_d("LVGL Timer start");
     while (!lvglExit)
     {
-        delay(5);
+        delay(20);        
         lv_timer_handler();
     }
+    log_d("LVGL EXIT");
     // ((LVGLHelper *)_this)->LVGLTimerLoopTask();
     vTaskDelete(NULL);
 }
@@ -167,15 +170,17 @@ void LVGLHelper::ShowMenu()
 
     lvgl_tick_timer = NULL;
     esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-    esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000);
+    esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000);    
     xTaskCreatePinnedToCore(
         this->LVGLTimerLoopThread, /* Task function. */
         "TaskLVGL",                /* name of task. */
-        40000,                     /* Stack size of task */
+        10000,                     /* Stack size of task */
         this,                      /* parameter of the task */
-        2 | portPRIVILEGE_BIT,     /* priority of the task */
+        // 2 | portPRIVILEGE_BIT,     /* priority of the task */
+        10,
         NULL,                      /* Task handle to keep track of created task */
         0);
+    log_d("LVGL BUILDED");
     // delay(200);
     // lv_refr_now(lv_disp_get_default());
     // delay(200);
@@ -186,7 +191,7 @@ void LVGLHelper::InitDisplayLVGL()
 {
 
     lv_init();
-
+    log_d("LVGL INIT");
     lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * screenHeight / 10);
 
     /*Initialize the display*/
@@ -205,7 +210,7 @@ void LVGLHelper::InitDisplayLVGL()
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = luluDog->touchHelper->LVGLTouchpadRead;
     lv_indev_drv_register(&indev_drv);
-
+    log_d("LVGL INITED");
     // esp_timer_handle_t reboot_timer = NULL;
     // esp_timer_create(&reboot_timer_args, &reboot_timer);
     // esp_timer_start_periodic(reboot_timer, 2000 * 1000);
