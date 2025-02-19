@@ -18,6 +18,7 @@ class DisplayHelper
 private:
     
     // File gifFile;
+    static uint16_t usTemp[320];
     uint8_t *gifData = nullptr;
     int32_t gifSize = 0;
     TaskHandle_t Task1;

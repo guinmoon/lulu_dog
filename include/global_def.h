@@ -16,9 +16,12 @@
 #define DEEP_SLEEP_AFTER 120
 
 // GYRO CONFIG
+ // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+#define IMPACT_THRESHHOLD_ACC_X 0.09
+#define IMPACT_THRESHHOLD_ACC_Y 0.04
+#define IMPACT_THRESHHOLD_ACC_Z 0.03
 
-#define IMPACT_THRESHHOLD_ACC 0.6 // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-#define IMPACT_THRESHHOLD_GYR 1.8 // Пороговое значение изменений угловой скорости
+#define IMPACT_THRESHHOLD_GYR 5.8 // Пороговое значение изменений угловой скорости
 #define LAST_IMPACT_MIN_PERIOD 2000
 
 #define GYRO_ACTION_PERIOD 3000 // Время в миллисекундах

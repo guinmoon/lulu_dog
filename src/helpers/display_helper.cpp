@@ -297,82 +297,69 @@ void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
     }
 }
 
+uint16_t DisplayHelper::usTemp[320];
+
 void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
 {
-    uint8_t *s;
-    uint16_t *d, *usPalette, usTemp[320];
-    int x, y, iWidth;
+    uint8_t *s = pDraw->pPixels;
+    uint16_t *usPalette = pDraw->pPalette;
+    int y = pDraw->iY + pDraw->y;
+    int iWidth = pDraw->iWidth;
+    if (pDraw->iWidth>gfx->width())
+        iWidth = gfx->width();    
 
-    usPalette = pDraw->pPalette;
-    y = pDraw->iY + pDraw->y; // текущая линия
-    iWidth = pDraw->iWidth;
-    if (iWidth > gfx->width())
-        iWidth = gfx->width();
-    s = pDraw->pPixels;
-    if (pDraw->ucDisposalMethod == 2) // восстановление фона
+    // Handle background restoration
+    if (pDraw->ucDisposalMethod == 2)
     {
-        for (x = 0; x < iWidth; x++)
+        uint8_t ucBackground = pDraw->ucBackground;
+        for (int x = 0; x < iWidth; x++)
         {
             if (s[x] == pDraw->ucTransparent)
-                s[x] = pDraw->ucBackground;
+                s[x] = ucBackground;
         }
         pDraw->ucHasTransparency = 0;
     }
-    // Применение новых пикселей к основному изображению
-    if (pDraw->ucHasTransparency) // если используется прозрачность
+
+    // Optimize transparent handling
+    if (pDraw->ucHasTransparency)
     {
-        uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
-        int x, iCount;
-        pEnd = s + iWidth;
-        x = 0;
-        iCount = 0; // подсчет непрозрачных пикселей
+        uint8_t ucTransparent = pDraw->ucTransparent;
+        uint16_t *d = usTemp;
+        int x = 0;
+        
+        
+        
         while (x < iWidth)
         {
-            c = ucTransparent - 1;
-            d = usTemp;
-            while (c != ucTransparent && s < pEnd)
+            // Count non-transparent pixels
+            int count = 0;
+            while (x + count < iWidth && s[x + count] != ucTransparent)
             {
-                c = *s++;
-                if (c == ucTransparent) // завершено, остановка
-                {
-                    s--; // назад, чтобы обработать как прозрачный
-                }
-                else // непрозрачный
-                {
-                    *d++ = usPalette[c];
-                    iCount++;
-                }
-            } // while
-            if (iCount) // есть ли непрозрачные пиксели?
-            {
-                gfx->draw16bitRGBBitmap(pDraw->iX + x, y, usTemp, iCount, 1);
-                x += iCount;
-                iCount = 0;
+                usTemp[count] = usPalette[s[x + count]];
+                count++;
             }
-            // нет, искать последовательность прозрачных пикселей
-            c = ucTransparent;
-            while (c == ucTransparent && s < pEnd)
+            
+            // Draw non-transparent block
+            if (count > 0)
             {
-                c = *s++;
-                if (c == ucTransparent)
-                    iCount++;
-                else
-                    s--;
+                gfx->draw16bitRGBBitmap(pDraw->iX + x, y, usTemp, count, 1);
+                x += count;
             }
-            if (iCount)
-            {
-                x += iCount; // пропустить их
-                iCount = 0;
-            }
+            
+            // Skip transparent pixels
+            while (x < iWidth && s[x] == ucTransparent)
+                x++;
         }
+        
+        
     }
     else
     {
-        s = pDraw->pPixels;
-        // Преобразование 8-битных пикселей через палитру RGB565
-        for (x = 0; x < iWidth; x++)
-            usTemp[x] = usPalette[*s++];
-
+        // Direct conversion for non-transparent images
+        for (int x = 0; x < iWidth; x++)
+        {
+            usTemp[x] = usPalette[s[x]];
+        }
         gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
     }
 }

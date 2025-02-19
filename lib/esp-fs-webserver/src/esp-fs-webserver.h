@@ -6,6 +6,7 @@
 #include <typeinfo>
 #include <base64.h>
 #include <FS.h>
+#include <LittleFS.h>
 
 #define INCLUDE_EDIT_HTM
 #ifdef INCLUDE_EDIT_HTM

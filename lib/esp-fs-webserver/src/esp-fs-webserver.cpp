@@ -673,7 +673,8 @@ void FSWebServer::handleStatus() {
     totalBytes = fs_info.totalBytes;
     usedBytes = fs_info.usedBytes;
 #elif defined(ESP32)
-
+    totalBytes = LittleFS.totalBytes();
+    usedBytes = LittleFS.usedBytes();
 #endif
 
     String json;

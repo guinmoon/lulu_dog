@@ -31,29 +31,9 @@ duk_ret_t JSRunner::jsDelay(duk_context *_ctx)
     return 0;
 }
 
-duk_ret_t JSRunner::jsRunLuLuCommand(duk_context *_ctx)
-{
-    duk_get_top(_ctx);
-    int command = duk_to_int(_ctx, 0);
-    int speed = duk_to_int(_ctx, 1);
-    int tail_speed = duk_to_int(_ctx, 2);
-    const char* eye = duk_to_string(_ctx, 3);
-    const char* wav = duk_to_string(_ctx, 4);
 
-    luluDog->luluCharacter->doReact(command, speed, tail_speed, const_cast<char*>(eye), const_cast<char*>(wav));
-        
-    return 0;
-}
 
-duk_ret_t JSRunner::jsLuLuCOMMAND_LEFTHAND(duk_context *_ctx)
-{
-    duk_get_top(_ctx);    
-    int speed = duk_to_int(_ctx, 0);
-    int tail_speed = duk_to_int(_ctx, 1);    
 
-    luluDog->luluCharacter->doReact(5, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
-    return 0;
-}
 
 void JSRunner::jsInit()
 {
@@ -67,6 +47,26 @@ void JSRunner::jsInit()
     duk_put_global_string(ctx, "lulu_command");
     duk_push_c_function(ctx, jsLuLuCOMMAND_LEFTHAND, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_leftHand");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_HALFLAYDOWN, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_halfLayDown");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_SET_TAIL_SPEED, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_setTailSpeed");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_SIT, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_sit");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_STAND, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_stand");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_LAYDOWN, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_layDown");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_HAPPY, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_happy");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_DANCE1, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_dance1");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_TAILLEGSSTAND, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_tailLegsStand");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_FULLLAYDOWN, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_fullLayDown");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_RIGHTHAND, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_rightHand");
 }
 
 void JSRunner::jsEval(char *code)

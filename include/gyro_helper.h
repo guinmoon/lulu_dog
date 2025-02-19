@@ -24,7 +24,7 @@ class LuLuDog;
 class GyroHelper
 {
 private:
-    SensorQMI8658 qmi;
+    static SensorQMI8658 qmi;
 
     IMUdata acc;
     IMUdata gyr;
@@ -33,7 +33,7 @@ private:
     IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
     IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
-    const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+    const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC_X; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
     const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
 
     unsigned long lastGyroActionTime = 0;                      // Время последнего вызова doOnGyro
@@ -55,7 +55,9 @@ public:
     void ResumeGyro();
     static void gyroAndAccelReadThread(void *params);
     void gyroAndAccelReadTask();
-    int gyroDelay = 100;
+    static void tapEventCallback();
+    static void significantMotionEventCallback();
+    int gyroDelay = 50;
 };
 
 
