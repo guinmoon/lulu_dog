@@ -140,6 +140,26 @@ void LVGLHelper::Action1(lv_event_t *e)
     }
 }
 
+void LVGLHelper::Action2(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        luluDog->Action2();
+    }
+}
+
+void LVGLHelper::Action3(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        luluDog->Action3();
+    }
+}
+
 void LVGLHelper::BuildApp()
 {
     //  lv_example_roller_1(lv_scr_act());
@@ -148,9 +168,11 @@ void LVGLHelper::BuildApp()
 
     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     ui_init();
-    lv_obj_add_event_cb(ui_Button6, ExitMenu, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Button5, Action1, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Button4, GoSleep, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonBack, ExitMenu, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonAction1, Action1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonAction2, Action2, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonAction3, Action3, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_ButtonSleep, GoSleep, LV_EVENT_ALL, NULL);
 }
 
 void LVGLHelper::ShowMenu()

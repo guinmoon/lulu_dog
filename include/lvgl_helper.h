@@ -35,6 +35,8 @@ public:
     void StopLVGL();
     static void GoSleep(lv_event_t * e);
     static void Action1(lv_event_t * e);
+    static void Action2(lv_event_t * e);
+    static void Action3(lv_event_t * e);
     void ShowMenu();
     static void example_increase_lvgl_tick(void *arg);
     void cleanup_resources();

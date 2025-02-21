@@ -12,22 +12,38 @@
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t *ui_Screen1;
-lv_obj_t *ui_Image1;
-lv_obj_t *ui_Button1;
-lv_obj_t *ui_Button2;
-lv_obj_t *ui_Button3;
-lv_obj_t *ui_Button4;
-lv_obj_t *ui_Button5;
-lv_obj_t *ui_Button6;
+lv_obj_t *ui_ButtonAction1;
+void ui_event_ButtonMenu( lv_event_t * e);
+lv_obj_t *ui_ButtonMenu;
+lv_obj_t *ui_thredotsLabel;
+lv_obj_t *ui_ButtonAction3;
+lv_obj_t *ui_ButtonSleep;
+lv_obj_t *ui_ButtonAction2;
+lv_obj_t *ui_ButtonBack;
+// CUSTOM VARIABLES
+
+
+// SCREEN: ui_Screen2
+void ui_Screen2_screen_init(void);
+lv_obj_t *ui_Screen2;
+// CUSTOM VARIABLES
+
+
+// SCREEN: ui_Screen3
+void ui_Screen3_screen_init(void);
+lv_obj_t *ui_Screen3;
+lv_obj_t *ui_Roller3;
+void ui_event_Button12( lv_event_t * e);
+lv_obj_t *ui_Button12;
 // CUSTOM VARIABLES
 
 // EVENTS
 lv_obj_t *ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-const lv_img_dsc_t *ui_imgset_[1] = {&ui_img_1_png};
-const lv_img_dsc_t *ui_imgset_d[4] = {&ui_img_d1_png, &ui_img_d2_png, &ui_img_d3_png, &ui_img_d4_png};
 const lv_img_dsc_t *ui_imgset_back[1] = {&ui_img_back48_png};
+const lv_img_dsc_t *ui_imgset_d[3] = {&ui_img_d1_png, &ui_img_d2_png, &ui_img_d4_png};
+const lv_img_dsc_t *ui_imgset_sleep_dog_[1] = {&ui_img_sleep_dog_100_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -40,6 +56,21 @@ const lv_img_dsc_t *ui_imgset_back[1] = {&ui_img_back48_png};
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
+void ui_event_ButtonMenu( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+if ( event_code == LV_EVENT_CLICKED) {
+      _ui_screen_change( &ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen3_screen_init);
+}
+}
+
+void ui_event_Button12( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+if ( event_code == LV_EVENT_CLICKED) {
+      _ui_screen_change( &ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen1_screen_init);
+}
+}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -49,6 +80,8 @@ lv_disp_t *dispp = lv_disp_get_default();
 lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
 lv_disp_set_theme(dispp, theme);
 ui_Screen1_screen_init();
+ui_Screen2_screen_init();
+ui_Screen3_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
 lv_disp_load_scr( ui_Screen1);
 }

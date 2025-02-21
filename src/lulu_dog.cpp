@@ -75,8 +75,21 @@ void LuLuDog::LongPressCallBack(int x, int y)
 void LuLuDog::Action1()
 {
     ExitMenu();
-    luluCharacter->doReact(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
+    jsRunner->jsEvalFile("/js/script1.js");
 }
+
+void LuLuDog::Action2()
+{
+    ExitMenu();
+    jsRunner->jsEvalFile("/js/script2.js");
+}
+
+void LuLuDog::Action3()
+{
+    ExitMenu();
+    jsRunner->jsEvalFile("/js/script3.js");
+}
+
 
 void LuLuDog::PauseDog()
 {
@@ -107,9 +120,9 @@ void LuLuDog::ExitMenu()
 void LuLuDog::ShowMenu()
 {
     PauseDog();
-    displayHelper->ShowMatrixAnimation();
-    delay(1500);
-    displayHelper->StopMatrixAnimation();
+    // displayHelper->ShowMatrixAnimation();
+    // delay(1500);
+    // displayHelper->StopMatrixAnimation();
     delay(100);
     
     lvglHelper->InitDisplayLVGL();

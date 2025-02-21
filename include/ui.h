@@ -28,26 +28,38 @@ extern "C" {
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 extern lv_obj_t *ui_Screen1;
-extern lv_obj_t *ui_Image1;
-extern lv_obj_t *ui_Button1;
-extern lv_obj_t *ui_Button2;
-extern lv_obj_t *ui_Button3;
-extern lv_obj_t *ui_Button4;
-extern lv_obj_t *ui_Button5;
-extern lv_obj_t *ui_Button6;
+extern lv_obj_t *ui_ButtonAction1;
+void ui_event_ButtonMenu( lv_event_t * e);
+extern lv_obj_t *ui_ButtonMenu;
+extern lv_obj_t *ui_thredotsLabel;
+extern lv_obj_t *ui_ButtonAction3;
+extern lv_obj_t *ui_ButtonSleep;
+extern lv_obj_t *ui_ButtonAction2;
+extern lv_obj_t *ui_ButtonBack;
+// CUSTOM VARIABLES
+
+// SCREEN: ui_Screen2
+void ui_Screen2_screen_init(void);
+extern lv_obj_t *ui_Screen2;
+// CUSTOM VARIABLES
+
+// SCREEN: ui_Screen3
+void ui_Screen3_screen_init(void);
+extern lv_obj_t *ui_Screen3;
+extern lv_obj_t *ui_Roller3;
+void ui_event_Button12( lv_event_t * e);
+extern lv_obj_t *ui_Button12;
 // CUSTOM VARIABLES
 
 // EVENTS
 extern lv_obj_t *ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE( ui_img_matrix_small_png);   // assets/matrix_small.png
 LV_IMG_DECLARE( ui_img_d4_png);   // assets/d4.png
 LV_IMG_DECLARE( ui_img_d2_png);   // assets/d2.png
-LV_IMG_DECLARE( ui_img_1_png);   // assets/1.png
+LV_IMG_DECLARE( ui_img_sleep_dog_100_png);   // assets/sleep_dog_100.png
 LV_IMG_DECLARE( ui_img_d1_png);   // assets/d1.png
 LV_IMG_DECLARE( ui_img_back48_png);   // assets/back48.png
-LV_IMG_DECLARE( ui_img_d3_png);   // assets/d3.png
 
 // UI INIT
 void ui_init(void);

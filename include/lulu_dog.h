@@ -36,6 +36,8 @@ public:
     void ResumeDog();
     void ShowMenu();
     void Action1();
+    void Action2();
+    void Action3();
     void ExitMenu();
     static void DoubleTapCallBack(int x, int y);
     static void LongPressCallBack(int x, int y);
