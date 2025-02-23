@@ -28,14 +28,16 @@ extern "C" {
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 extern lv_obj_t *ui_Screen1;
-extern lv_obj_t *ui_ButtonAction1;
 void ui_event_ButtonMenu( lv_event_t * e);
 extern lv_obj_t *ui_ButtonMenu;
+void ui_event_thredotsLabel( lv_event_t * e);
 extern lv_obj_t *ui_thredotsLabel;
-extern lv_obj_t *ui_ButtonAction3;
 extern lv_obj_t *ui_ButtonSleep;
-extern lv_obj_t *ui_ButtonAction2;
 extern lv_obj_t *ui_ButtonBack;
+extern lv_obj_t *ui_Container1;
+extern lv_obj_t *ui_ButtonAction1;
+extern lv_obj_t *ui_ButtonAction2;
+extern lv_obj_t *ui_ButtonAction3;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_Screen2
@@ -46,20 +48,36 @@ extern lv_obj_t *ui_Screen2;
 // SCREEN: ui_Screen3
 void ui_Screen3_screen_init(void);
 extern lv_obj_t *ui_Screen3;
-extern lv_obj_t *ui_Roller3;
-void ui_event_Button12( lv_event_t * e);
-extern lv_obj_t *ui_Button12;
+extern lv_obj_t *ui_Container3;
+void ui_event_WiFiSwitch( lv_event_t * e);
+extern lv_obj_t *ui_WiFiSwitch;
+void ui_event_WiFiSwitch1( lv_event_t * e);
+extern lv_obj_t *ui_WiFiSwitch1;
+void ui_event_SwitchMove( lv_event_t * e);
+extern lv_obj_t *ui_SwitchMove;
+void ui_event_BtnBack( lv_event_t * e);
+extern lv_obj_t *ui_BtnBack;
+extern lv_obj_t *ui_BtnScripts;
+extern lv_obj_t *ui_Scripts;
+extern lv_obj_t *ui_BtnShortcuts;
+extern lv_obj_t *ui_ShortcutsLabel;
+extern lv_obj_t *ui_BtnSound;
+extern lv_obj_t *ui_LabelSound;
+extern lv_obj_t *ui_BtnWiFi;
+extern lv_obj_t *ui_LabelWiFi;
+extern lv_obj_t *ui_BtnMoves;
+extern lv_obj_t *ui_LabelMoves;
 // CUSTOM VARIABLES
 
 // EVENTS
 extern lv_obj_t *ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-LV_IMG_DECLARE( ui_img_d4_png);   // assets/d4.png
-LV_IMG_DECLARE( ui_img_d2_png);   // assets/d2.png
 LV_IMG_DECLARE( ui_img_sleep_dog_100_png);   // assets/sleep_dog_100.png
-LV_IMG_DECLARE( ui_img_d1_png);   // assets/d1.png
 LV_IMG_DECLARE( ui_img_back48_png);   // assets/back48.png
+LV_IMG_DECLARE( ui_img_d4_png);   // assets/d4.png
+LV_IMG_DECLARE( ui_img_d1_png);   // assets/d1.png
+LV_IMG_DECLARE( ui_img_d2_png);   // assets/d2.png
 
 // UI INIT
 void ui_init(void);

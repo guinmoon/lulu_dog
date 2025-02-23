@@ -12,14 +12,16 @@
 // SCREEN: ui_Screen1
 void ui_Screen1_screen_init(void);
 lv_obj_t *ui_Screen1;
-lv_obj_t *ui_ButtonAction1;
 void ui_event_ButtonMenu( lv_event_t * e);
 lv_obj_t *ui_ButtonMenu;
+void ui_event_thredotsLabel( lv_event_t * e);
 lv_obj_t *ui_thredotsLabel;
-lv_obj_t *ui_ButtonAction3;
 lv_obj_t *ui_ButtonSleep;
-lv_obj_t *ui_ButtonAction2;
 lv_obj_t *ui_ButtonBack;
+lv_obj_t *ui_Container1;
+lv_obj_t *ui_ButtonAction1;
+lv_obj_t *ui_ButtonAction2;
+lv_obj_t *ui_ButtonAction3;
 // CUSTOM VARIABLES
 
 
@@ -32,9 +34,25 @@ lv_obj_t *ui_Screen2;
 // SCREEN: ui_Screen3
 void ui_Screen3_screen_init(void);
 lv_obj_t *ui_Screen3;
-lv_obj_t *ui_Roller3;
-void ui_event_Button12( lv_event_t * e);
-lv_obj_t *ui_Button12;
+lv_obj_t *ui_Container3;
+void ui_event_WiFiSwitch( lv_event_t * e);
+lv_obj_t *ui_WiFiSwitch;
+void ui_event_WiFiSwitch1( lv_event_t * e);
+lv_obj_t *ui_WiFiSwitch1;
+void ui_event_SwitchMove( lv_event_t * e);
+lv_obj_t *ui_SwitchMove;
+void ui_event_BtnBack( lv_event_t * e);
+lv_obj_t *ui_BtnBack;
+lv_obj_t *ui_BtnScripts;
+lv_obj_t *ui_Scripts;
+lv_obj_t *ui_BtnShortcuts;
+lv_obj_t *ui_ShortcutsLabel;
+lv_obj_t *ui_BtnSound;
+lv_obj_t *ui_LabelSound;
+lv_obj_t *ui_BtnWiFi;
+lv_obj_t *ui_LabelWiFi;
+lv_obj_t *ui_BtnMoves;
+lv_obj_t *ui_LabelMoves;
 // CUSTOM VARIABLES
 
 // EVENTS
@@ -64,7 +82,39 @@ if ( event_code == LV_EVENT_CLICKED) {
 }
 }
 
-void ui_event_Button12( lv_event_t * e) {
+void ui_event_thredotsLabel( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+if ( event_code == LV_EVENT_CLICKED) {
+      _ui_screen_change( &ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen3_screen_init);
+}
+}
+
+void ui_event_WiFiSwitch( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
+
+if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
+    //   enable_wifi( e );
+}
+}
+
+void ui_event_WiFiSwitch1( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
+
+if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
+    //   enable_wifi( e );
+}
+}
+
+void ui_event_SwitchMove( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
+
+if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
+    //   enable_wifi( e );
+}
+}
+
+void ui_event_BtnBack( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);
 
 if ( event_code == LV_EVENT_CLICKED) {

@@ -64,10 +64,10 @@ void AudioHelper::audioThread(void * _this)
 
 void AudioHelper::PlayWav(char *fname)
 {
-    // audio.stopSong();
+    // audio.stopSong();    
+    delay(100);
     if (!AUDIO_ON)
         return;
-    delay(100);
     bool res = loadWAVToMemory(fname);
     if (!res)
         return;

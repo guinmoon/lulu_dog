@@ -3,17 +3,16 @@
 
 #include "global_def.h"
 
-// #include "1.c"
-// #include "2.c"
-// #include "3.c"
+// Arduino_DataBus *DisplayHelper::bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
+// Arduino_GFX *DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
+//                                                      1 /* rotation */, true /* IPS */, LCD_HEIGHT, LCD_WIDTH, 0, 20, 0, 0);
 
-Arduino_DataBus *DisplayHelper::bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
-Arduino_GFX *DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
-                                                     1 /* rotation */, true /* IPS */, LCD_HEIGHT, LCD_WIDTH, 0, 20, 0, 0);
+LGFX_MyDisplay *DisplayHelper::gfx = new LGFX_MyDisplay();
 AnimatedGIF DisplayHelper::gif;
 
 bool DisplayHelper::showMatrixAnimation = false;
-DigitalRainAnimation<Arduino_GFX> DisplayHelper::matrix_effect = DigitalRainAnimation<Arduino_GFX>();
+// DigitalRainAnimation<LGFX_MyDisplay> DisplayHelper::matrix_effect = DigitalRainAnimation<LGFX_MyDisplay>();
+LuLuDog *DisplayHelper::luluDog;
 
 DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
 {
@@ -58,19 +57,36 @@ void DisplayHelper::showSleepAnimation()
 
 void DisplayHelper::DisplayOn()
 {
-    digitalWrite(LCD_BL, HIGH);
-    DisplayHelper::gfx->displayOn();
+    // gfx->setBrightness(255);
+
+    // digitalWrite(LCD_BL, HIGH);
+    // DisplayHelper::gfx->displayOn();
 }
 
 void DisplayHelper::DisplayOff()
 {
-    DisplayHelper::gfx->displayOff();
-    digitalWrite(LCD_BL, LOW);
+    // DisplayHelper::gfx->displayOff();
+    // gfx->setBrightness(0);
+    // digitalWrite(LCD_BL, LOW);
 }
+
+// void Arduino_ST7789::displayOn(void)
+// {
+//   _bus->sendCommand(0x11);
+//   delay(120);
+// }
+
+// void Arduino_ST7789::displayOff(void)
+// {
+//   _bus->sendCommand(0x10);
+//   delay(120);
+// }
 
 void DisplayHelper::InitDisplay()
 {
-    if (!gfx->begin())
+    // gfx->init();
+    gfx->setRotation(1);
+    if (!gfx->init())
     {
         log_d("gfx->begin() failed!");
     }
@@ -108,7 +124,7 @@ void DisplayHelper::PlayGif(const char *fname)
     }
 
     // gif.begin(GIF_PALETTE_RGB888);
-    // gif.begin(GIF_PALETTE_RGB565_BE);
+    gif.begin(GIF_PALETTE_RGB565_BE);
 
     if (!gif.open(gifData, gifSize, GIFDraw))
     {
@@ -205,22 +221,297 @@ void DisplayHelper::setVoltageBuf(float voltage)
 //   gfx->endWrite();
 // }
 
-void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
+// void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
+// {
+//     uint8_t *s;
+//     uint16_t *usPalette;
+//     uint8_t rgb24[320 * 3]; // Массив для хранения 24-битных данных
+//     int x, y, iWidth;
+
+//     usPalette = pDraw->pPalette;
+//     y = pDraw->iY + pDraw->y; // текущая линия
+//     iWidth = pDraw->iWidth;
+//     if (iWidth > gfx->width())
+//         iWidth = gfx->width();
+//     s = pDraw->pPixels;
+
+//     if (pDraw->ucDisposalMethod == 2) // восстановление фона
+//     {
+//         for (x = 0; x < iWidth; x++)
+//         {
+//             if (s[x] == pDraw->ucTransparent)
+//                 s[x] = pDraw->ucBackground;
+//         }
+//         pDraw->ucHasTransparency = 0;
+//     }
+
+//     // Преобразование и применение пикселей к основному изображению
+//     if (pDraw->ucHasTransparency) // если используется прозрачность
+//     {
+//         uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
+//         int x, iCount;
+//         pEnd = s + iWidth;
+//         x = 0;
+//         iCount = 0; // подсчет непрозрачных пикселей
+//         while (x < iWidth)
+//         {
+//             c = ucTransparent - 1;
+//             int offset = 0;
+//             while (c != ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent) // завершено, остановка
+//                 {
+//                     s--; // назад, чтобы обработать как прозрачный
+//                 }
+//                 else // непрозрачный
+//                 {
+//                     uint16_t color = usPalette[c];
+//                     // Преобразование RGB565 в RGB888
+//                     rgb24[offset++] = ((color >> 11) & 0x1F) << 3; // Red
+//                     rgb24[offset++] = ((color >> 5) & 0x3F) << 2;  // Green
+//                     rgb24[offset++] = (color & 0x1F) << 3;         // Blue
+//                     iCount++;
+//                 }
+//             } // while
+
+//             if (iCount) // есть ли непрозрачные пиксели?
+//             {
+//                 gfx->draw24bitRGBBitmap(pDraw->iX + x, y, rgb24, iCount, 1);
+//                 x += iCount;
+//                 iCount = 0;
+//             }
+//             // нет, искать последовательность прозрачных пикселей
+//             c = ucTransparent;
+//             while (c == ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent)
+//                     iCount++;
+//                 else
+//                     s--;
+//             }
+//             if (iCount)
+//             {
+//                 x += iCount; // пропустить их
+//                 iCount = 0;
+//             }
+//         }
+//     }
+//     else
+//     {
+//         int offset = 0;
+//         for (x = 0; x < iWidth; x++)
+//         {
+//             uint16_t color = usPalette[*s++];
+//             // Преобразование RGB565 в RGB888
+//             rgb24[offset++] = ((color >> 11) & 0x1F) << 3; // Red
+//             rgb24[offset++] = ((color >> 5) & 0x3F) << 2;  // Green
+//             rgb24[offset++] = (color & 0x1F) << 3;         // Blue
+//         }
+//         gfx->draw24bitRGBBitmap(pDraw->iX, y, rgb24, iWidth, 1);
+//     }
+// }
+
+uint16_t DisplayHelper::usTemp[320];
+
+// void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
+// {
+//     uint8_t *s = pDraw->pPixels;
+//     uint16_t *usPalette = pDraw->pPalette;
+//     int y = pDraw->iY + pDraw->y;
+//     int iWidth = pDraw->iWidth;
+//     if (pDraw->iWidth>gfx->width())
+//         iWidth = gfx->width();
+
+//     // Handle background restoration
+//     if (pDraw->ucDisposalMethod == 2)
+//     {
+//         uint8_t ucBackground = pDraw->ucBackground;
+//         for (int x = 0; x < iWidth; x++)
+//         {
+//             if (s[x] == pDraw->ucTransparent)
+//                 s[x] = ucBackground;
+//         }
+//         pDraw->ucHasTransparency = 0;
+//     }
+
+//     // Optimize transparent handling
+//     if (pDraw->ucHasTransparency)
+//     {
+//         uint8_t ucTransparent = pDraw->ucTransparent;
+//         uint16_t *d = usTemp;
+//         int x = 0;
+
+//         while (x < iWidth)
+//         {
+//             // Count non-transparent pixels
+//             int count = 0;
+//             while (x + count < iWidth && s[x + count] != ucTransparent)
+//             {
+//                 usTemp[count] = usPalette[s[x + count]];
+//                 count++;
+//             }
+
+//             // Draw non-transparent block
+//             if (count > 0)
+//             {
+//                 // gfx->draw16bitRGBBitmap(pDraw->iX + x, y, usTemp, count, 1);
+//                 TFTDraw(pDraw->iX + x, y, count, 1, usTemp);
+//                 x += count;
+//             }
+
+//             // Skip transparent pixels
+//             while (x < iWidth && s[x] == ucTransparent)
+//                 x++;
+//         }
+
+//     }
+//     else
+//     {
+//         // Direct conversion for non-transparent images
+//         for (int x = 0; x < iWidth; x++)
+//         {
+//             usTemp[x] = usPalette[s[x]];
+//         }
+//         // gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
+//         TFTDraw(pDraw->iX, y, iWidth, 1, usTemp);
+//     }
+// }
+
+static int xOffset = 0;
+static int yOffset = 0;
+
+void DisplayHelper::TFTDraw(int x, int y, int w, int h, uint16_t *lBuf)
+{
+    gfx->pushImage(x + xOffset, y + yOffset, w, h, lBuf);
+}
+
+// void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
+// {
+//     uint8_t *s;
+//     uint16_t *d, *usPalette/*, usTemp[320]*/;
+//     int x, y, iWidth;
+
+//     iWidth = pDraw->iWidth;
+//     if (iWidth > gfx->width())
+//         iWidth = gfx->width();
+//     usPalette = pDraw->pPalette;
+//     y = pDraw->iY + pDraw->y; // current line
+
+//     s = pDraw->pPixels;
+//     if (pDraw->ucDisposalMethod == 2)
+//     { // restore to background color
+//         for (x = 0; x < iWidth; x++)
+//         {
+//             if (s[x] == pDraw->ucTransparent)
+//                 s[x] = pDraw->ucBackground;
+//         }
+//         pDraw->ucHasTransparency = 0;
+//     }
+//     // Apply the new pixels to the main image
+//     if (pDraw->ucHasTransparency)
+//     { // if transparency used
+//         uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
+//         int x, iCount;
+//         pEnd = s + iWidth;
+//         x = 0;
+//         iCount = 0; // count non-transparent pixels
+//         while (x < iWidth)
+//         {
+//             c = ucTransparent - 1;
+//             d = usTemp;
+//             while (c != ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent)
+//                 {        // done, stop
+//                     s--; // back up to treat it like transparent
+//                 }
+//                 else
+//                 { // opaque
+//                     *d++ = usPalette[c];
+//                     iCount++;
+//                 }
+//             } // while looking for opaque pixels
+//             if (iCount)
+//             { // any opaque pixels?
+//                 TFTDraw(pDraw->iX + x, y, iCount, 1, (uint16_t *)usTemp);
+//                 x += iCount;
+//                 iCount = 0;
+//             }
+//             // no, look for a run of transparent pixels
+//             c = ucTransparent;
+//             while (c == ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent)
+//                     iCount++;
+//                 else
+//                     s--;
+//             }
+//             if (iCount)
+//             {
+//                 x += iCount; // skip these
+//                 iCount = 0;
+//             }
+//         }
+//     }
+//     else
+//     {
+//         s = pDraw->pPixels;
+//         // Translate the 8-bit pixels through the RGB565 palette (already byte reversed)
+//         for (x = 0; x < iWidth; x++)
+//             usTemp[x] = usPalette[*s++];
+//         TFTDraw(pDraw->iX, y, iWidth, 1, (uint16_t *)usTemp);
+//     }
+// } /* GIFDraw() */
+
+// void DisplayHelper::GIFDraw(GIFDRAW* pDraw) {
+//     uint8_t* s;
+//     uint16_t* usPalette = pDraw->pPalette;
+//     int y = pDraw->iY + pDraw->y;
+
+//     int iWidth = pDraw->iWidth > gfx->width() ? gfx->width() : pDraw->iWidth;
+//     s = pDraw->pPixels;
+//     if (pDraw->ucDisposalMethod == 2) {
+//         for (int x = 0; x < iWidth; x++) {
+//             if (s[x] == pDraw->ucTransparent)
+//                 s[x] = pDraw->ucBackground;
+//         }
+//         pDraw->ucHasTransparency = 0;
+//     }
+//     if (pDraw->ucHasTransparency) {
+//         uint8_t* pEnd = s + iWidth;
+//         for (int x = 0; x < iWidth; x++) {
+//             if (*s != pDraw->ucTransparent) {
+//                 gfx->drawPixel(pDraw->iX + x, y, usPalette[*s]);
+//             }
+//             ++s;
+//         }
+//     } else {
+//         for (int x = 0; x < iWidth; x++) {
+//             gfx->drawPixel(pDraw->iX + x, y, usPalette[*s]);
+//             ++s;
+//         }
+//     }
+// }
+
+void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
 {
     uint8_t *s;
-    uint16_t *usPalette;
-    uint8_t rgb24[320 * 3]; // Массив для хранения 24-битных данных
+    uint16_t *d, *usPalette, usTemp[320];
     int x, y, iWidth;
 
-    usPalette = pDraw->pPalette;
-    y = pDraw->iY + pDraw->y; // текущая линия
     iWidth = pDraw->iWidth;
     if (iWidth > gfx->width())
         iWidth = gfx->width();
-    s = pDraw->pPixels;
+    usPalette = pDraw->pPalette;
+    y = pDraw->iY + pDraw->y; // current line
 
-    if (pDraw->ucDisposalMethod == 2) // восстановление фона
-    {
+    s = pDraw->pPixels;
+    if (pDraw->ucDisposalMethod == 2)
+    { // restore to background color
         for (x = 0; x < iWidth; x++)
         {
             if (s[x] == pDraw->ucTransparent)
@@ -228,44 +519,38 @@ void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
         }
         pDraw->ucHasTransparency = 0;
     }
-
-    // Преобразование и применение пикселей к основному изображению
-    if (pDraw->ucHasTransparency) // если используется прозрачность
-    {
+    // Apply the new pixels to the main image
+    if (pDraw->ucHasTransparency)
+    { // if transparency used
         uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
         int x, iCount;
         pEnd = s + iWidth;
         x = 0;
-        iCount = 0; // подсчет непрозрачных пикселей
+        iCount = 0; // count non-transparent pixels
         while (x < iWidth)
         {
             c = ucTransparent - 1;
-            int offset = 0;
+            d = usTemp;
             while (c != ucTransparent && s < pEnd)
             {
                 c = *s++;
-                if (c == ucTransparent) // завершено, остановка
-                {
-                    s--; // назад, чтобы обработать как прозрачный
+                if (c == ucTransparent)
+                {        // done, stop
+                    s--; // back up to treat it like transparent
                 }
-                else // непрозрачный
-                {
-                    uint16_t color = usPalette[c];
-                    // Преобразование RGB565 в RGB888
-                    rgb24[offset++] = ((color >> 11) & 0x1F) << 3; // Red
-                    rgb24[offset++] = ((color >> 5) & 0x3F) << 2;  // Green
-                    rgb24[offset++] = (color & 0x1F) << 3;         // Blue
+                else
+                { // opaque
+                    *d++ = usPalette[c];
                     iCount++;
                 }
-            } // while
-
-            if (iCount) // есть ли непрозрачные пиксели?
-            {
-                gfx->draw24bitRGBBitmap(pDraw->iX + x, y, rgb24, iCount, 1);
+            } // while looking for opaque pixels
+            if (iCount && y > 30)
+            { // any opaque pixels?
+                gfx->pushImage((pDraw->iX + x) + xOffset, y + yOffset, iCount, 1, (uint16_t *)usTemp);
                 x += iCount;
                 iCount = 0;
             }
-            // нет, искать последовательность прозрачных пикселей
+            // no, look for a run of transparent pixels
             c = ucTransparent;
             while (c == ucTransparent && s < pEnd)
             {
@@ -277,90 +562,18 @@ void DisplayHelper::GIFDraw_24bit(GIFDRAW *pDraw)
             }
             if (iCount)
             {
-                x += iCount; // пропустить их
+                x += iCount; // skip these
                 iCount = 0;
             }
         }
     }
     else
     {
-        int offset = 0;
+        s = pDraw->pPixels;
+        // Translate the 8-bit pixels through the RGB565 palette (already byte reversed)
         for (x = 0; x < iWidth; x++)
-        {
-            uint16_t color = usPalette[*s++];
-            // Преобразование RGB565 в RGB888
-            rgb24[offset++] = ((color >> 11) & 0x1F) << 3; // Red
-            rgb24[offset++] = ((color >> 5) & 0x3F) << 2;  // Green
-            rgb24[offset++] = (color & 0x1F) << 3;         // Blue
-        }
-        gfx->draw24bitRGBBitmap(pDraw->iX, y, rgb24, iWidth, 1);
-    }
-}
-
-uint16_t DisplayHelper::usTemp[320];
-
-void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
-{
-    uint8_t *s = pDraw->pPixels;
-    uint16_t *usPalette = pDraw->pPalette;
-    int y = pDraw->iY + pDraw->y;
-    int iWidth = pDraw->iWidth;
-    if (pDraw->iWidth>gfx->width())
-        iWidth = gfx->width();    
-
-    // Handle background restoration
-    if (pDraw->ucDisposalMethod == 2)
-    {
-        uint8_t ucBackground = pDraw->ucBackground;
-        for (int x = 0; x < iWidth; x++)
-        {
-            if (s[x] == pDraw->ucTransparent)
-                s[x] = ucBackground;
-        }
-        pDraw->ucHasTransparency = 0;
-    }
-
-    // Optimize transparent handling
-    if (pDraw->ucHasTransparency)
-    {
-        uint8_t ucTransparent = pDraw->ucTransparent;
-        uint16_t *d = usTemp;
-        int x = 0;
-        
-        
-        
-        while (x < iWidth)
-        {
-            // Count non-transparent pixels
-            int count = 0;
-            while (x + count < iWidth && s[x + count] != ucTransparent)
-            {
-                usTemp[count] = usPalette[s[x + count]];
-                count++;
-            }
-            
-            // Draw non-transparent block
-            if (count > 0)
-            {
-                gfx->draw16bitRGBBitmap(pDraw->iX + x, y, usTemp, count, 1);
-                x += count;
-            }
-            
-            // Skip transparent pixels
-            while (x < iWidth && s[x] == ucTransparent)
-                x++;
-        }
-        
-        
-    }
-    else
-    {
-        // Direct conversion for non-transparent images
-        for (int x = 0; x < iWidth; x++)
-        {
-            usTemp[x] = usPalette[s[x]];
-        }
-        gfx->draw16bitRGBBitmap(pDraw->iX, y, usTemp, iWidth, 1);
+            usTemp[x] = usPalette[*s++];
+        gfx->pushImage((pDraw->iX + x) + xOffset, y + yOffset, iWidth, 1, (uint16_t *)usTemp);
     }
 }
 
@@ -432,9 +645,11 @@ void DisplayHelper::PlayInfiniteTask()
     log_d("play ended");
 }
 
-void DisplayHelper::MatrixAnimationThread(void* _this){
-    while(showMatrixAnimation){
-        matrix_effect.loop();
+void DisplayHelper::MatrixAnimationThread(void *_this)
+{
+    while (showMatrixAnimation)
+    {
+        // matrix_effect.loop();
         delay(50);
     }
     vTaskDelete(NULL);
@@ -445,22 +660,60 @@ void DisplayHelper::ShowMatrixAnimation()
     showMatrixAnimation = true;
     xTaskCreatePinnedToCore(
         this->MatrixAnimationThread, /* Task function. */
-        "Task1",                  /* name of task. */
-        10000,                    /* Stack size of task */
-        this,                     /* parameter of the task */
-        2 | portPRIVILEGE_BIT,    /* priority of the task */
-        &Task1,                   /* Task handle to keep track of created task */
-        0);   
-    
+        "Task1",                     /* name of task. */
+        10000,                       /* Stack size of task */
+        this,                        /* parameter of the task */
+        2 | portPRIVILEGE_BIT,       /* priority of the task */
+        &Task1,                      /* Task handle to keep track of created task */
+        0);
 }
 
-void DisplayHelper::StopMatrixAnimation(){
+void DisplayHelper::StopMatrixAnimation()
+{
     showMatrixAnimation = false;
 }
 
 void DisplayHelper::InitMatrixAnimation()
 {
-    matrix_effect.init(gfx);    
+    // matrix_effect.init(gfx);
+}
+
+// void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+// {
+//     if (luluDog->lvglHelper->lvglExit){
+//         log_d("LVGL EXIT");
+//         lv_disp_flush_ready(disp);
+//         return;
+//     }
+//     uint32_t w = (area->x2 - area->x1 + 1);
+//     uint32_t h = (area->y2 - area->y1 + 1);
+
+// #if (LV_COLOR_16_SWAP != 0)
+//     gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+// #else
+//     log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+//     gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+
+// #endif
+
+//     lv_disp_flush_ready(disp);
+// }
+
+void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+{
+    if (luluDog->lvglHelper->lvglExit)
+    {
+        log_d("LVGL EXIT");
+        lv_disp_flush_ready(disp);
+        return;
+    }
+    uint32_t w = (area->x2 - area->x1 + 1);
+    uint32_t h = (area->y2 - area->y1 + 1);
+    gfx->startWrite();
+    gfx->setAddrWindow(area->x1, area->y1, w, h);
+    gfx->writePixels((lgfx::rgb565_t *)&color_p->full, w * h);
+    gfx->endWrite();
+    lv_disp_flush_ready(disp);
 }
 
 // DisplayHelper displayHelper;

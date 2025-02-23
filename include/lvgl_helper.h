@@ -23,12 +23,11 @@ private:
     static void LVGLTimerLoopThread(void* _this);
 
 public:
-    static Arduino_GFX *gfx;
+    // static Arduino_GFX *gfx;
     static bool lvglExit;
     static esp_timer_handle_t lvgl_tick_timer;
     // static TFT_eSPI* gfx;
-    LVGLHelper(LuLuDog* _luluDog);
-    static void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
+    LVGLHelper(LuLuDog* _luluDog);    
     void InitDisplayLVGL();
     void BuildApp();
     static void ExitMenu(lv_event_t * e);

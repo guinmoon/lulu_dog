@@ -9,7 +9,7 @@
 lv_disp_draw_buf_t LVGLHelper::draw_buf;
 lv_color_t LVGLHelper::buf[screenWidth * screenHeight / 10];
 // TFT_eSPI* LVGLHelper::gfx;
-Arduino_GFX *LVGLHelper::gfx;
+// Arduino_GFX *LVGLHelper::gfx;
 LuLuDog *LVGLHelper::luluDog;
 bool LVGLHelper::lvglExit = false;
 esp_timer_handle_t LVGLHelper::lvgl_tick_timer;
@@ -17,29 +17,11 @@ esp_timer_handle_t LVGLHelper::lvgl_tick_timer;
 LVGLHelper::LVGLHelper(LuLuDog *_luluDog)
 {
     luluDog = _luluDog;
-    gfx = luluDog->displayHelper->gfx;
+    // gfx = luluDog->displayHelper->gfx;
     // log_d("gfx: %i -> ",luluDog->displayHelper->gfx,gfx);
 }
 
-void LVGLHelper::my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-{
-    if (lvglExit){
-        log_d("LVGL EXIT");
-        lv_disp_flush_ready(disp);
-        return;
-    }
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
 
-#if (LV_COLOR_16_SWAP != 0)
-    gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#else
-    log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-    gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#endif
-
-    lv_disp_flush_ready(disp);
-}
 
 #define EXAMPLE_LVGL_TICK_PERIOD_MS 2
 
@@ -222,7 +204,7 @@ void LVGLHelper::InitDisplayLVGL()
     /*Change the following line to your display resolution*/
     disp_drv.hor_res = screenWidth;
     disp_drv.ver_res = screenHeight;
-    disp_drv.flush_cb = this->my_disp_flush;
+    disp_drv.flush_cb = luluDog->displayHelper->LvglDispFlush;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);
 
