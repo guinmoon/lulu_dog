@@ -327,9 +327,6 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
         uint8_t ucTransparent = pDraw->ucTransparent;
         uint16_t *d = usTemp;
         int x = 0;
-        
-        
-        
         while (x < iWidth)
         {
             // Count non-transparent pixels
@@ -350,9 +347,7 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
             // Skip transparent pixels
             while (x < iWidth && s[x] == ucTransparent)
                 x++;
-        }
-        
-        
+        }        
     }
     else
     {

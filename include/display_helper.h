@@ -3,7 +3,7 @@
 #define DISLPAY_HELPER_H
 
 // #include "Arduino_GFX_Library.h"
-// #include <DigitalRainAnimation.hpp>
+
 #include <lvgl.h>
 // #include <TFT_eSPI.h>
 #include <Wire.h>
@@ -12,6 +12,7 @@
 #include "global_def.h"
 #include "battery_helper.h"
 #include <LovyanGFX.hpp>
+#include <DigitalRainAnimation.hpp>
 
 class LuLuDog;
 
@@ -65,7 +66,7 @@ class DisplayHelper
 {
 private:
     // File gifFile;
-    static uint16_t usTemp[320];
+    static uint16_t usTemp[280];
     uint8_t *gifData = nullptr;
     int32_t gifSize = 0;
     TaskHandle_t Task1;
@@ -80,13 +81,15 @@ private:
     // BatteryHelper* batteryHelper;
     static LuLuDog *luluDog;
 
+    static int xOffset;
+    static int yOffset;
+
 public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
-    static LGFX_MyDisplay *gfx;
+    static LGFX_MyDisplay gfx;
     static AnimatedGIF gif;
-    // static DigitalRainAnimation<Arduino_GFX> matrix_effect;
-    // DisplayHelper(BatteryHelper* _batteryHelper);
+    static DigitalRainAnimation<LGFX_MyDisplay> matrix_effect;    
     DisplayHelper(LuLuDog *_luluDog);
     static void GIFDraw(GIFDRAW *pDraw);
     static void TFTDraw(int x, int y, int w, int h, uint16_t *lBuf);

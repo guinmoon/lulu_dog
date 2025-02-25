@@ -37,7 +37,7 @@ void LuLuDog::Init()
     luluCharacter->StartDogActivitiWatcher();
     // lvglHelper->gfx = displayHelper->gfx;
     // lvglHelper->InitDisplayLVGL();
-    // displayHelper->InitMatrixAnimation();
+    displayHelper->InitMatrixAnimation();
     ShowMenu();
     // fsWebServer->Init();
     
@@ -104,8 +104,8 @@ void LuLuDog::ResumeDog()
     gyroHelper->ResumeGyro();
     luluCharacter->suspended = false;
     touchHelper->suspended = false;
-    audioHelper->PlayWav("/woof1.wav");
-    displayHelper->PlayGif("/eye5.gif");
+    audioHelper->PlayWav("/audio/awoof1.wav");
+    displayHelper->PlayGif("/imgs/eye5.gif");
 }
 
 void LuLuDog::ExitMenu()
