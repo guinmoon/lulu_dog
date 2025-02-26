@@ -225,7 +225,7 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, c
         luluDog->displayHelper->PlayGif(eye);
     if (wav != nullptr)
         luluDog->audioHelper->PlayWav(wav);
-    delay(3000);
+    delay(200);
     pingPaused = false;
 }
 
