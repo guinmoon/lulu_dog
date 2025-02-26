@@ -2,7 +2,7 @@
 #define WIRE Wire
 
 #define AUDIO_ON 0
-#define MOVE_ON 0
+#define MOVE_ON 1
 #define SLEEP_ON 1
 #define DEEP_SLEEP_ON 1
 

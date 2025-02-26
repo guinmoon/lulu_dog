@@ -122,7 +122,7 @@ void DisplayHelper::PlayGif(const char *fname)
 
     if (!loadGIFToMemory(fname))
     {
-        log_d("Failed to load GIF to memory play = false;");
+        log_d("Failed to load GIF to memory play = false");
         drawBatteryheart(); 
         play = false;
         return;
@@ -438,6 +438,7 @@ void DisplayHelper::PlayInfiniteTask()
         }
         if (res == 0)
         {
+            log_d("play ended reopen");
             gif.close();
             gif.open(gifData, gifSize, GIFDraw);
         }
@@ -458,6 +459,11 @@ void DisplayHelper::MatrixAnimationThread(void *_this)
 
 void DisplayHelper::ShowMatrixAnimation()
 {
+    if (!matrixEffectInited){
+        matrixEffectInited = true;        
+        InitMatrixAnimation();
+        // delay(300);
+    }
     showMatrixAnimation = true;
     xTaskCreatePinnedToCore(
         this->MatrixAnimationThread, /* Task function. */
@@ -476,7 +482,7 @@ void DisplayHelper::StopMatrixAnimation()
 
 void DisplayHelper::InitMatrixAnimation()
 {
-    matrix_effect.init(&gfx);
+    matrix_effect.init(&gfx);    
 }
 
 // void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)

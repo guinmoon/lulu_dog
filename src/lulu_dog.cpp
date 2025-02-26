@@ -33,13 +33,13 @@ void LuLuDog::Init()
     audioHelper->InitAudio();
     jsRunner->jsInit();
     audioHelper->PlayWav("/audio/woof1.wav");
-    // displayHelper->PlayGif("/imgs/eye5.gif");
+    displayHelper->PlayGif("/imgs/eye5.gif");
     luluCharacter->StartDogActivitiWatcher();
     // lvglHelper->gfx = displayHelper->gfx;
     // lvglHelper->InitDisplayLVGL();
-    displayHelper->InitMatrixAnimation();
-    ShowMenu();
-    // fsWebServer->Init();
+    // displayHelper->InitMatrixAnimation();
+    // ShowMenu();
+    fsWebServer->Init();
     
 
     // jsRunner->jsEvalFile("/js/demo.js");

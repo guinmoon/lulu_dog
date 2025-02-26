@@ -84,6 +84,8 @@ private:
     static int xOffset;
     static int yOffset;
 
+    bool matrixEffectInited = false;
+
 public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;

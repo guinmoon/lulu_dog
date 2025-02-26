@@ -12,6 +12,7 @@
 #include "lvgl_helper.h"
 #include "js_helper.h"
 #include "web_server.h"
+#include "config_helper.hpp"
 
 class LuLuDog
 {
