@@ -142,6 +142,52 @@ void LVGLHelper::Action3(lv_event_t *e)
     }
 }
 
+void LVGLHelper::WifiSwitchEventHandler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        LV_UNUSED(obj);
+        bool wifiOn = lv_obj_has_state(obj, LV_STATE_CHECKED) ? true : false; 
+        luluDog->configHelper->SetProperty("wifi", wifiOn);                     
+    }
+}
+
+void LVGLHelper::MoveSwitchEventHandler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        LV_UNUSED(obj);
+        bool moveOn = lv_obj_has_state(obj, LV_STATE_CHECKED) ? true : false; 
+        luluDog->configHelper->SetProperty("move", moveOn);                     
+    }
+}
+
+void LVGLHelper::AudioSwitchEventHandler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        LV_UNUSED(obj);
+        bool audioOn = lv_obj_has_state(obj, LV_STATE_CHECKED) ? true : false; 
+        luluDog->configHelper->SetProperty("audio", audioOn);                     
+    }
+}
+
+void LVGLHelper::GetValuesFromConfig(){
+    lv_obj_clear_state(ui_SwitchWiFi, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_SwitchMove, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_SwitchAudio, LV_STATE_CHECKED);
+    if (luluDog->configHelper->EnableWifi) 
+        lv_obj_add_state(ui_SwitchWiFi, LV_STATE_CHECKED);
+    if (luluDog->configHelper->EnableMove) 
+        lv_obj_add_state(ui_SwitchMove, LV_STATE_CHECKED);
+    if (luluDog->configHelper->EnableAudio) 
+        lv_obj_add_state(ui_SwitchAudio, LV_STATE_CHECKED);
+
+}
+
 void LVGLHelper::BuildApp()
 {
     //  lv_example_roller_1(lv_scr_act());
@@ -150,11 +196,18 @@ void LVGLHelper::BuildApp()
 
     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     ui_init();
+    GetValuesFromConfig();
     lv_obj_add_event_cb(ui_ButtonBack, ExitMenu, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonAction1, Action1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonAction2, Action2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonAction3, Action3, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonSleep, GoSleep, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SwitchWiFi, WifiSwitchEventHandler, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SwitchMove, MoveSwitchEventHandler, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_SwitchSleep, SleepSwitchEventHandler, LV_EVENT_ALL, NULL);
+    // lv_obj_add_event_cb(ui_SwitchDeepSleep, DeepSleepSwitchEventHandler, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SwitchAudio, AudioSwitchEventHandler, LV_EVENT_ALL, NULL);
+    
 }
 
 void LVGLHelper::ShowMenu()

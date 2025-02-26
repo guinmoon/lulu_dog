@@ -7,9 +7,12 @@
 // void PlayWav(char *fname);
 // void InitAudio();
 
+class LuLuDog;
+
 class AudioHelper
 {
 private:
+    LuLuDog *luluDog;
 public:
     const int frequency = 440;   // frequency of square wave in Hz
     const int amplitude = 500;   // amplitude of square wave
@@ -31,7 +34,7 @@ public:
     uint8_t *wavData = nullptr;
     size_t wavSize = 0;
 
-    AudioHelper();
+    AudioHelper(LuLuDog *luluDog);
     bool loadWAVToMemory(const char *filename);
     void InitAudio();
     static void audioThread(void *params);

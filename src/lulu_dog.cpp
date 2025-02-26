@@ -1,12 +1,11 @@
 #include "lulu_dog.h"
 
-
-
 LuLuDog *LuLuDog::instance;
+ConfigHelper *LuLuDog::configHelper;
 
 LuLuDog::LuLuDog()
 {
-    audioHelper = new AudioHelper();
+    audioHelper = new AudioHelper(this);
     batteryHelper = new BatteryHelper(this);
     displayHelper = new DisplayHelper(this);
     luluCharacter = new LuLuCharacter(this);
@@ -15,7 +14,7 @@ LuLuDog::LuLuDog()
     lvglHelper = new LVGLHelper(this);
     jsRunner = new JSRunner(this);
     fsWebServer = new LuLuWebServer(this);
-
+    configHelper = new ConfigHelper(this);
     instance = this;
     // touchHelper = new TouchHelper();
 }
@@ -23,7 +22,7 @@ LuLuDog::LuLuDog()
 void LuLuDog::Init()
 {
 
-
+    configHelper->LoadConfig("/config.json");
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
     touchHelper->InitTouch();
@@ -39,11 +38,12 @@ void LuLuDog::Init()
     // lvglHelper->InitDisplayLVGL();
     // displayHelper->InitMatrixAnimation();
     // ShowMenu();
-    fsWebServer->Init();
-    
-    luluCharacter->doReact(COMMAND_HALFLAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
-    luluCharacter->doReact(COMMAND_FULLLAYDOWN, 4, 6, "/imgs/eye6.gif", "/audio/woof3.wav");
-    luluCharacter->doReact(COMMAND_LAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
+    if (configHelper->EnableWifi)
+        fsWebServer->Init();
+
+    // luluCharacter->doReact(COMMAND_HALFLAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
+    // luluCharacter->doReact(COMMAND_FULLLAYDOWN, 4, 6, "/imgs/eye6.gif", "/audio/woof3.wav");
+    // luluCharacter->doReact(COMMAND_LAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
     // jsRunner->jsEvalFile("/js/demo.js");
 
     // jsRunner->jsEval(
@@ -52,8 +52,6 @@ void LuLuDog::Init()
     //         delay(2000); \
     //      }"
     // );
-
-    
 }
 
 void LuLuDog::setVoltageBuf(float voltage)
@@ -62,7 +60,7 @@ void LuLuDog::setVoltageBuf(float voltage)
 }
 
 void LuLuDog::DoubleTapCallBack(int x, int y)
-{    
+{
     instance->ShowMenu();
 }
 
@@ -92,7 +90,6 @@ void LuLuDog::Action3()
     jsRunner->jsEvalFile("/js/script3.js");
 }
 
-
 void LuLuDog::PauseDog()
 {
     displayHelper->StopGif();
@@ -116,7 +113,6 @@ void LuLuDog::ExitMenu()
     displayHelper->fillScreen();
     ResumeDog();
     delay(200);
-    
 }
 
 void LuLuDog::ShowMenu()
@@ -126,7 +122,7 @@ void LuLuDog::ShowMenu()
     // delay(1500);
     // displayHelper->StopMatrixAnimation();
     delay(100);
-    
+
     lvglHelper->InitDisplayLVGL();
     lvglHelper->ShowMenu();
 }

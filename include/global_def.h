@@ -4,6 +4,7 @@
 #define AUDIO_ON 0
 #define MOVE_ON 1
 #define SLEEP_ON 1
+#define WIFI_ON 1
 #define DEEP_SLEEP_ON 1
 
 #define IMG_WIDTH 280

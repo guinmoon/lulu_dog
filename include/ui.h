@@ -43,20 +43,9 @@ extern lv_obj_t *ui_ButtonAction3;
 // SCREEN: ui_Screen2
 void ui_Screen2_screen_init(void);
 extern lv_obj_t *ui_Screen2;
-// CUSTOM VARIABLES
-
-// SCREEN: ui_Screen3
-void ui_Screen3_screen_init(void);
-extern lv_obj_t *ui_Screen3;
-extern lv_obj_t *ui_Container3;
-void ui_event_WiFiSwitch( lv_event_t * e);
-extern lv_obj_t *ui_WiFiSwitch;
-void ui_event_WiFiSwitch1( lv_event_t * e);
-extern lv_obj_t *ui_WiFiSwitch1;
-void ui_event_SwitchMove( lv_event_t * e);
-extern lv_obj_t *ui_SwitchMove;
 void ui_event_BtnBack( lv_event_t * e);
 extern lv_obj_t *ui_BtnBack;
+extern lv_obj_t *ui_Container3;
 extern lv_obj_t *ui_BtnScripts;
 extern lv_obj_t *ui_Scripts;
 extern lv_obj_t *ui_BtnShortcuts;
@@ -67,6 +56,9 @@ extern lv_obj_t *ui_BtnWiFi;
 extern lv_obj_t *ui_LabelWiFi;
 extern lv_obj_t *ui_BtnMoves;
 extern lv_obj_t *ui_LabelMoves;
+extern lv_obj_t *ui_SwitchWiFi;
+extern lv_obj_t *ui_SwitchAudio;
+extern lv_obj_t *ui_SwitchMove;
 // CUSTOM VARIABLES
 
 // EVENTS

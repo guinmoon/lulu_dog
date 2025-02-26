@@ -28,21 +28,9 @@ lv_obj_t *ui_ButtonAction3;
 // SCREEN: ui_Screen2
 void ui_Screen2_screen_init(void);
 lv_obj_t *ui_Screen2;
-// CUSTOM VARIABLES
-
-
-// SCREEN: ui_Screen3
-void ui_Screen3_screen_init(void);
-lv_obj_t *ui_Screen3;
-lv_obj_t *ui_Container3;
-void ui_event_WiFiSwitch( lv_event_t * e);
-lv_obj_t *ui_WiFiSwitch;
-void ui_event_WiFiSwitch1( lv_event_t * e);
-lv_obj_t *ui_WiFiSwitch1;
-void ui_event_SwitchMove( lv_event_t * e);
-lv_obj_t *ui_SwitchMove;
 void ui_event_BtnBack( lv_event_t * e);
 lv_obj_t *ui_BtnBack;
+lv_obj_t *ui_Container3;
 lv_obj_t *ui_BtnScripts;
 lv_obj_t *ui_Scripts;
 lv_obj_t *ui_BtnShortcuts;
@@ -53,6 +41,9 @@ lv_obj_t *ui_BtnWiFi;
 lv_obj_t *ui_LabelWiFi;
 lv_obj_t *ui_BtnMoves;
 lv_obj_t *ui_LabelMoves;
+lv_obj_t *ui_SwitchWiFi;
+lv_obj_t *ui_SwitchAudio;
+lv_obj_t *ui_SwitchMove;
 // CUSTOM VARIABLES
 
 // EVENTS
@@ -78,7 +69,7 @@ void ui_event_ButtonMenu( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);
 
 if ( event_code == LV_EVENT_CLICKED) {
-      _ui_screen_change( &ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen3_screen_init);
+      _ui_screen_change( &ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen2_screen_init);
 }
 }
 
@@ -86,31 +77,7 @@ void ui_event_thredotsLabel( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);
 
 if ( event_code == LV_EVENT_CLICKED) {
-      _ui_screen_change( &ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen3_screen_init);
-}
-}
-
-void ui_event_WiFiSwitch( lv_event_t * e) {
-    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
-
-if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
-    //   enable_wifi( e );
-}
-}
-
-void ui_event_WiFiSwitch1( lv_event_t * e) {
-    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
-
-if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
-    //   enable_wifi( e );
-}
-}
-
-void ui_event_SwitchMove( lv_event_t * e) {
-    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
-
-if ( event_code == LV_EVENT_VALUE_CHANGED &&  lv_obj_has_state(target,LV_STATE_CHECKED)  ) {
-    //   enable_wifi( e );
+      _ui_screen_change( &ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0, &ui_Screen2_screen_init);
 }
 }
 
@@ -131,7 +98,6 @@ lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE
 lv_disp_set_theme(dispp, theme);
 ui_Screen1_screen_init();
 ui_Screen2_screen_init();
-ui_Screen3_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
 lv_disp_load_scr( ui_Screen1);
 }

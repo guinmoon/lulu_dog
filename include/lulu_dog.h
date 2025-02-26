@@ -14,6 +14,7 @@
 #include "web_server.h"
 #include "config_helper.hpp"
 
+
 class LuLuDog
 {
 private:
@@ -29,7 +30,8 @@ public:
     LVGLHelper* lvglHelper;
     JSRunner* jsRunner;
     LuLuWebServer* fsWebServer;
-
+    static ConfigHelper* configHelper;
+    
     LuLuDog();
     void Init();
     void setVoltageBuf(float voltage);

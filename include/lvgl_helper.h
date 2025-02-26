@@ -4,8 +4,7 @@
 #include <Arduino.h>
 #include "lv_conf.h"
 #include "demos/lv_demos.h"
-// #include <TFT_eSPI.h>
-#include "Arduino_GFX_Library.h"
+
 
 class LuLuDog;
 
@@ -36,6 +35,10 @@ public:
     static void Action1(lv_event_t * e);
     static void Action2(lv_event_t * e);
     static void Action3(lv_event_t * e);
+    static void WifiSwitchEventHandler(lv_event_t * e);
+    static void MoveSwitchEventHandler(lv_event_t * e);
+    static void AudioSwitchEventHandler(lv_event_t * e);
+    static void GetValuesFromConfig();
     void ShowMenu();
     static void example_increase_lvgl_tick(void *arg);
     void cleanup_resources();

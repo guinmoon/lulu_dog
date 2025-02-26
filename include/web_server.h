@@ -21,11 +21,13 @@ public:
     LuLuWebServer(LuLuDog *_luluDog);
     ~LuLuWebServer();
     void Init();
+    void Deinit();
     // static void handleLed(AsyncWebServerRequest *request);
     static void handleLed();
     // static void getFsInfo(fsInfo_t* fsInfo);
     static bool startFilesystem();
     static void ServerThread(void * _this);
+    static bool serverRunning;
 };
 
 

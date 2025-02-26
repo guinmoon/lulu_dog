@@ -481,4 +481,87 @@ void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv
     lv_disp_flush_ready(disp);
 }
 
+
+
+
+//OK
+// void  DisplayHelper::GIFDraw(GIFDRAW *pDraw)
+// {
+//     uint8_t *s;
+//     uint16_t *d, *usPalette/*, usTemp[320]*/;
+//     int x, y, iWidth;
+
+//     iWidth = pDraw->iWidth;
+//     if (iWidth > LCD_WIDTH)
+//         iWidth = LCD_WIDTH;
+//     usPalette = pDraw->pPalette;
+//     y = pDraw->iY + pDraw->y; // current line
+
+//     s = pDraw->pPixels;
+//     if (pDraw->ucDisposalMethod == 2)
+//     { // restore to background color
+//         for (x = 0; x < iWidth; x++)
+//         {
+//             if (s[x] == pDraw->ucTransparent)
+//                 s[x] = pDraw->ucBackground;
+//         }
+//         pDraw->ucHasTransparency = 0;
+//     }
+//     // Apply the new pixels to the main image
+//     if (pDraw->ucHasTransparency)
+//     { // if transparency used
+//         uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
+//         int x, iCount;
+//         pEnd = s + iWidth;
+//         x = 0;
+//         iCount = 0; // count non-transparent pixels
+//         while (x < iWidth)
+//         {
+//             c = ucTransparent - 1;
+//             d = usTemp;
+//             while (c != ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent)
+//                 {        // done, stop
+//                     s--; // back up to treat it like transparent
+//                 }
+//                 else
+//                 { // opaque
+//                     *d++ = usPalette[c];
+//                     iCount++;
+//                 }
+//             } // while looking for opaque pixels
+//             if (iCount /*&& y > 30*/)
+//             { // any opaque pixels?
+//                 gfx.pushImage((pDraw->iX + x) + xOffset, y + yOffset, iCount, 1, (uint16_t *)usTemp);
+//                 x += iCount;
+//                 iCount = 0;
+//             }
+//             // no, look for a run of transparent pixels
+//             c = ucTransparent;
+//             while (c == ucTransparent && s < pEnd)
+//             {
+//                 c = *s++;
+//                 if (c == ucTransparent)
+//                     iCount++;
+//                 else
+//                     s--;
+//             }
+//             if (iCount)
+//             {
+//                 x += iCount; // skip these
+//                 iCount = 0;
+//             }
+//         }
+//     }
+//     else
+//     {
+//         s = pDraw->pPixels;
+//         // Translate the 8-bit pixels through the RGB565 palette (already byte reversed)
+//         for (x = 0; x < iWidth; x++)
+//             usTemp[x] = usPalette[*s++];
+//         gfx.pushImage((pDraw->iX + x) + xOffset, y + yOffset, iWidth, 1, (uint16_t *)usTemp);
+//     }
+// }
 // DisplayHelper displayHelper;

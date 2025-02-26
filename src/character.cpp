@@ -213,12 +213,12 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, c
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
     lastImpact = millis();//Для вызовов не из этого класса
     pingPaused = true;
-    if (tail_speed != -1 && MOVE_ON)
+    if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
         SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
     }
-    if (command != -1 && MOVE_ON){
+    if (command != -1 && luluDog->configHelper->EnableMove){
         SendCommand(command, speed);
     }    
     if (eye != nullptr)

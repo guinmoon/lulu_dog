@@ -60,8 +60,8 @@ void DisplayHelper::showSleepAnimation()
 
 void DisplayHelper::DisplayOn()
 {
+    gfx.endWrite();
     gfx.setBrightness(255);
-
     digitalWrite(LCD_BL, HIGH);
     // DisplayHelper::gfx.displayOn();
 }
@@ -69,6 +69,7 @@ void DisplayHelper::DisplayOn()
 void DisplayHelper::DisplayOff()
 {
     // DisplayHelper::gfx.displayOff();
+    gfx.endWrite();
     gfx.setBrightness(0);
     digitalWrite(LCD_BL, LOW);
 }
@@ -89,6 +90,7 @@ void DisplayHelper::InitDisplay()
 {
     // gfx.init();
     gfx.setRotation(1);
+    
     if (!gfx.init())
     {
         log_d("gfx.begin() failed!");
@@ -99,7 +101,7 @@ void DisplayHelper::InitDisplay()
     digitalWrite(LCD_BL, HIGH);
 
     gfx.setCursor(10, 10);
-    gfx.setTextColor(RED);
+    gfx.setTextColor(TFT_RED);
     gfx.println("Hello World!");
     // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
@@ -239,86 +241,6 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
     gfx.endWrite();
 }
 
-//OK
-// void  DisplayHelper::GIFDraw(GIFDRAW *pDraw)
-// {
-//     uint8_t *s;
-//     uint16_t *d, *usPalette/*, usTemp[320]*/;
-//     int x, y, iWidth;
-
-//     iWidth = pDraw->iWidth;
-//     if (iWidth > LCD_WIDTH)
-//         iWidth = LCD_WIDTH;
-//     usPalette = pDraw->pPalette;
-//     y = pDraw->iY + pDraw->y; // current line
-
-//     s = pDraw->pPixels;
-//     if (pDraw->ucDisposalMethod == 2)
-//     { // restore to background color
-//         for (x = 0; x < iWidth; x++)
-//         {
-//             if (s[x] == pDraw->ucTransparent)
-//                 s[x] = pDraw->ucBackground;
-//         }
-//         pDraw->ucHasTransparency = 0;
-//     }
-//     // Apply the new pixels to the main image
-//     if (pDraw->ucHasTransparency)
-//     { // if transparency used
-//         uint8_t *pEnd, c, ucTransparent = pDraw->ucTransparent;
-//         int x, iCount;
-//         pEnd = s + iWidth;
-//         x = 0;
-//         iCount = 0; // count non-transparent pixels
-//         while (x < iWidth)
-//         {
-//             c = ucTransparent - 1;
-//             d = usTemp;
-//             while (c != ucTransparent && s < pEnd)
-//             {
-//                 c = *s++;
-//                 if (c == ucTransparent)
-//                 {        // done, stop
-//                     s--; // back up to treat it like transparent
-//                 }
-//                 else
-//                 { // opaque
-//                     *d++ = usPalette[c];
-//                     iCount++;
-//                 }
-//             } // while looking for opaque pixels
-//             if (iCount /*&& y > 30*/)
-//             { // any opaque pixels?
-//                 gfx.pushImage((pDraw->iX + x) + xOffset, y + yOffset, iCount, 1, (uint16_t *)usTemp);
-//                 x += iCount;
-//                 iCount = 0;
-//             }
-//             // no, look for a run of transparent pixels
-//             c = ucTransparent;
-//             while (c == ucTransparent && s < pEnd)
-//             {
-//                 c = *s++;
-//                 if (c == ucTransparent)
-//                     iCount++;
-//                 else
-//                     s--;
-//             }
-//             if (iCount)
-//             {
-//                 x += iCount; // skip these
-//                 iCount = 0;
-//             }
-//         }
-//     }
-//     else
-//     {
-//         s = pDraw->pPixels;
-//         // Translate the 8-bit pixels through the RGB565 palette (already byte reversed)
-//         for (x = 0; x < iWidth; x++)
-//             usTemp[x] = usPalette[*s++];
-//         gfx.pushImage((pDraw->iX + x) + xOffset, y + yOffset, iWidth, 1, (uint16_t *)usTemp);
-//     }
-// }
 
 
 bool  DisplayHelper::loadGIFToMemory(const char *filename)
@@ -357,14 +279,15 @@ void DisplayHelper::StopGif()
 
 void DisplayHelper::fillScreen()
 {
-    gfx.fillScreen(BLACK);
+    // gfx.fillScreen(BLACK);
+    gfx.clear();
 }
 
 void  DisplayHelper::printOnDisplay(char *text, int x, int y)
 {
     //
     gfx.setCursor(x, y);
-    gfx.setTextColor(RED);
+    gfx.setTextColor(TFT_RED);
     gfx.fillRect(x, y, x + 110, y + 20, 0);
     gfx.println(text);
 }
@@ -380,22 +303,22 @@ void  DisplayHelper::drawBatteryheart()
 {
     // printOnDisplay(voltageBuf);
     float volt = luluDog->batteryHelper->get_battery_voltage();
-    int heartColor = RED;
+    int heartColor = TFT_RED;
     if (luluDog->batteryHelper->isCharging())
     {
-        heartColor = GREEN;
+        heartColor = TFT_GREEN;
         // printOnDisplay(voltageBuf,10,50);
     }
     if (volt <= 3.1)
-        drawHeart(0, 0, BLACK);
+        drawHeart(0, 0, TFT_BLACK);
     else
         drawHeart(0, 0, heartColor);
     if (volt <= 3.5)
-        drawHeart(30, 0, BLACK);
+        drawHeart(30, 0, TFT_BLACK);
     else
         drawHeart(30, 0, heartColor);
     if (volt <= 3.7)
-        drawHeart(60, 0, BLACK);
+        drawHeart(60, 0, TFT_BLACK);
     else
         drawHeart(60, 0, heartColor);
 }
@@ -485,26 +408,6 @@ void DisplayHelper::InitMatrixAnimation()
     matrix_effect.init(&gfx);    
 }
 
-// void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-// {
-//     if (luluDog->lvglHelper->lvglExit){
-//         log_d("LVGL EXIT");
-//         lv_disp_flush_ready(disp);
-//         return;
-//     }
-//     uint32_t w = (area->x2 - area->x1 + 1);
-//     uint32_t h = (area->y2 - area->y1 + 1);
-
-// #if (LV_COLOR_16_SWAP != 0)
-//     gfx.draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-// #else
-//     log_d("%i, %i, %i, %i, %i, %i", gfx, area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-//     gfx.draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-
-// #endif
-
-//     lv_disp_flush_ready(disp);
-// }
 
 void  DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {

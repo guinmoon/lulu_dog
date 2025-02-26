@@ -2,11 +2,13 @@
 #include <ESP_I2S.h>
 #include "LittleFS.h"
 #include "global_def.h"
-
+#include "lulu_dog.h"
 
 // AudioHelper audioHelper;
 
-AudioHelper::AudioHelper(){}
+AudioHelper::AudioHelper(LuLuDog *luluDog){
+    this->luluDog = luluDog;
+}
 
 
 
@@ -66,7 +68,7 @@ void AudioHelper::PlayWav(char *fname)
 {
     // audio.stopSong();    
     delay(100);
-    if (!AUDIO_ON)
+    if (!luluDog->configHelper->EnableAudio)
         return;
     bool res = loadWAVToMemory(fname);
     if (!res)

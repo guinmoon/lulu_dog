@@ -5,7 +5,7 @@
 #include "web_server.h"
 #include "lulu_dog.h"
 #include "global_def.h"
-
+#include <WiFi.h>
 // #ifndef LED_BUILTIN
 // #define LED_BUILTIN 2
 // #endif
@@ -13,14 +13,14 @@
 
 LuLuDog *LuLuWebServer::luluDog;
 // AsyncFsWebServer LuLuWebServer::server(80, LittleFS, "myServer");
-WebServer* LuLuWebServer::server;
-FSWebServer* LuLuWebServer::myWebServer;
+WebServer *LuLuWebServer::server;
+FSWebServer *LuLuWebServer::myWebServer;
+bool LuLuWebServer::serverRunning = false;
 
 LuLuWebServer::LuLuWebServer(LuLuDog *_luluDog)
 {
     this->luluDog = _luluDog;
-    server = new WebServer(80);
-    myWebServer = new FSWebServer(LittleFS, *server);
+    
 }
 
 LuLuWebServer::~LuLuWebServer()
@@ -75,10 +75,10 @@ void LuLuWebServer::handleLed()
     myWebServer->webserver->send(200, "text/plain", reply);
 }
 
-
-
 void LuLuWebServer::Init()
 {
+    server = new WebServer(80);
+    myWebServer = new FSWebServer(LittleFS, *server);
     startFilesystem();
 
     // Try to connect to flash stored SSID, start AP if fails after timeout
@@ -87,29 +87,39 @@ void LuLuWebServer::Init()
     // Add custom page handlers to webserver
     myWebServer->addHandler("/led", HTTP_GET, handleLed);
 
-    
-
     // Start webserver
     if (myWebServer->begin())
     {
-        log_d("ESP Web Server started on IP Address: %s",myIP.toString().c_str());
+        log_d("ESP Web Server started on IP Address: %s", myIP.toString().c_str());
         log_d("Open /setup page to configure optional parameters");
         log_d("Open /edit page to view and edit files");
-
+        serverRunning = true;
         xTaskCreatePinnedToCore(
             this->ServerThread, /* Task function. */
             "Task15",           /* name of task. */
-            10000,             /* Stack size of task */
-            this,              /* parameter of the task */
-            tskIDLE_PRIORITY,  /* priority of the task */
-            NULL,              /* Task handle to keep track of created task */
+            10000,              /* Stack size of task */
+            this,               /* parameter of the task */
+            tskIDLE_PRIORITY,   /* priority of the task */
+            NULL,               /* Task handle to keep track of created task */
             1);
     }
 }
 
+void LuLuWebServer::Deinit()
+{
+    serverRunning = false;
+    myWebServer->webserver->stop();
 
-void LuLuWebServer::ServerThread(void * _this){
-    while ( true)
+    delete myWebServer;
+    delete server;
+
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
+}
+
+void LuLuWebServer::ServerThread(void *_this)
+{
+    while (serverRunning)
     {
         myWebServer->run();
         delay(50);
