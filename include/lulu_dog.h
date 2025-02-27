@@ -13,6 +13,7 @@
 #include "js_helper.h"
 #include "web_server.h"
 #include "config_helper.hpp"
+#include "dog_events.hpp"
 
 
 class LuLuDog

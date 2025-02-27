@@ -34,24 +34,14 @@ void LuLuDog::Init()
     audioHelper->PlayWav("/audio/woof1.wav");
     displayHelper->PlayGif("/imgs/eye5.gif");
     luluCharacter->StartDogActivitiWatcher();
-    // lvglHelper->gfx = displayHelper->gfx;
-    // lvglHelper->InitDisplayLVGL();
-    // displayHelper->InitMatrixAnimation();
+
     // ShowMenu();
     if (configHelper->EnableWifi)
         fsWebServer->Init();
 
-    // luluCharacter->doReact(COMMAND_HALFLAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
-    // luluCharacter->doReact(COMMAND_FULLLAYDOWN, 4, 6, "/imgs/eye6.gif", "/audio/woof3.wav");
-    // luluCharacter->doReact(COMMAND_LAYDOWN, 4, 6, "/imgs/eye2.gif", "/audio/woof1.wav");
     // jsRunner->jsEvalFile("/js/demo.js");
 
-    // jsRunner->jsEval(
-    //     "for (var i=0;i<5;i++){ \
-    //         log_d('Hello, world!'); \
-    //         delay(2000); \
-    //      }"
-    // );
+
 }
 
 void LuLuDog::setVoltageBuf(float voltage)

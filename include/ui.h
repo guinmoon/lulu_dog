@@ -67,9 +67,9 @@ extern lv_obj_t *ui____initial_actions0;
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE( ui_img_sleep_dog_100_png);   // assets/sleep_dog_100.png
 LV_IMG_DECLARE( ui_img_back48_png);   // assets/back48.png
-LV_IMG_DECLARE( ui_img_d4_png);   // assets/d4.png
-LV_IMG_DECLARE( ui_img_d1_png);   // assets/d1.png
-LV_IMG_DECLARE( ui_img_d2_png);   // assets/d2.png
+LV_IMG_DECLARE( ui_img_item2_120_png);   // assets/item2_120.png
+LV_IMG_DECLARE( ui_img_item1_120_png);   // assets/item1_120.png
+LV_IMG_DECLARE( ui_img_item3_120_png);   // assets/item3_120.png
 
 // UI INIT
 void ui_init(void);
