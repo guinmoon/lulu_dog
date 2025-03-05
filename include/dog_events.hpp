@@ -6,15 +6,16 @@
 class LuLuDog;
 
 enum DogEventType {
-    DOG_EVENT_TYPE_NONE,
-    DOG_EVENT_TYPE_TOUCH,
-    DOG_EVENT_TYPE_GYRO,
-    DOG_EVENT_TYPE_ACCELEROMETER,
-    DOG_EVENT_TYPE_RTC,
-    DOG_EVENT_TYPE_VOLTAGE,
-    DOG_EVENT_TYPE_BUTTON,
-    DOG_EVENT_TYPE_TOUCH_BUTTON
+    NONE = 0,
+    TOUCH,
+    GYRO, 
+    ACCELEROMETER,
+    RTC,
+    VOLTAGE,
+    BUTTON,
+    TOUCH_BUTTON
 };
+
 
 struct TouchEvent {
         int x;

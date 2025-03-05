@@ -34,37 +34,29 @@ void TouchHelper::detectLongOrDoubleTap()
 {
     unsigned long currentTime = millis();
 
-    if (isPressed && !wasPressed)
-    {
+    if (isPressed && !wasPressed) {
         // Начало нового нажатия
         pressStartTime = currentTime;
-    }
-    else if (!isPressed && wasPressed)
-    {
+    } else if (!isPressed && wasPressed) {
         // Конец нажатия
         released = true;
         longPressActivated = false;
-        if (currentTime - lastReleaseTime < doubleTapTimeout)
-        {
-            // luluDog->ShowMenu();
-            this->doubleTapCallback(0,0);
+
+        if (currentTime - lastReleaseTime < doubleTapTimeout) {
+            this->doubleTapCallback(0, 0);
             log_d("Double Tap Detected");
         }
+
         lastReleaseTime = currentTime;
     }
-
-    if (isPressed && wasPressed && (currentTime - pressStartTime >= longPressThreshold))
-    {
+    
+    if (isPressed && wasPressed && !longPressActivated &&
+        (currentTime - pressStartTime >= longPressThreshold)) {
+        
         log_d("Long Press Detected");
-        if (!longPressActivated)
-        {
-            this->longPressCallback(0,0);
-            // luluDog->luluCharacter->DoSceneReact(x[0], y[0]);
-            // luluDog->ShowMenu();
-        }
-        longPressActivated = true;
-
-        pressStartTime = currentTime + 999999; // Исключаем повторное обнаружение длительного нажатия
+        this->longPressCallback(0, 0);      
+        // Исключаем повторное обнаружение длительного нажатия
+        pressStartTime = currentTime + 99999;
     }
 
     wasPressed = isPressed;
