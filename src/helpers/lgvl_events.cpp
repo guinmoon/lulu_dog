@@ -14,7 +14,7 @@ void LVGLHelper::GoSleep(lv_event_t *e)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        luluDog->luluCharacter->GoToDeepSleep();
+        luluDog->dogEvents->GoToDeepSleep();
     }
 }
 

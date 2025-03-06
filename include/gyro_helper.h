@@ -14,8 +14,8 @@
 #define GYRO_D_DOWN 6
 #define GYRO_D_ROTATE_RIGHT 7
 #define GYRO_D_ROTATE_LEFT 8
-#define GYRO_D_TILT_FORWARD 9
-#define GYRO_D_TILT_BACKWARD 10
+#define GYRO_D_TILT_FORWARD 9 //turn right
+#define GYRO_D_TILT_BACKWARD 10 //turn left
 #define GYRO_D_TILT_UP 11
 #define GYRO_D_TILT_DOWN 12
 
@@ -36,20 +36,23 @@ private:
     const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC_X; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
     const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
 
+    unsigned long lastAccActionTime = 0;
     unsigned long lastGyroActionTime = 0;                      // Время последнего вызова doOnGyro
     const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
 
     bool gyroActionFirstTime = true;
-    bool gyroActive = true;
+    
 
     
 
-    int direction = 0;
+    int directionAcc = 0;
+    int directionGyro = 0;
     LuLuDog* luluDog;
 
 public:
+    bool gyroActive = true;
     GyroHelper(LuLuDog* _luluDog);
-    void doOnGyro(int direction);
+    // void doOnGyro(int direction);
     bool InitGyro();
     void PauseGyro();
     void ResumeGyro();

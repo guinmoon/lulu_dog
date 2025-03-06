@@ -415,10 +415,15 @@ void  DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, l
     {
         log_d("LVGL EXIT");
         lv_disp_flush_ready(disp);
+        sleep(300);
         return;
     }
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
+    uint32_t w = (area->x2 - area->x1 +1);
+    uint32_t h = (area->y2 - area->y1 +1);
+    if (w <= 0 && h <= 0){
+        lv_disp_flush_ready(disp);
+        return;
+    }
     gfx.startWrite();
     gfx.setAddrWindow(area->x1, area->y1, w, h);
     gfx.writePixels((lgfx::rgb565_t *)&color_p->full, w * h);

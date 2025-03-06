@@ -29,15 +29,15 @@ GyroHelper::GyroHelper(LuLuDog *_luluDog)
     this->luluDog = _luluDog;
 }
 
-void GyroHelper::doOnGyro(int direction)
-{
-    // Реализация вашей функции, вызываемой при обнаружении удара
-    log_d("doOnGyro called!");
-    delay(200);
-    if (!luluDog->touchHelper->released || !gyroActive)
-        return;
-    luluDog->luluCharacter->doRandomReact(direction);
-}
+// void GyroHelper::doOnGyro(int direction)
+// {
+//     // Реализация вашей функции, вызываемой при обнаружении удара
+//     log_d("doOnGyro called!");
+//     delay(200);
+//     if (!luluDog->touchHelper->released || !gyroActive)
+//         return;
+//     luluDog->luluCharacter->doRandomReact(direction);
+// }
 
 void GyroHelper::PauseGyro()
 {
@@ -217,7 +217,7 @@ void GyroHelper::gyroAndAccelReadTask()
 
     // Set the Tap Detection callback function
     // qmi.setTapEventCallBack(tapEventCallback);
-    
+
     // qmi.configMotion(modeCtrl,
     //                  AnyMotionXThr, AnyMotionYThr, AnyMotionZThr, AnyMotionWindow,
     //                  NoMotionXThr, NoMotionYThr, NoMotionZThr, NoMotionWindow,
@@ -240,78 +240,116 @@ void GyroHelper::gyroAndAccelReadTask()
         qmi.update();
         if (qmi.getDataReady())
         {
-            bool impactDetected = false;
-            int direction = GYRO_D_NONE;
+            bool accImpactDetected = false;
+            bool gyroImpactDetected = false;
+            int directionAcc = GYRO_D_NONE;            
+            int directionGyro = GYRO_D_NONE;
+            float accDeltaX = 0;
+            float accDeltaY = 0;
+            float accDeltaZ = 0;
+            float deltaGyrX = 0;
+            float deltaGyrY = 0;
+            float deltaGyrZ = 0;
 
             if (qmi.getAccelerometer(acc.x, acc.y, acc.z))
             {
                 // Вычисление изменений акселерометра
-                float deltaX = acc.x - prevAcc.x;
-                float deltaY = acc.y - prevAcc.y;
-                float deltaZ = acc.z - prevAcc.z;
+                accDeltaX = acc.x - prevAcc.x;
+                accDeltaY = acc.y - prevAcc.y;
+                accDeltaZ = acc.z - prevAcc.z;
                 // log_d("%f %f %f",deltaX,deltaY,deltaZ);
 
                 // Определение направления по акселерометру
-                if (abs(deltaX) > impactThresholdAcc)
+                if (abs(accDeltaX) > impactThresholdAcc)
                 {
-                    impactDetected = true;
-                    direction = (deltaX > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
+                    accImpactDetected = true;
+                    directionAcc = (accDeltaX > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
                 }
-                else if (abs(deltaY) > impactThresholdAcc)
+                else if (abs(accDeltaY) > impactThresholdAcc && abs(accDeltaY) > abs(accDeltaX))
                 {
-                    impactDetected = true;
-                    direction = (deltaY > 0) ? GYRO_D_FORWARD : GYRO_D_BACKWARD;
+                    accImpactDetected = true;
+                    directionAcc = (accDeltaY > 0) ? GYRO_D_FORWARD : GYRO_D_BACKWARD;
                 }
-                else if (abs(deltaZ) > impactThresholdAcc)
+                else if (abs(accDeltaZ) > impactThresholdAcc && abs(accDeltaZ) > abs(accDeltaY))
                 {
-                    impactDetected = true;
-                    direction = (deltaZ > 0) ? GYRO_D_UP : GYRO_D_DOWN;
+                    accImpactDetected = true;
+                    directionAcc = (accDeltaZ > 0) ? GYRO_D_UP : GYRO_D_DOWN;
                 }
 
                 prevAcc = acc;
             }
 
-            // if (qmi.getGyroscope(gyr.x, gyr.y, gyr.z))
-            // {
-            //     // Вычисление изменений гироскопа
-            //     float deltaGyrX = gyr.x - prevGyr.x;
-            //     float deltaGyrY = gyr.y - prevGyr.y;
-            //     float deltaGyrZ = gyr.z - prevGyr.z;
+            if (qmi.getGyroscope(gyr.x, gyr.y, gyr.z))
+            {
+                // Вычисление изменений гироскопа
+                deltaGyrX = gyr.x - prevGyr.x;
+                deltaGyrY = gyr.y - prevGyr.y;
+                deltaGyrZ = gyr.z - prevGyr.z;
 
-            //     // Определение направления по гироскопу
-            //     if (abs(deltaGyrX) > impactThresholdGyr)
-            //     {
-            //         impactDetected = true;
-            //         direction = (deltaGyrX > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
-            //     }
-            //     else if (abs(deltaGyrY) > impactThresholdGyr)
-            //     {
-            //         impactDetected = true;
-            //         direction = (deltaGyrY > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
-            //     }
-            //     else if (abs(deltaGyrZ) > impactThresholdGyr)
-            //     {
-            //         impactDetected = true;
-            //         direction = (deltaGyrZ > 0) ? GYRO_D_TILT_UP : GYRO_D_TILT_DOWN;
-            //     }
+                // Определение направления по гироскопу
+                if (abs(deltaGyrX) > impactThresholdGyr)
+                {
+                    gyroImpactDetected = true;
+                    directionGyro = (deltaGyrX > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
+                }
+                else if (abs(deltaGyrY) > impactThresholdGyr && abs(deltaGyrY) > abs(deltaGyrX))
+                {
+                    gyroImpactDetected = true;
+                    directionGyro = (deltaGyrY > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
+                }
+                else if (abs(deltaGyrZ) > impactThresholdGyr && abs(deltaGyrZ) > abs(deltaGyrY))
+                {
+                    gyroImpactDetected = true;
+                    directionGyro = (deltaGyrZ > 0) ? GYRO_D_TILT_UP : GYRO_D_TILT_DOWN;
+                }
 
-            //     prevGyr = gyr;
-            // }
+                prevGyr = gyr;
+            }
+            
+            DogEvent* accEvent = NULL;
+            DogEvent* gyrEvent = NULL;
 
-            if (impactDetected)
+            if (accImpactDetected)
             {
                 unsigned long currentMillis = millis();
-                if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
+                if (currentMillis - lastAccActionTime >= gyroActionPeriod ||
+                    currentMillis - lastGyroActionTime >= gyroActionPeriod)
                 {
-                    log_d("Impact %i detected! ", direction); // Вызов функции с указанием направления
-                    doOnGyro(direction);                    
-                    lastGyroActionTime = currentMillis;       // Обновление времени последнего вызова
-                    if(qmi.getAccelerometer(acc.x, acc.y, acc.z)){//записываем чтобы после детекта
-                                                                //не было детекта в противоположную сторону
-                        prevAcc = acc;
-                    }
+                    // luluDog->dogEvents->EmitDogEvent(
+                    accEvent =luluDog->dogEvents->BuildAccEvent(accDeltaX, accDeltaY, accDeltaZ,directionAcc);//);
+                    lastAccActionTime = currentMillis; // Обновление времени последнего вызова
                 }
             }
+            if (gyroImpactDetected)
+            {
+                unsigned long currentMillis = millis();
+                if (currentMillis - lastGyroActionTime >= gyroActionPeriod ||
+                    currentMillis - lastAccActionTime >= gyroActionPeriod)
+                {
+                    // log_d("gyroImpactDetected Impact %i detected! ", directionGyro); // Вызов функции с указанием направления                    
+                    gyrEvent = luluDog->dogEvents->BuildGyroEvent(accDeltaX, accDeltaY, accDeltaZ,directionGyro);
+                    lastGyroActionTime = currentMillis;
+                }
+            }
+
+            if (accEvent != NULL && gyrEvent != NULL){
+                    luluDog->dogEvents->EmitDogEvent(accEvent,gyrEvent);
+            }else{
+                if (accEvent != NULL){
+                    luluDog->dogEvents->EmitDogEvent(accEvent);
+                }
+                if (gyrEvent != NULL){
+                    luluDog->dogEvents->EmitDogEvent(gyrEvent);
+                }
+            }
+
+            // // записываем чтобы после детекта
+            // // не было детекта в противоположную сторону
+            // if (qmi.getGyroscope(gyr.x, gyr.y, gyr.z))
+            //     prevGyr = gyr;
+            // if (qmi.getAccelerometer(acc.x, acc.y, acc.z))
+            //     prevAcc = acc;
+            
         }
 
         delay(gyroDelay); // Пауза для снижения частоты опроса

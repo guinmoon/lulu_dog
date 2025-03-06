@@ -21,13 +21,13 @@ class LuLuCharacter
 {
 private:
     LuLuDog* luluDog;
-    unsigned long lastImpact = millis();
-    bool deepSleeping = false;
-    bool sleeping = false;
+    // unsigned long lastImpact = millis();
+    // bool deepSleeping = false;
+    // bool sleeping = false;
     int allowedOnCharging[4] = {0, 10, 11, 12};
     int maxChoise = 13;
     std::mutex i2c_mutex;
-    bool pingPaused = false;
+    // bool pingPaused = false;
     float probabilities[15] = {
         0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
         0.4, /*sendCommand(COMMAND_SIT, 4);*/
@@ -49,26 +49,29 @@ private:
     int size = sizeof(probabilities) / sizeof(probabilities[0]);
 
 public:
-    bool suspended = false;
+    // bool suspended = false;
     LuLuCharacter(LuLuDog* _luluDog);
-    static void DogActivitiWatcherThread(void *args);
-    static void RP2040PingThread(void *args);
-    void _wake();
+    // static void DogActivitiWatcherThread(void *args);
+    // static void RP2040PingThread(void *args);
+    // void Wake();    
+    // void SleepPrepare();
+    // void GoToDeepSleep();
+    // void GoToSleep();    
+    // void StartDogActivitiWatcher();
+    // void RP2040PingTask();
+    // void DogActivitiWatcherTask();
+    
     int generateRandomWithProbabilities(float probabilities[], int size);
     void NormalizeProbabilities();
     void sendCommand(int command);
     void SendCommand(int command, int arg1);
-    void SleepPrepare();
-    void GoToDeepSleep();
-    void GoToSleep();    
-    void StartDogActivitiWatcher();
+    
     int getAllowedRandomReact();
     int GetAllowedSceneReact();
     void doReact(int command, int speed, int tail_speed, char *eye, char *wav);
     void doRandomReact(int direction);
     void DoSceneReact(int x, int y);
-    void RP2040PingTask();
-    void DogActivitiWatcherTask();
+    
 };
 
 // extern LuLuCharacter luluCharacter;

@@ -22,15 +22,15 @@
 
 bool TouchHelper::isPressed = false;
 TouchDrvCSTXXX TouchHelper::touch;
-int16_t TouchHelper::x[5];
-int16_t TouchHelper::y[5];
+int16_t TouchHelper::x[6];
+int16_t TouchHelper::y[6];
 
 TouchHelper::TouchHelper(LuLuDog *_luluDog)
 {
     luluDog = _luluDog;
 }
 
-void TouchHelper::detectLongOrDoubleTap()
+void TouchHelper::detectLongOrDoubleTap(int x, int y)
 {
     unsigned long currentTime = millis();
 
@@ -43,8 +43,10 @@ void TouchHelper::detectLongOrDoubleTap()
         longPressActivated = false;
 
         if (currentTime - lastReleaseTime < doubleTapTimeout) {
-            this->doubleTapCallback(0, 0);
-            log_d("Double Tap Detected");
+            // this->doubleTapCallback(0, 0);
+            luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x,y,2));                    
+            // luluDog->dogEvents->BuildTouchEvent(x,y,1);
+            // log_d("Double Tap Detected");
         }
 
         lastReleaseTime = currentTime;
@@ -52,9 +54,10 @@ void TouchHelper::detectLongOrDoubleTap()
     
     if (isPressed && wasPressed && !longPressActivated &&
         (currentTime - pressStartTime >= longPressThreshold)) {
-        
-        log_d("Long Press Detected");
-        this->longPressCallback(0, 0);      
+        luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x,y,LONG_PRESS_T_COUNT));
+        // log_d("Long Press Detected");
+        // this->longPressCallback(0, 0);   
+        longPressActivated = true;   
         // Исключаем повторное обнаружение длительного нажатия
         pressStartTime = currentTime + 99999;
     }
@@ -69,19 +72,15 @@ void TouchHelper::TouchReadThread(void *_this)
 }
 
 void TouchHelper::LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
-{
-    uint8_t touched = touch.getPoint(y, x, touch.getSupportTouchPoint());
-    if (touched)
+{    
+    uint8_t touched = touch.getPoint(y, x, /*touch.getSupportTouchPoint()*/1);
+    if (touched && x[0] >= 0 && y[0] >= 0)
     {
         data->state = LV_INDEV_STATE_PR;
-        /* Set the coordinates with some debounce */
-        if (x[0] >= 0 && y[0] >= 0)
-        {
-            data->point.x = x[0];
-            data->point.y = LCD_HEIGHT - y[0];
-            log_d("x:%i y:%i ", x[0], LCD_HEIGHT - y[0]);
-            // USBSerial.printf("Data x: %d, Data y: %d\n", touchX, touchY);
-        }
+        data->point.x = x[0];
+        data->point.y = LCD_HEIGHT - y[0];
+        log_d("x:%i y:%i ", x[0], LCD_HEIGHT - y[0]);            
+        
     }
     else
     {
@@ -97,21 +96,23 @@ void TouchHelper::TouchReadTask()
             delay(500);
             continue;
         }
+        
         if (isPressed)
         {
-            uint8_t touched = touch.getPoint(y, x, touch.getSupportTouchPoint());
+            uint8_t touched = touch.getPoint(y, x, /*touch.getSupportTouchPoint()*/1);
             if (touched)
             {
                 released = false;
-                for (int i = 0; i < touched; ++i)
-                {
-                    log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
-                    // if (x[i])
-                }
+                log_d("touch event");                
+                // for (int i = 0; i < touched; ++i)
+                // {
+                //     log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
+                //     // if (x[i])
+                // }
             }
         }
         // Вызов функции определения длительного или двойного касания
-        detectLongOrDoubleTap();
+        detectLongOrDoubleTap(x[0],y[0]);
         isPressed = false;
         delay(30);
     }

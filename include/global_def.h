@@ -57,6 +57,7 @@
 
 #define TP_RST 13
 #define TP_INT 14
+#define LONG_PRESS_T_COUNT 33
 
 // #define BUZZER_PIN 33
 #define BUZZER_PIN 42

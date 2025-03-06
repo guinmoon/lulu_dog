@@ -5,6 +5,8 @@ ConfigHelper *LuLuDog::configHelper;
 
 LuLuDog::LuLuDog()
 {
+    configHelper = new ConfigHelper(this);
+    dogEvents = new DogEvents(this);
     audioHelper = new AudioHelper(this);
     batteryHelper = new BatteryHelper(this);
     displayHelper = new DisplayHelper(this);
@@ -13,8 +15,7 @@ LuLuDog::LuLuDog()
     touchHelper = new TouchHelper(this);
     lvglHelper = new LVGLHelper(this);
     jsRunner = new JSRunner(this);
-    fsWebServer = new LuLuWebServer(this);
-    configHelper = new ConfigHelper(this);
+    fsWebServer = new LuLuWebServer(this);    
     instance = this;
     // touchHelper = new TouchHelper();
 }
@@ -26,14 +27,15 @@ void LuLuDog::Init()
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
     touchHelper->InitTouch();
-    touchHelper->doubleTapCallback = this->DoubleTapCallBack;
-    touchHelper->longPressCallback = this->LongPressCallBack;
+    // touchHelper->doubleTapCallback = this->DoubleTapCallBack;
+    // touchHelper->longPressCallback = this->LongPressCallBack;
     gyroHelper->InitGyro();
     audioHelper->InitAudio();
     jsRunner->jsInit();
     audioHelper->PlayWav("/audio/woof1.wav");
     displayHelper->PlayGif("/imgs/eye5.gif");
-    luluCharacter->StartDogActivitiWatcher();
+    dogEvents->StartDogActivitiWatcher();
+    dogEvents->StartSlavePingThread();
 
     // ShowMenu();
     if (configHelper->EnableWifi)
@@ -49,18 +51,18 @@ void LuLuDog::setVoltageBuf(float voltage)
     displayHelper->setVoltageBuf(voltage);
 }
 
-void LuLuDog::DoubleTapCallBack(int x, int y)
-{
-    instance->ShowMenu();
-}
+// void LuLuDog::DoubleTapCallBack(int x, int y)
+// {
+//     instance->ShowMenu();
+// }
 
-void LuLuDog::LongPressCallBack(int x, int y)
-{
-    instance->displayHelper->StopGif();
-    instance->displayHelper->ShowMatrixAnimation();
-    // delay(5000);
-    // instance->displayHelper->StopMatrixAnimation();
-}
+// void LuLuDog::LongPressCallBack(int x, int y)
+// {
+//     instance->displayHelper->StopGif();
+//     instance->displayHelper->ShowMatrixAnimation();
+//     // delay(5000);
+//     // instance->displayHelper->StopMatrixAnimation();
+// }
 
 void LuLuDog::Action1()
 {
@@ -84,14 +86,14 @@ void LuLuDog::PauseDog()
 {
     displayHelper->StopGif();
     gyroHelper->PauseGyro();
-    luluCharacter->suspended = true;
+    dogEvents->eventsSuspended = true;
     touchHelper->suspended = true;
 }
 
 void LuLuDog::ResumeDog()
 {
     gyroHelper->ResumeGyro();
-    luluCharacter->suspended = false;
+    dogEvents->eventsSuspended = false;
     touchHelper->suspended = false;
     audioHelper->PlayWav("/audio/awoof1.wav");
     displayHelper->PlayGif("/imgs/eye5.gif");

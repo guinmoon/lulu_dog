@@ -8,6 +8,7 @@
 
 LuLuCharacter::LuLuCharacter(LuLuDog* _luluDog){
     luluDog = _luluDog;
+    NormalizeProbabilities();
 }
 
 int LuLuCharacter::generateRandomWithProbabilities(float probabilities[], int size)
@@ -68,104 +69,116 @@ void LuLuCharacter::SendCommand(int command, int arg1)
     log_d("Sended %i:%i", command, arg1);
 }
 
-void LuLuCharacter::SleepPrepare()
-{
-    SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-    log_d("SLEEP");
-    luluDog->displayHelper->StopGif();
-    delay(1000);
-    SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-}
+// void LuLuCharacter::_wake()
+// {
+//     if (sleeping)
+//     {
+//         sleeping = false;
+//         log_d("WAKE");
+//         luluDog->displayHelper->stopSleepAnimation();
+//         delay(200);
+//         // SendCommand(RP_SYS_COMMAND_WAKE,0);
+//     }
+// }
 
-void LuLuCharacter::GoToDeepSleep()
-{
-    if (!DEEP_SLEEP_ON)
-        return;
-    log_d("PREPARE to SLEEP: %i ms", 2000);
-    sleeping = true;
-    deepSleeping = true;
-    SleepPrepare();
-    gpio_deep_sleep_hold_en();
-    gpio_hold_en((gpio_num_t)SYS_EN_PIN);
-    esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
-    esp_deep_sleep_start();
-    log_d("SLEEPING FOR: %i ms", 2000);
-}
+// void LuLuCharacter::SleepPrepare()
+// {
+//     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+//     log_d("SLEEP");
+//     luluDog->displayHelper->StopGif();
+//     delay(1000);
+//     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+// }
 
-void LuLuCharacter::GoToSleep()
-{
-    if (!SLEEP_ON)
-        return;
-    SleepPrepare();
-    sleeping = true;
-    luluDog->displayHelper->showSleepAnimation();
-}
+// void LuLuCharacter::GoToDeepSleep()
+// {
+//     if (!DEEP_SLEEP_ON)
+//         return;
+//     log_d("PREPARE to SLEEP: %i ms", 2000);
+//     sleeping = true;
+//     deepSleeping = true;
+//     SleepPrepare();
+//     gpio_deep_sleep_hold_en();
+//     gpio_hold_en((gpio_num_t)SYS_EN_PIN);
+//     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
+//     esp_deep_sleep_start();
+//     log_d("SLEEPING FOR: %i ms", 2000);
+// }
 
-void LuLuCharacter::DogActivitiWatcherTask()
-{
-    while (true)
-    {
-        if (suspended){
-            lastImpact = millis();
-            delay(1000);
-            continue;
-        }
-        if ((millis() - lastImpact) / 1000 >= SLEEP_AFTER && !sleeping)
-        {
-            GoToSleep();
-        }
-        if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !luluDog->batteryHelper->isCharging())
-        {
-            GoToDeepSleep();
-        }
+// void LuLuCharacter::GoToSleep()
+// {
+//     if (!SLEEP_ON)
+//         return;
+//     SleepPrepare();
+//     sleeping = true;
+//     luluDog->displayHelper->showSleepAnimation();
+// }
 
-        delay(1000);
-    }
-}
+// void LuLuCharacter::DogActivitiWatcherTask()
+// {
+//     while (true)
+//     {
+//         if (suspended){
+//             lastImpact = millis();
+//             delay(1000);
+//             continue;
+//         }
+//         if ((millis() - lastImpact) / 1000 >= SLEEP_AFTER && !sleeping)
+//         {
+//             GoToSleep();
+//         }
+//         if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !luluDog->batteryHelper->isCharging())
+//         {
+//             GoToDeepSleep();
+//         }
 
-void LuLuCharacter::DogActivitiWatcherThread(void *_this)
-{
-    ((LuLuCharacter *)_this)->DogActivitiWatcherTask();
-    vTaskDelete(NULL);
-}
+//         delay(1000);
+//     }
+// }
 
-void LuLuCharacter::RP2040PingTask()
-{
-    while (true)
-    {
-        if (!pingPaused)
-            SendCommand(RP_SYS_COMMAND_PING, 0);
-        delay(2000);
-    }
-}
+// void LuLuCharacter::DogActivitiWatcherThread(void *_this)
+// {
+//     ((LuLuCharacter *)_this)->DogActivitiWatcherTask();
+//     vTaskDelete(NULL);
+// }
 
-void LuLuCharacter::RP2040PingThread(void *_this)
-{
-    ((LuLuCharacter *)_this)->RP2040PingTask();
-    vTaskDelete(NULL);
-}
+// void LuLuCharacter::RP2040PingTask()
+// {
+//     while (true)
+//     {
+//         if (!pingPaused)
+//             SendCommand(RP_SYS_COMMAND_PING, 0);
+//         delay(2000);
+//     }
+// }
 
-void LuLuCharacter::StartDogActivitiWatcher()
-{
-    NormalizeProbabilities();
-    xTaskCreatePinnedToCore(
-        this->DogActivitiWatcherThread, /* Task function. */
-        "Task7",                        /* name of task. */
-        4096,                          /* Stack size of task */
-        this,                           /* parameter of the task */
-        tskIDLE_PRIORITY,               /* priority of the task */
-        NULL,                           /* Task handle to keep track of created task */
-        0);
+// void LuLuCharacter::RP2040PingThread(void *_this)
+// {
+//     ((LuLuCharacter *)_this)->RP2040PingTask();
+//     vTaskDelete(NULL);
+// }
 
-    xTaskCreatePinnedToCore(
-        this->RP2040PingThread, /* Task function. */
-        "Task11",               /* name of task. */
-        4096,                  /* Stack size of task */
-        this,                   /* parameter of the task */
-        tskIDLE_PRIORITY,       /* priority of the task */
-        NULL,                   /* Task handle to keep track of created task */
-        0);
-}
+// void LuLuCharacter::StartDogActivitiWatcher()
+// {
+//     NormalizeProbabilities();
+//     xTaskCreatePinnedToCore(
+//         this->DogActivitiWatcherThread, /* Task function. */
+//         "Task7",                        /* name of task. */
+//         4096,                          /* Stack size of task */
+//         this,                           /* parameter of the task */
+//         tskIDLE_PRIORITY,               /* priority of the task */
+//         NULL,                           /* Task handle to keep track of created task */
+//         0);
+
+//     xTaskCreatePinnedToCore(
+//         this->RP2040PingThread, /* Task function. */
+//         "Task11",               /* name of task. */
+//         4096,                  /* Stack size of task */
+//         this,                   /* parameter of the task */
+//         tskIDLE_PRIORITY,       /* priority of the task */
+//         NULL,                   /* Task handle to keep track of created task */
+//         0);
+// }
 
 int LuLuCharacter::getAllowedRandomReact()
 {
@@ -196,23 +209,13 @@ int LuLuCharacter::GetAllowedSceneReact()
     return choice;
 }
 
-void LuLuCharacter::_wake()
-{
-    if (sleeping)
-    {
-        sleeping = false;
-        log_d("WAKE");
-        luluDog->displayHelper->stopSleepAnimation();
-        delay(200);
-        // SendCommand(RP_SYS_COMMAND_WAKE,0);
-    }
-}
+
 
 void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, char *wav)
 {
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
-    lastImpact = millis();//Для вызовов не из этого класса
-    pingPaused = true;
+    luluDog->dogEvents->lastImpact = millis();//Для вызовов не из этого класса
+    luluDog->dogEvents->pingPaused = true;
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
@@ -226,20 +229,20 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, c
     if (wav != nullptr)
         luluDog->audioHelper->PlayWav(wav);
     delay(200);
-    pingPaused = false;
+    luluDog->dogEvents->pingPaused = false;
 }
 
 void LuLuCharacter::doRandomReact(int direction)
 {
 
-    int current_time = millis();
-    if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
-    {
-        lastImpact = current_time;
-        return;
-    }
-    lastImpact = current_time;
-    _wake();
+    // int current_time = millis();
+    // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
+    // {
+    //     lastImpact = current_time;
+    //     return;
+    // }
+    // lastImpact = current_time;
+    // Wake();
 
     if (luluDog->displayHelper->showMatrixAnimation){
         luluDog->displayHelper->StopMatrixAnimation();
@@ -308,8 +311,8 @@ void LuLuCharacter::DoSceneReact(int x, int y)
     //     lastImpact = current_time;
     //     return;
     // }
-    lastImpact = current_time;
-    _wake();
+    luluDog->dogEvents->lastImpact = current_time;
+    // _wake();
 
     int choice = GetAllowedSceneReact();
     switch (choice)

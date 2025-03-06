@@ -5,37 +5,56 @@
 
 class LuLuDog;
 
-enum DogEventType {
+enum DogEventType
+{
     NONE = 0,
-    TOUCH,
-    GYRO, 
-    ACCELEROMETER,
-    RTC,
-    VOLTAGE,
-    BUTTON,
-    TOUCH_BUTTON
+    TOUCH = 1,
+    GYRO = 2,
+    ACCELEROMETER = 3,
+    RTC = 4,
+    VOLTAGE = 5,
+    BUTTON = 6,
+    TOUCH_BUTTON = 7
 };
 
 
-struct TouchEvent {
-        int x;
-        int y;
-        int8_t touchCount;
+struct TouchEvent
+{
+    int x;
+    int y;
+    int8_t touchCount;
 };
 
-struct GyroEvent {
-    float deltaX;
-    float deltaY;
-    float deltaZ;        
-};
-
-struct AccelerometerEvent {
+struct GyroEvent
+{
     float deltaX;
     float deltaY;
     float deltaZ;
+    int direction;
 };
 
-struct RtcEvent {
+struct AccelerometerEvent
+{
+    float deltaX;
+    float deltaY;
+    float deltaZ;
+    int direction;
+};
+
+// struct AccelerometerGyroEvent
+// {
+//     float deltaAccX;
+//     float deltaAccY;
+//     float deltaAccZ;
+//     int directionAcc;
+//     float deltaGyroX;
+//     float deltaGyroY;
+//     float deltaGyroZ;
+//     int directionGyro;
+// };
+
+struct RtcEvent
+{
     int year;
     int month;
     int day;
@@ -43,29 +62,58 @@ struct RtcEvent {
     int minute;
 };
 
-struct VoltageEvent {
+struct VoltageEvent
+{
     float voltage;
 };
 
-struct ButtonEvent {
+struct ButtonEvent
+{
     int button;
     int8_t pressCount;
 };
 
-
-struct DogEvent {     
-    void * eventArgs;
+struct DogEvent
+{
+    void *eventArgs;
     DogEventType eventType;
 };
 
-class DogEvents {
-    public:
-        DogEvents(LuLuDog *_luluDog);
-        ~DogEvents();
-        void OnDogEvent(DogEvent *e);
+class DogEvents
+{
+public:
+    unsigned long lastImpact = millis();
+    bool deepSleeping = false;
+    bool sleeping = false;
+    bool pingPaused = false;
+    bool eventsSuspended = false;
 
-    private:
-        LuLuDog *luluDog;
+    static void DogActivitiWatcherThread(void *args);
+    static void RP2040PingThread(void *args);
+    void Wake();    
+    void SleepPrepare();
+    void GoToDeepSleep();
+    void GoToSleep();    
+    void StartDogActivitiWatcher();
+    void RP2040PingTask();
+    void DogActivitiWatcherTask();
+    void StartSlavePingThread();
+
+    DogEvent *BuildTouchEvent(int x, int y, int8_t touchCount);
+    DogEvent *BuildAccEvent(float deltaX, float deltaY, float deltaZ, int direction);
+    DogEvent *BuildGyroEvent(float deltaX, float deltaY, float deltaZ, int direction);
+    DogEvents(LuLuDog *_luluDog);
+    ~DogEvents();
+    void EmitDogEvent(DogEvent *e);
+    void EmitDogEvent(DogEvent *e1, DogEvent *e2);
+    void OnTouchEvent(TouchEvent *args);
+    void OnAccelerometerEvent(AccelerometerEvent *args);
+    void OnGyroEvent(GyroEvent *args);
+    void OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE);
+    void OnExternalImpact();
+
+private:
+    LuLuDog *luluDog;
 };
 
 #endif

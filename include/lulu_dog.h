@@ -32,6 +32,7 @@ public:
     JSRunner* jsRunner;
     LuLuWebServer* fsWebServer;
     static ConfigHelper* configHelper;
+    DogEvents* dogEvents;
     
     LuLuDog();
     void Init();
