@@ -21,7 +21,7 @@ private:
     unsigned long lastTouchTime = 0;
     bool longPressDetected = false;
     bool doubleTapDetected = false;
-    
+    bool singleDetected = true; 
     bool longPressActivated = false;
 
     bool wasPressed = false;
@@ -42,6 +42,7 @@ public:
     static void TouchReadThread(void *params);
     void TouchReadTask();
     static void LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
+    void switchToLVGLTask(bool toLvgl);
     // void (*doubleTapCallback)(int x, int y);
     // void (*longPressCallback)(int x, int y);
 };

@@ -332,3 +332,12 @@ void LuLuCharacter::DoSceneReact(int x, int y)
         break;
     }
 }
+
+void LuLuCharacter::LeftHand(){
+    doReact(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
+}
+
+
+void LuLuCharacter::RightHand(){
+    doReact(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
+}

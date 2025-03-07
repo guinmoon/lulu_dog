@@ -100,12 +100,19 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     }
     OnExternalImpact();
     log_d("%i %i %i", args->x, args->y, args->touchCount);
+    if (args->touchCount == 1)
+    {
+        luluDog->luluCharacter->doRandomReact(-1);
+        log_d("Single Touch Detected");
+    }
     if (args->touchCount == 2)
     {
+        log_d("Double Touch Detected");
         luluDog->ShowMenu();
     }
     if (args->touchCount == LONG_PRESS_T_COUNT)
     {
+        log_d("Long Press Detected");
         luluDog->displayHelper->StopGif();
         luluDog->displayHelper->ShowMatrixAnimation();
     }
@@ -151,6 +158,14 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
         return;
     OnExternalImpact();
+    if (accE->direction == GYRO_D_RIGHT && 
+        (gyroE->direction == GYRO_D_TILT_BACKWARD|| gyroE->direction == GYRO_D_ROTATE_LEFT)){
+        luluDog->luluCharacter->RightHand();
+    }
+    if (accE->direction == GYRO_D_LEFT && 
+        (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)){
+        luluDog->luluCharacter->LeftHand();
+    }
     // luluDog->luluCharacter->doRandomReact(-1);
 }
 
@@ -160,6 +175,9 @@ void DogEvents::OnExternalImpact()
     lastImpact = current_time;
     if (!eventsSuspended)
         Wake();
+    if (luluDog->displayHelper->showMatrixAnimation){
+        luluDog->displayHelper->StopMatrixAnimation();
+    }
     // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
     // {
     //     lastImpact = current_time;

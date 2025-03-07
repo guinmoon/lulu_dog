@@ -34,33 +34,46 @@ void TouchHelper::detectLongOrDoubleTap(int x, int y)
 {
     unsigned long currentTime = millis();
 
+    
+    if (!singleDetected && released && currentTime - lastReleaseTime > doubleTapTimeout) {
+
+        log_d("currentTime - lastReleaseTime: %lu \n%lu %lu",currentTime - lastReleaseTime,currentTime,lastReleaseTime);
+        singleDetected = true;
+        luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x, y, 1));
+    }
     if (isPressed && !wasPressed) {
         // Начало нового нажатия
         pressStartTime = currentTime;
+        
     } else if (!isPressed && wasPressed) {
         // Конец нажатия
         released = true;
         longPressActivated = false;
 
         if (currentTime - lastReleaseTime < doubleTapTimeout) {
-            // this->doubleTapCallback(0, 0);
-            luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x,y,2));                    
-            // luluDog->dogEvents->BuildTouchEvent(x,y,1);
-            // log_d("Double Tap Detected");
-        }
+            // Обнаружено двойное нажатие
+            singleDetected = true;
+            isPressed = false;
+            wasPressed = false;
+            luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x, y, 2));            
+        } else {
+            singleDetected = false; // Сбрасываем, так как второго касания не было
+            // luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x, y, 1));
+        }        
+        lastReleaseTime = currentTime;        
+                        
+    } 
 
-        lastReleaseTime = currentTime;
-    }
     
     if (isPressed && wasPressed && !longPressActivated &&
         (currentTime - pressStartTime >= longPressThreshold)) {
-        luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x,y,LONG_PRESS_T_COUNT));
-        // log_d("Long Press Detected");
-        // this->longPressCallback(0, 0);   
+        luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x,y,LONG_PRESS_T_COUNT));  
         longPressActivated = true;   
         // Исключаем повторное обнаружение длительного нажатия
         pressStartTime = currentTime + 99999;
     }
+
+    
 
     wasPressed = isPressed;
 }
@@ -104,11 +117,6 @@ void TouchHelper::TouchReadTask()
             {
                 released = false;
                 log_d("touch event");                
-                // for (int i = 0; i < touched; ++i)
-                // {
-                //     log_d("x[%i]:%i y[%i]:%i ", i, x[i], i, y[i]);
-                //     // if (x[i])
-                // }
             }
         }
         // Вызов функции определения длительного или двойного касания
@@ -148,6 +156,15 @@ void TouchHelper::InitTouch()
         tskIDLE_PRIORITY,      /* priority of the task */
         NULL,                  /* Task handle to keep track of created task */
         1);
+}
+
+void TouchHelper::switchToLVGLTask(bool toLvgl){
+    if (toLvgl) {
+        suspended = true;
+    } else {
+        suspended = false;
+        isPressed = false;
+    }
 }
 
 // TouchHelper touchHelper;

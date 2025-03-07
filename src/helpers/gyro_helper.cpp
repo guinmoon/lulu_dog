@@ -242,7 +242,7 @@ void GyroHelper::gyroAndAccelReadTask()
         {
             bool accImpactDetected = false;
             bool gyroImpactDetected = false;
-            int directionAcc = GYRO_D_NONE;            
+            int directionAcc = GYRO_D_NONE;
             int directionGyro = GYRO_D_NONE;
             float accDeltaX = 0;
             float accDeltaY = 0;
@@ -305,41 +305,47 @@ void GyroHelper::gyroAndAccelReadTask()
 
                 prevGyr = gyr;
             }
-            
-            DogEvent* accEvent = NULL;
-            DogEvent* gyrEvent = NULL;
+
+            DogEvent *accEvent = NULL;
+            DogEvent *gyrEvent = NULL;
 
             if (accImpactDetected)
             {
-                unsigned long currentMillis = millis();
-                if (currentMillis - lastAccActionTime >= gyroActionPeriod ||
-                    currentMillis - lastGyroActionTime >= gyroActionPeriod)
-                {
-                    // luluDog->dogEvents->EmitDogEvent(
-                    accEvent =luluDog->dogEvents->BuildAccEvent(accDeltaX, accDeltaY, accDeltaZ,directionAcc);//);
-                    lastAccActionTime = currentMillis; // Обновление времени последнего вызова
-                }
+                accEvent = luluDog->dogEvents->BuildAccEvent(accDeltaX, accDeltaY, accDeltaZ, directionAcc); //);
             }
             if (gyroImpactDetected)
             {
-                unsigned long currentMillis = millis();
-                if (currentMillis - lastGyroActionTime >= gyroActionPeriod ||
-                    currentMillis - lastAccActionTime >= gyroActionPeriod)
+                gyrEvent = luluDog->dogEvents->BuildGyroEvent(accDeltaX, accDeltaY, accDeltaZ, directionGyro);
+            }
+
+            unsigned long currentMillis = millis();
+            if (accEvent != NULL && gyrEvent != NULL)
+            {
+                if (currentMillis - lastAccActionTime >= gyroActionPeriod ||
+                    currentMillis - lastGyroActionTime >= gyroActionPeriod)
                 {
-                    // log_d("gyroImpactDetected Impact %i detected! ", directionGyro); // Вызов функции с указанием направления                    
-                    gyrEvent = luluDog->dogEvents->BuildGyroEvent(accDeltaX, accDeltaY, accDeltaZ,directionGyro);
+                    luluDog->dogEvents->EmitDogEvent(accEvent, gyrEvent);
+                    lastAccActionTime = currentMillis;
                     lastGyroActionTime = currentMillis;
                 }
             }
-
-            if (accEvent != NULL && gyrEvent != NULL){
-                    luluDog->dogEvents->EmitDogEvent(accEvent,gyrEvent);
-            }else{
-                if (accEvent != NULL){
-                    luluDog->dogEvents->EmitDogEvent(accEvent);
+            else
+            {
+                if (accEvent != NULL)
+                {
+                    if (currentMillis - lastAccActionTime >= gyroActionPeriod)
+                    {
+                        luluDog->dogEvents->EmitDogEvent(accEvent);
+                        lastAccActionTime = currentMillis;
+                    }
                 }
-                if (gyrEvent != NULL){
-                    luluDog->dogEvents->EmitDogEvent(gyrEvent);
+                if (gyrEvent != NULL)
+                {
+                    if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
+                    {
+                        luluDog->dogEvents->EmitDogEvent(gyrEvent);
+                        lastGyroActionTime = currentMillis;
+                    }
                 }
             }
 
@@ -349,7 +355,6 @@ void GyroHelper::gyroAndAccelReadTask()
             //     prevGyr = gyr;
             // if (qmi.getAccelerometer(acc.x, acc.y, acc.z))
             //     prevAcc = acc;
-            
         }
 
         delay(gyroDelay); // Пауза для снижения частоты опроса

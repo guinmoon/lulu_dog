@@ -87,14 +87,14 @@ void LuLuDog::PauseDog()
     displayHelper->StopGif();
     gyroHelper->PauseGyro();
     dogEvents->eventsSuspended = true;
-    touchHelper->suspended = true;
+    touchHelper->switchToLVGLTask(true);
 }
 
 void LuLuDog::ResumeDog()
 {
     gyroHelper->ResumeGyro();
     dogEvents->eventsSuspended = false;
-    touchHelper->suspended = false;
+    touchHelper->switchToLVGLTask(false);
     audioHelper->PlayWav("/audio/awoof1.wav");
     displayHelper->PlayGif("/imgs/eye5.gif");
 }

@@ -19,6 +19,9 @@
 #define GYRO_D_TILT_UP 11
 #define GYRO_D_TILT_DOWN 12
 
+// 1 + 10 || 8 dog left hand
+// 2 + 9 || 7  dog right hand
+
 class LuLuDog;
 
 class GyroHelper

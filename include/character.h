@@ -71,6 +71,11 @@ public:
     void doReact(int command, int speed, int tail_speed, char *eye, char *wav);
     void doRandomReact(int direction);
     void DoSceneReact(int x, int y);
+
+    void LeftHand();
+    void RightHand();
+    // void Dance1();
+
     
 };
 
