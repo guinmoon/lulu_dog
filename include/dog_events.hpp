@@ -111,6 +111,7 @@ public:
     void OnGyroEvent(GyroEvent *args);
     void OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE);
     void OnExternalImpact();
+    void OnGyroOrAccEvent();
 
 private:
     LuLuDog *luluDog;

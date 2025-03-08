@@ -128,6 +128,7 @@ void DogEvents::OnAccelerometerEvent(AccelerometerEvent *e)
     delay(200);
     if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
         return;
+    OnGyroOrAccEvent();
     OnExternalImpact();
     // luluDog->luluCharacter->doRandomReact(-1);
 }
@@ -142,6 +143,7 @@ void DogEvents::OnGyroEvent(GyroEvent *e)
     delay(200);
     if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
         return;
+    OnGyroOrAccEvent();
     OnExternalImpact();
 }
 
@@ -151,6 +153,7 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     {
         return;
     }
+    OnGyroOrAccEvent();
     log_d("\nACC: %f %f %f \nD: %i + \nGYRO: %f %f %f\nD: %i",
           accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
           gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
@@ -169,15 +172,21 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     // luluDog->luluCharacter->doRandomReact(-1);
 }
 
+void DogEvents::OnGyroOrAccEvent()
+{
+    if (luluDog->displayHelper->showMatrixAnimation){
+        luluDog->displayHelper->StopMatrixAnimation();
+        luluDog->displayHelper->PlayGif("/imgs/eye5.gif");
+    }
+}
+
 void DogEvents::OnExternalImpact()
 {
     int current_time = millis();
     lastImpact = current_time;
     if (!eventsSuspended)
         Wake();
-    if (luluDog->displayHelper->showMatrixAnimation){
-        luluDog->displayHelper->StopMatrixAnimation();
-    }
+    
     // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
     // {
     //     lastImpact = current_time;
