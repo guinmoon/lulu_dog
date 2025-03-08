@@ -14,7 +14,9 @@
 #include <LovyanGFX.hpp>
 #include <DigitalRainAnimation.hpp>
 
+
 class LuLuDog;
+class luluEyes;
 
 class LGFX_MyDisplay : public lgfx::LGFX_Device
 {
@@ -90,6 +92,7 @@ public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
     static LGFX_MyDisplay gfx;
+    static luluEyes luluEyes;
     static AnimatedGIF gif;
     static DigitalRainAnimation<LGFX_MyDisplay> matrix_effect;    
     DisplayHelper(LuLuDog *_luluDog);
@@ -98,6 +101,8 @@ public:
     // static void GIFDraw_24bit(GIFDRAW *pDraw);
     bool loadGIFToMemory(const char *filename);
     static void PlayInfiniteThread(void *pvParameters);
+    static void StartEyesUpdateThread(void *_this);
+    void EyesUpdateTask();
     void PlayInfiniteTask();
     void InitDisplay();
     void PlayGif(const char *fname);

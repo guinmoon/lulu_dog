@@ -26,15 +26,13 @@ void LuLuDog::Init()
     configHelper->LoadConfig("/config.json");
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
-    touchHelper->InitTouch();
-    // touchHelper->doubleTapCallback = this->DoubleTapCallBack;
-    // touchHelper->longPressCallback = this->LongPressCallBack;
-    gyroHelper->InitGyro();
-    audioHelper->InitAudio();
-    jsRunner->jsInit();
-    audioHelper->PlayWav("/audio/woof1.wav");
-    displayHelper->PlayGif("/imgs/eye5.gif");
-    dogEvents->StartDogActivitiWatcher();
+    // touchHelper->InitTouch();    
+    // gyroHelper->InitGyro();
+    // audioHelper->InitAudio();
+    // jsRunner->jsInit();
+    // audioHelper->PlayWav("/audio/woof1.wav");
+    // displayHelper->PlayGif("/imgs/eye5.gif");
+    // dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
 
     // ShowMenu();

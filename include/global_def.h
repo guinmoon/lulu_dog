@@ -51,6 +51,8 @@
 #define LCD_BL 15
 #define LCD_WIDTH 280
 #define LCD_HEIGHT 240
+#define SCREEN_WIDTH LCD_WIDTH
+#define SCREEN_HEIGHT LCD_HEIGHT
 
 #define IIC_SDA 11
 #define IIC_SCL 10

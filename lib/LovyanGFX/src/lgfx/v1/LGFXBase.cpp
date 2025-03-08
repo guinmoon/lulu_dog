@@ -510,6 +510,8 @@ namespace lgfx
     endWrite();
   }
 
+  
+
   void LGFXBase::drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1)
   {
     bool steep = abs(y1 - y0) > abs(x1 - x0);

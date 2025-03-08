@@ -1,6 +1,6 @@
 #include "display_helper.h"
 #include "lulu_dog.h"
-
+#include <eyes_drawer.h>
 #include "global_def.h"
 
 // Arduino_DataBus *DisplayHelper::bus = new Arduino_ESP32SPI(LCD_DC, LCD_CS, LCD_SCK, LCD_MOSI);
@@ -8,6 +8,8 @@
 //                                                      1 /* rotation */, true /* IPS */, LCD_HEIGHT, LCD_WIDTH, 0, 20, 0, 0);
 
 LGFX_MyDisplay DisplayHelper::gfx;
+luluEyes DisplayHelper::luluEyes;
+
 AnimatedGIF DisplayHelper::gif;
 
 bool DisplayHelper::showMatrixAnimation = false;
@@ -30,32 +32,7 @@ void DisplayHelper::stopSleepAnimation()
 
 void DisplayHelper::showSleepAnimation()
 {
-
-    // while (!wake)
-    // {
-
-    // gfx.displayOn();
-    // // gfx.draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep1.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-    // drawBatteryheart();
-    // delay(1000);
-    // if (wake)
-    //     break;
-    // // gfx.draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep2.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-    // drawBatteryheart();
-    // delay(1000);
-    // if (wake)
-    //     break;
-    // // gfx.draw16bitRGBBitmap(0, 0, (const uint16_t *)sleep3.pixel_data, IMG_WIDTH, IMG_HEIGHT);
-    // drawBatteryheart();
-    // delay(3000);
-    // if (wake)
-    //     break;
     DisplayOff();
-    // delay(15000);
-    // delay(300);
-    // }
-    // DisplayOn();
-    // wake = false;
 }
 
 void DisplayHelper::DisplayOn()
@@ -90,7 +67,7 @@ void DisplayHelper::InitDisplay()
 {
     // gfx.init();
     gfx.setRotation(1);
-    
+
     if (!gfx.init())
     {
         log_d("gfx.begin() failed!");
@@ -103,10 +80,39 @@ void DisplayHelper::InitDisplay()
     gfx.setCursor(10, 10);
     gfx.setTextColor(TFT_RED);
     gfx.println("Hello World!");
+
+    luluEyes.begin(SCREEN_WIDTH, SCREEN_HEIGHT, 30, gfx); // screen-width, screen-height, max framerate
+
+    // Define some automated eyes behaviour
+    luluEyes.setAutoblinker(ON, 3, 2); // Start auto blinker animation cycle -> bool active, int interval, int variation -> turn on/off, set interval between each blink in full seconds, set range for random interval variation in full seconds
+    luluEyes.setIdleMode(ON, 2, 2);
+
+    xTaskCreatePinnedToCore(
+        this->StartEyesUpdateThread, /* Task function. */
+        "Task1",                     /* name of task. */
+        10000,                       /* Stack size of task */
+        this,                        /* parameter of the task */
+        2 | portPRIVILEGE_BIT,       /* priority of the task */
+        &Task1,                      /* Task handle to keep track of created task */
+        0);
     // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
 
+void DisplayHelper::StartEyesUpdateThread(void *_this)
+{
+    ((DisplayHelper *)_this)->EyesUpdateTask();    
+    vTaskDelete(NULL);
+}
+
+void DisplayHelper::EyesUpdateTask()
+{
+    while (true)
+    {
+        luluEyes.update();
+        delay(50);
+    }
+}
 // void *DisplayHelper::GIFAlloc(uint32_t u32Size)
 // {
 //     // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
@@ -125,7 +131,7 @@ void DisplayHelper::PlayGif(const char *fname)
     if (!loadGIFToMemory(fname))
     {
         log_d("Failed to load GIF to memory play = false");
-        drawBatteryheart(); 
+        drawBatteryheart();
         play = false;
         return;
     }
@@ -134,7 +140,7 @@ void DisplayHelper::PlayGif(const char *fname)
     gif.begin(GIF_PALETTE_RGB565_BE);
 
     if (!gif.open(gifData, gifSize, GIFDraw))
-    {        
+    {
         log_d("Failed to open GIF from memory");
         free(gifData);
         return;
@@ -159,20 +165,18 @@ void DisplayHelper::PlayGif(const char *fname)
 
 uint16_t DisplayHelper::usTemp[280];
 
-
-//Turbo COOKED
-// void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
-// {
-//     gfx.startWrite();
-//     // if (pDraw->y == 0)
-//     // { // set the memory window (once per frame) when the first line is rendered
-//         gfx.setAddrWindow(pDraw->iX, pDraw->iY, pDraw->iWidth, pDraw->iHeight);
-//     // }
-//     // For all other lines, just push the pixels to the display. We requested 'COOKED'big-endian RGB565 and
-//     gfx.writePixels((uint16_t *)pDraw->pPixels, pDraw->iWidth);
-//     gfx.endWrite();
-// }
-
+// Turbo COOKED
+//  void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
+//  {
+//      gfx.startWrite();
+//      // if (pDraw->y == 0)
+//      // { // set the memory window (once per frame) when the first line is rendered
+//          gfx.setAddrWindow(pDraw->iX, pDraw->iY, pDraw->iWidth, pDraw->iHeight);
+//      // }
+//      // For all other lines, just push the pixels to the display. We requested 'COOKED'big-endian RGB565 and
+//      gfx.writePixels((uint16_t *)pDraw->pPixels, pDraw->iWidth);
+//      gfx.endWrite();
+//  }
 
 // //ARUINO_GFX
 void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
@@ -181,8 +185,9 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
     uint16_t *usPalette = pDraw->pPalette;
     int y = pDraw->iY + pDraw->y;
     int iWidth = pDraw->iWidth;
-    if (iWidth>LCD_WIDTH){        
-        iWidth = LCD_WIDTH;    
+    if (iWidth > LCD_WIDTH)
+    {
+        iWidth = LCD_WIDTH;
     }
     gfx.startWrite();
     // Handle background restoration
@@ -212,7 +217,7 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
                 usTemp[count] = usPalette[s[x + count]];
                 count++;
             }
-            
+
             // Draw non-transparent block
             if (count > 0)
             {
@@ -221,11 +226,11 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
                 // gfx.pushImage(pDraw->iX + x, y, count, 1,(uint16_t *)usTemp);
                 x += count;
             }
-            
+
             // Skip transparent pixels
             while (x < iWidth && s[x] == ucTransparent)
                 x++;
-        }        
+        }
     }
     else
     {
@@ -235,20 +240,18 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
             usTemp[x] = usPalette[s[x]];
         }
         // gfx.pushImage(pDraw->iX, y,  iWidth, 1,(uint16_t *)usTemp);
-        gfx.setAddrWindow(pDraw->iX  + xOffset, y + yOffset, iWidth, 1);
+        gfx.setAddrWindow(pDraw->iX + xOffset, y + yOffset, iWidth, 1);
         gfx.writePixels(usTemp, iWidth);
     }
     gfx.endWrite();
 }
 
-
-
-bool  DisplayHelper::loadGIFToMemory(const char *filename)
+bool DisplayHelper::loadGIFToMemory(const char *filename)
 {
     File file = LittleFS.open(filename, "r");
     if (!file)
     {
-        log_d("Failed to open GIF file %s ",filename);
+        log_d("Failed to open GIF file %s ", filename);
         return false;
     }
 
@@ -283,7 +286,7 @@ void DisplayHelper::fillScreen()
     gfx.clear();
 }
 
-void  DisplayHelper::printOnDisplay(char *text, int x, int y)
+void DisplayHelper::printOnDisplay(char *text, int x, int y)
 {
     //
     gfx.setCursor(x, y);
@@ -292,14 +295,14 @@ void  DisplayHelper::printOnDisplay(char *text, int x, int y)
     gfx.println(text);
 }
 
-void  DisplayHelper::drawHeart(int x, int y, uint16_t color)
+void DisplayHelper::drawHeart(int x, int y, uint16_t color)
 {
     gfx.fillRect(x + 15, y + 15, 10, 10, color);
     gfx.fillRect(x + 28, y + 15, 10, 10, color);
     gfx.fillRect(x + 22, y + 21, 10, 10, color);
 }
 
-void  DisplayHelper::drawBatteryheart()
+void DisplayHelper::drawBatteryheart()
 {
     // printOnDisplay(voltageBuf);
     float volt = luluDog->batteryHelper->get_battery_voltage();
@@ -382,8 +385,9 @@ void DisplayHelper::MatrixAnimationThread(void *_this)
 
 void DisplayHelper::ShowMatrixAnimation()
 {
-    if (!matrixEffectInited){
-        matrixEffectInited = true;        
+    if (!matrixEffectInited)
+    {
+        matrixEffectInited = true;
         InitMatrixAnimation();
         // delay(300);
     }
@@ -405,11 +409,10 @@ void DisplayHelper::StopMatrixAnimation()
 
 void DisplayHelper::InitMatrixAnimation()
 {
-    matrix_effect.init(&gfx);    
+    matrix_effect.init(&gfx);
 }
 
-
-void  DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
     if (luluDog->lvglHelper->lvglExit)
     {
@@ -418,9 +421,10 @@ void  DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, l
         sleep(300);
         return;
     }
-    uint32_t w = (area->x2 - area->x1 +1);
-    uint32_t h = (area->y2 - area->y1 +1);
-    if (w <= 0 && h <= 0){
+    uint32_t w = (area->x2 - area->x1 + 1);
+    uint32_t h = (area->y2 - area->y1 + 1);
+    if (w <= 0 && h <= 0)
+    {
         lv_disp_flush_ready(disp);
         return;
     }
