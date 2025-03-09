@@ -25,19 +25,24 @@ duk_ret_t JSRunner::jsLog(duk_context *_ctx)
 
 duk_ret_t JSRunner::jsDelay(duk_context *_ctx)
 {
-    duk_get_top(_ctx);    
+    duk_get_top(_ctx);
     delay(duk_to_int(_ctx, 0));
 
     return 0;
 }
 
+static void my_fatal(void *udata, const char *msg)
+{
+    log_d("*** FATAL ERROR: %s\n", (msg ? msg : "no message"));
+    abort();
+}
 
-
-
+#define DUK_USE_LIGHTFUNC_BUILTINS
 
 void JSRunner::jsInit()
 {
     ctx = duk_create_heap_default();
+    // ctx = duk_create_heap(NULL, NULL, NULL, NULL, my_fatal);
 
     duk_push_c_function(ctx, jsLog, DUK_VARARGS);
     duk_put_global_string(ctx, "log_d");

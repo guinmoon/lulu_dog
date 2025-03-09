@@ -176,7 +176,7 @@ void DogEvents::OnGyroOrAccEvent()
 {
     if (luluDog->displayHelper->showMatrixAnimation){
         luluDog->displayHelper->StopMatrixAnimation();
-        luluDog->displayHelper->PlayGif("/imgs/eye5.gif");
+        // luluDog->displayHelper->PlayGif("/imgs/eye5.gif");
     }
 }
 

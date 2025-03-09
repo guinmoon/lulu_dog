@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "character.h"
 #include "lulu_dog.h"
+#include "eyes_drawer.h"
 
 #include <mutex>
 
@@ -210,8 +211,44 @@ int LuLuCharacter::GetAllowedSceneReact()
 }
 
 
+void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, char *wav)
+{
+    // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
+    luluDog->dogEvents->lastImpact = millis();//Для вызовов не из этого класса
+    luluDog->dogEvents->pingPaused = true;
+    if (tail_speed != -1 && luluDog->configHelper->EnableMove)
+    {
+        delay(200);
+        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
+    }
+    if (command != -1 && luluDog->configHelper->EnableMove){
+        SendCommand(command, speed);
+    }    
+    switch (eye)
+    {
+    case 0:
+        luluDog->displayHelper->luluEyes->setMood(0);
+        break;
+    case 1:
+        luluDog->displayHelper->luluEyes->setMood(1);
+        break;
+    case 2:
+        luluDog->displayHelper->luluEyes->setMood(2);
+        break;
+    case 3:
+        luluDog->displayHelper->luluEyes->setMood(3);
+        break;
+    
+    default:
+        break;
+    }
+    if (wav != nullptr)
+        luluDog->audioHelper->PlayWav(wav);
+    delay(200);
+    luluDog->dogEvents->pingPaused = false;
+}
 
-void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, char *wav)
+void LuLuCharacter::doReactGif(int command, int speed, int tail_speed, char *eye, char *wav)
 {
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
     luluDog->dogEvents->lastImpact = millis();//Для вызовов не из этого класса
@@ -232,17 +269,11 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, char *eye, c
     luluDog->dogEvents->pingPaused = false;
 }
 
+
+
 void LuLuCharacter::doRandomReact(int direction)
 {
 
-    // int current_time = millis();
-    // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
-    // {
-    //     lastImpact = current_time;
-    //     return;
-    // }
-    // lastImpact = current_time;
-    // Wake();
 
     if (luluDog->displayHelper->showMatrixAnimation){
         luluDog->displayHelper->StopMatrixAnimation();
@@ -253,52 +284,115 @@ void LuLuCharacter::doRandomReact(int direction)
     switch (choice)
     {
     case 0:
-        doReact(-1, -1, 0, "/imgs/eye1.gif", nullptr);
+        doReact(-1, -1, 0, 0, nullptr);
         break;
     case 1:
-        doReact(COMMAND_SIT, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
+        doReact(COMMAND_SIT, 4, 6, 1, "/audio/woof2.wav");
         break;
     case 2:
-        doReact(COMMAND_SIT, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
+        doReact(COMMAND_SIT, 5, 4, 2, "/audio/woof2.wav");
         break;
     case 3:
-        doReact(COMMAND_STAND, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
+        doReact(COMMAND_STAND, 2, 0, 3, "/audio/woof1.wav");
         break;
     case 4:
-        doReact(COMMAND_LAYDOWN, 4, 4, "/imgs/eye2.gif", nullptr);
+        doReact(COMMAND_LAYDOWN, 4, 4, 0, nullptr);
         break;
     case 5:
-        doReact(-1, -1, 4, "/imgs/eye4.gif", nullptr);
+        doReact(-1, -1, 4, 1, nullptr);
         break;
     case 6:
-        doReact(COMMAND_LEFTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReact(COMMAND_LEFTHAND, 4, 4, 2, "/audio/woof3.wav");
         break;
     case 7:
-        doReact(COMMAND_LAYDOWN, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 6, 3, "/audio/woof2.wav");
         break;
     case 8:
-        doReact(COMMAND_LAYDOWN, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReact(COMMAND_LAYDOWN, 3, 0, 0, "/audio/woof2.wav");
         break;
     case 9:
-        doReact(COMMAND_HALFLAYDOWN, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReact(COMMAND_HALFLAYDOWN, 2, 7, 1, "/audio/woof2.wav");
         break;
     case 10:
-        doReact(-1, -1, 4, "/imgs/eye5.gif", "/woof1.wav");
+        doReact(-1, -1, 4, 2, "/woof1.wav");
         break;
     case 11:
-        doReact(COMMAND_RIGHTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReact(COMMAND_RIGHTHAND, 4, 4, 3, "/audio/woof3.wav");
         break;
     case 12:
-        doReact(COMMAND_FULLLAYDOWN, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReact(COMMAND_FULLLAYDOWN, 7, 0, 0, "/audio/woof1.wav");
         break;
     case 13:
-        doReact(COMMAND_TAILLEGSSTAND, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReact(COMMAND_TAILLEGSSTAND, 4, 4, 1, "/audio/woof1.wav");
         break;
     case 14:
-        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
+        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, 3, "//audio/woof1.wav");
         break;
     default:
-        doReact(-1, -1, 0, "/imgs/eye5.gif", nullptr);
+        doReact(-1, -1, 0, 0, nullptr);
+        break;
+    }
+}
+
+void LuLuCharacter::doRandomReactGif(int direction)
+{
+
+
+    if (luluDog->displayHelper->showMatrixAnimation){
+        luluDog->displayHelper->StopMatrixAnimation();
+    }
+
+    int choice = getAllowedRandomReact();
+
+    switch (choice)
+    {
+    case 0:
+        doReactGif(-1, -1, 0, "/imgs/eye1.gif", nullptr);
+        break;
+    case 1:
+        doReactGif(COMMAND_SIT, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
+        break;
+    case 2:
+        doReactGif(COMMAND_SIT, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
+        break;
+    case 3:
+        doReactGif(COMMAND_STAND, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
+        break;
+    case 4:
+        doReactGif(COMMAND_LAYDOWN, 4, 4, "/imgs/eye2.gif", nullptr);
+        break;
+    case 5:
+        doReactGif(-1, -1, 4, "/imgs/eye4.gif", nullptr);
+        break;
+    case 6:
+        doReactGif(COMMAND_LEFTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        break;
+    case 7:
+        doReactGif(COMMAND_LAYDOWN, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
+        break;
+    case 8:
+        doReactGif(COMMAND_LAYDOWN, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
+        break;
+    case 9:
+        doReactGif(COMMAND_HALFLAYDOWN, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
+        break;
+    case 10:
+        doReactGif(-1, -1, 4, "/imgs/eye5.gif", "/woof1.wav");
+        break;
+    case 11:
+        doReactGif(COMMAND_RIGHTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        break;
+    case 12:
+        doReactGif(COMMAND_FULLLAYDOWN, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
+        break;
+    case 13:
+        doReactGif(COMMAND_TAILLEGSSTAND, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
+        break;
+    case 14:
+        doReactGif(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
+        break;
+    default:
+        doReactGif(-1, -1, 0, "/imgs/eye5.gif", nullptr);
         break;
     }
 }
@@ -325,19 +419,21 @@ void LuLuCharacter::DoSceneReact(int x, int y)
     //     PlayGif("/eye4.gif");
     //     break;
     case 1:
-        doReact(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
+        doReactGif(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
         break;
     default:
-        doReact(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
+        doReactGif(COMMAND_DANCE1, 4, 7, "/eye5.gif", "/woof1.wav");
         break;
     }
 }
 
 void LuLuCharacter::LeftHand(){
-    doReact(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
+    // doReactGif(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
+    doReact(COMMAND_LEFTHAND, 4, 6, 1, "/audio/woof3.wav");
 }
 
 
 void LuLuCharacter::RightHand(){
-    doReact(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
+    // doReactGif(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
+    doReact(COMMAND_RIGHTHAND, 4, 6, 2, "/audio/woof3.wav");
 }

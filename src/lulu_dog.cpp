@@ -26,11 +26,11 @@ void LuLuDog::Init()
     configHelper->LoadConfig("/config.json");
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
-    // touchHelper->InitTouch();    
-    // gyroHelper->InitGyro();
-    // audioHelper->InitAudio();
-    // jsRunner->jsInit();
-    // audioHelper->PlayWav("/audio/woof1.wav");
+    touchHelper->InitTouch();    
+    gyroHelper->InitGyro();
+    audioHelper->InitAudio();
+    jsRunner->jsInit();
+    audioHelper->PlayWav("/audio/woof1.wav");
     // displayHelper->PlayGif("/imgs/eye5.gif");
     // dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
@@ -39,6 +39,8 @@ void LuLuDog::Init()
     if (configHelper->EnableWifi)
         fsWebServer->Init();
 
+    displayHelper->MemInfo();
+    // jsRunner->jsEvalFile("/js/script1.js");
     // jsRunner->jsEvalFile("/js/demo.js");
 
 
@@ -94,7 +96,8 @@ void LuLuDog::ResumeDog()
     dogEvents->eventsSuspended = false;
     touchHelper->switchToLVGLTask(false);
     audioHelper->PlayWav("/audio/awoof1.wav");
-    displayHelper->PlayGif("/imgs/eye5.gif");
+    displayHelper->pauseResumeEyes(false);
+    // displayHelper->PlayGif("/imgs/eye5.gif");
 }
 
 void LuLuDog::ExitMenu()

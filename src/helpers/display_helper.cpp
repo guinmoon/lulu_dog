@@ -7,8 +7,8 @@
 // Arduino_GFX *DisplayHelper::gfx = new Arduino_ST7789(bus, LCD_RST /* RST */,
 //                                                      1 /* rotation */, true /* IPS */, LCD_HEIGHT, LCD_WIDTH, 0, 20, 0, 0);
 
-LGFX_MyDisplay DisplayHelper::gfx;
-luluEyes DisplayHelper::luluEyes;
+LGFX_MyDisplay *DisplayHelper::gfx;
+LuLuEyes *DisplayHelper::luluEyes;
 
 AnimatedGIF DisplayHelper::gif;
 
@@ -21,7 +21,8 @@ int DisplayHelper::yOffset = 0;
 DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
 {
     luluDog = _luluDog;
-    // gfx = new LGFX_MyDisplay();
+    luluEyes = new LuLuEyes();
+    gfx = new LGFX_MyDisplay();
 }
 
 void DisplayHelper::stopSleepAnimation()
@@ -37,17 +38,17 @@ void DisplayHelper::showSleepAnimation()
 
 void DisplayHelper::DisplayOn()
 {
-    gfx.endWrite();
-    gfx.setBrightness(255);
+    gfx->endWrite();
+    gfx->setBrightness(255);
     digitalWrite(LCD_BL, HIGH);
-    // DisplayHelper::gfx.displayOn();
+    // DisplayHelper::gfx->displayOn();
 }
 
 void DisplayHelper::DisplayOff()
 {
-    // DisplayHelper::gfx.displayOff();
-    gfx.endWrite();
-    gfx.setBrightness(0);
+    // DisplayHelper::gfx->displayOff();
+    gfx->endWrite();
+    gfx->setBrightness(0);
     digitalWrite(LCD_BL, LOW);
 }
 
@@ -65,28 +66,28 @@ void DisplayHelper::DisplayOff()
 
 void DisplayHelper::InitDisplay()
 {
-    // gfx.init();
-    gfx.setRotation(1);
+    // gfx->init();
+    gfx->setRotation(1);
 
-    if (!gfx.init())
+    if (!gfx->init())
     {
-        log_d("gfx.begin() failed!");
+        log_d("gfx->begin() failed!");
     }
     fillScreen();
 
     pinMode(LCD_BL, OUTPUT);
     digitalWrite(LCD_BL, HIGH);
 
-    gfx.setCursor(10, 10);
-    gfx.setTextColor(TFT_RED);
-    gfx.println("Hello World!");
+    gfx->setCursor(10, 10);
+    gfx->setTextColor(TFT_RED);
+    gfx->println("Hello World!");
 
-    luluEyes.begin(SCREEN_WIDTH, SCREEN_HEIGHT, 30, gfx); // screen-width, screen-height, max framerate
+    luluEyes->begin(SCREEN_WIDTH, SCREEN_HEIGHT, 30, gfx); // screen-width, screen-height, max framerate
 
     // Define some automated eyes behaviour
-    luluEyes.setAutoblinker(ON, 3, 2); // Start auto blinker animation cycle -> bool active, int interval, int variation -> turn on/off, set interval between each blink in full seconds, set range for random interval variation in full seconds
-    luluEyes.setIdleMode(ON, 2, 2);
-
+    luluEyes->setAutoblinker(ON, 3, 2); // Start auto blinker animation cycle -> bool active, int interval, int variation -> turn on/off, set interval between each blink in full seconds, set range for random interval variation in full seconds
+    luluEyes->setIdleMode(ON, 2, 2);
+    luluEyes->setSpacebetween(30);
     xTaskCreatePinnedToCore(
         this->StartEyesUpdateThread, /* Task function. */
         "Task1",                     /* name of task. */
@@ -99,9 +100,14 @@ void DisplayHelper::InitDisplay()
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
 
+void DisplayHelper::pauseResumeEyes(bool pause)
+{
+    this->pauseEyes = pause;
+}
+
 void DisplayHelper::StartEyesUpdateThread(void *_this)
 {
-    ((DisplayHelper *)_this)->EyesUpdateTask();    
+    ((DisplayHelper *)_this)->EyesUpdateTask();
     vTaskDelete(NULL);
 }
 
@@ -109,7 +115,12 @@ void DisplayHelper::EyesUpdateTask()
 {
     while (true)
     {
-        luluEyes.update();
+        if (pauseEyes)
+        {
+            delay(500);
+            continue;
+        }
+        luluEyes->update();
         delay(50);
     }
 }
@@ -122,6 +133,7 @@ void DisplayHelper::EyesUpdateTask()
 void DisplayHelper::PlayGif(const char *fname)
 {
     play = false;
+    pauseResumeEyes(true);
     delay(100);
     if (gifData != nullptr)
         free(gifData);
@@ -168,14 +180,14 @@ uint16_t DisplayHelper::usTemp[280];
 // Turbo COOKED
 //  void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
 //  {
-//      gfx.startWrite();
+//      gfx->startWrite();
 //      // if (pDraw->y == 0)
 //      // { // set the memory window (once per frame) when the first line is rendered
-//          gfx.setAddrWindow(pDraw->iX, pDraw->iY, pDraw->iWidth, pDraw->iHeight);
+//          gfx->setAddrWindow(pDraw->iX, pDraw->iY, pDraw->iWidth, pDraw->iHeight);
 //      // }
 //      // For all other lines, just push the pixels to the display. We requested 'COOKED'big-endian RGB565 and
-//      gfx.writePixels((uint16_t *)pDraw->pPixels, pDraw->iWidth);
-//      gfx.endWrite();
+//      gfx->writePixels((uint16_t *)pDraw->pPixels, pDraw->iWidth);
+//      gfx->endWrite();
 //  }
 
 // //ARUINO_GFX
@@ -189,7 +201,7 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
     {
         iWidth = LCD_WIDTH;
     }
-    gfx.startWrite();
+    gfx->startWrite();
     // Handle background restoration
     if (pDraw->ucDisposalMethod == 2)
     {
@@ -221,9 +233,9 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
             // Draw non-transparent block
             if (count > 0)
             {
-                gfx.setAddrWindow((pDraw->iX + x) + xOffset, y + yOffset, count, 1);
-                gfx.writePixels((uint16_t *)usTemp, count);
-                // gfx.pushImage(pDraw->iX + x, y, count, 1,(uint16_t *)usTemp);
+                gfx->setAddrWindow((pDraw->iX + x) + xOffset, y + yOffset, count, 1);
+                gfx->writePixels((uint16_t *)usTemp, count);
+                // gfx->pushImage(pDraw->iX + x, y, count, 1,(uint16_t *)usTemp);
                 x += count;
             }
 
@@ -239,11 +251,20 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
         {
             usTemp[x] = usPalette[s[x]];
         }
-        // gfx.pushImage(pDraw->iX, y,  iWidth, 1,(uint16_t *)usTemp);
-        gfx.setAddrWindow(pDraw->iX + xOffset, y + yOffset, iWidth, 1);
-        gfx.writePixels(usTemp, iWidth);
+        // gfx->pushImage(pDraw->iX, y,  iWidth, 1,(uint16_t *)usTemp);
+        gfx->setAddrWindow(pDraw->iX + xOffset, y + yOffset, iWidth, 1);
+        gfx->writePixels(usTemp, iWidth);
     }
-    gfx.endWrite();
+    gfx->endWrite();
+}
+
+void DisplayHelper::MemInfo()
+{
+    log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
+    log_d("Total heap: %d", ESP.getHeapSize());
+    log_d("Free heap: %d", ESP.getFreeHeap());
+    log_d("Total PSRAM: %d", ESP.getPsramSize());
+    log_d("Free PSRAM: %d", ESP.getFreePsram());
 }
 
 bool DisplayHelper::loadGIFToMemory(const char *filename)
@@ -278,28 +299,29 @@ bool DisplayHelper::loadGIFToMemory(const char *filename)
 void DisplayHelper::StopGif()
 {
     play = false;
+    pauseResumeEyes(true);
 }
 
 void DisplayHelper::fillScreen()
 {
-    // gfx.fillScreen(BLACK);
-    gfx.clear();
+    // gfx->fillScreen(BLACK);
+    gfx->clear();
 }
 
 void DisplayHelper::printOnDisplay(char *text, int x, int y)
 {
     //
-    gfx.setCursor(x, y);
-    gfx.setTextColor(TFT_RED);
-    gfx.fillRect(x, y, x + 110, y + 20, 0);
-    gfx.println(text);
+    gfx->setCursor(x, y);
+    gfx->setTextColor(TFT_RED);
+    gfx->fillRect(x, y, x + 110, y + 20, 0);
+    gfx->println(text);
 }
 
 void DisplayHelper::drawHeart(int x, int y, uint16_t color)
 {
-    gfx.fillRect(x + 15, y + 15, 10, 10, color);
-    gfx.fillRect(x + 28, y + 15, 10, 10, color);
-    gfx.fillRect(x + 22, y + 21, 10, 10, color);
+    gfx->fillRect(x + 15, y + 15, 10, 10, color);
+    gfx->fillRect(x + 28, y + 15, 10, 10, color);
+    gfx->fillRect(x + 22, y + 21, 10, 10, color);
 }
 
 void DisplayHelper::drawBatteryheart()
@@ -409,7 +431,7 @@ void DisplayHelper::StopMatrixAnimation()
 
 void DisplayHelper::InitMatrixAnimation()
 {
-    matrix_effect.init(&gfx);
+    matrix_effect.init(gfx);
 }
 
 void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
@@ -428,10 +450,10 @@ void DisplayHelper::LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv
         lv_disp_flush_ready(disp);
         return;
     }
-    gfx.startWrite();
-    gfx.setAddrWindow(area->x1, area->y1, w, h);
-    gfx.writePixels((lgfx::rgb565_t *)&color_p->full, w * h);
-    gfx.endWrite();
+    gfx->startWrite();
+    gfx->setAddrWindow(area->x1, area->y1, w, h);
+    gfx->writePixels((lgfx::rgb565_t *)&color_p->full, w * h);
+    gfx->endWrite();
     lv_disp_flush_ready(disp);
 }
 

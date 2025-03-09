@@ -16,7 +16,7 @@
 
 
 class LuLuDog;
-class luluEyes;
+class LuLuEyes;
 
 class LGFX_MyDisplay : public lgfx::LGFX_Device
 {
@@ -91,8 +91,9 @@ private:
 public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
-    static LGFX_MyDisplay gfx;
-    static luluEyes luluEyes;
+    bool pauseEyes = false;
+    static LGFX_MyDisplay* gfx;
+    static LuLuEyes* luluEyes;
     static AnimatedGIF gif;
     static DigitalRainAnimation<LGFX_MyDisplay> matrix_effect;    
     DisplayHelper(LuLuDog *_luluDog);
@@ -102,6 +103,8 @@ public:
     bool loadGIFToMemory(const char *filename);
     static void PlayInfiniteThread(void *pvParameters);
     static void StartEyesUpdateThread(void *_this);
+    void pauseResumeEyes(bool pause);
+    void MemInfo();
     void EyesUpdateTask();
     void PlayInfiniteTask();
     void InitDisplay();

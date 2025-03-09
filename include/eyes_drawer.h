@@ -33,13 +33,15 @@
 #define NW 8 // north-west, top left
 // for middle center set "DEFAULT"
 
-class luluEyes
+
+//136k sprite
+class LuLuEyes
 {
 private:
     // Yes, everything is currently still accessible. Be responsibly and don't mess things up :)
 
 public:
-    LGFX_MyDisplay display;
+    LGFX_MyDisplay *display;
     // For general setup - screen size and max. frame rate
     int screenWidth = 128;      // OLED display width, in pixels
     int screenHeight = 64;      // OLED display height, in pixels
@@ -162,16 +164,18 @@ public:
     //*********************************************************************************************
 
     // Startup RoboEyes with defined screen-width, screen-height and max. frames per second
-    void begin(int width, int height, byte frameRate, LGFX_MyDisplay _display)
+    void begin(int width, int height, byte frameRate, LGFX_MyDisplay* _display)
     {
         display = _display;
-        sprite = new LGFX_Sprite(&display);
-        sprite->createSprite(display.width(), display.height());
+        sprite = new LGFX_Sprite(display);
+        sprite->setPsram(true);        
+        sprite->createSprite(display->width(), display->height());
+        
         
         // sprite->createSprite(128, 128);
         screenWidth = width;     // OLED display width, in pixels
         screenHeight = height;   // OLED display height, in pixels
-        display.clearDisplay();  // clear the display buffer
+        // display.clearDisplay();  // clear the display buffer
         // display.display();       // show empty screen
         eyeLheightCurrent = 1;   // start with closed eyes
         eyeRheightCurrent = 1;   // start with closed eyes
@@ -186,7 +190,7 @@ public:
         // if (millis() - fpsTimer >= frameInterval)
         // {
         drawEyes();
-        fpsTimer = millis();
+        // fpsTimer = millis();
         // }
     }
 
@@ -786,6 +790,7 @@ public:
         }
 
         // display.startWrite();
+        
         sprite->pushSprite(0,0);
         // display.display(); // show drawings on display
         // display.endWrite();
