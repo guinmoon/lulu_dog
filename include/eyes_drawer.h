@@ -41,7 +41,8 @@ private:
     // Yes, everything is currently still accessible. Be responsibly and don't mess things up :)
 
 public:
-    LGFX_MyDisplay *display;
+    // LGFX_MyDisplay *display;
+    inline static LGFX_Sprite* sprite;
     // For general setup - screen size and max. frame rate
     int screenWidth = 128;      // OLED display width, in pixels
     int screenHeight = 64;      // OLED display height, in pixels
@@ -158,18 +159,16 @@ public:
     bool laughToggle = 1;
     
 
-    inline static LGFX_Sprite* sprite;
+    
     //*********************************************************************************************
     //  GENERAL METHODS
     //*********************************************************************************************
 
     // Startup RoboEyes with defined screen-width, screen-height and max. frames per second
-    void begin(int width, int height, byte frameRate, LGFX_MyDisplay* _display)
+    void begin(int width, int height, LGFX_Sprite* _sprite)
     {
-        display = _display;
-        sprite = new LGFX_Sprite(display);
-        sprite->setPsram(true);        
-        sprite->createSprite(display->width(), display->height());
+        
+        sprite = _sprite;
         
         
         // sprite->createSprite(128, 128);

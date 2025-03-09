@@ -71,7 +71,7 @@ public:
     void doReactGif(int command, int speed, int tail_speed, char *eye, char *wav);
     void doReact(int command, int speed, int tail_speed, int eye, char *wav);
     void doRandomReact(int direction);
-    void doRandomReactGif(int direction);
+    void doRandomReactGif(int direction, bool withMove);
     void DoSceneReact(int x, int y);
 
     void LeftHand();

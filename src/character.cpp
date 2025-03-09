@@ -334,7 +334,7 @@ void LuLuCharacter::doRandomReact(int direction)
     }
 }
 
-void LuLuCharacter::doRandomReactGif(int direction)
+void LuLuCharacter::doRandomReactGif(int direction, bool withMove)
 {
 
 
@@ -350,46 +350,46 @@ void LuLuCharacter::doRandomReactGif(int direction)
         doReactGif(-1, -1, 0, "/imgs/eye1.gif", nullptr);
         break;
     case 1:
-        doReactGif(COMMAND_SIT, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_SIT : -1, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 2:
-        doReactGif(COMMAND_SIT, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_SIT: -1, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 3:
-        doReactGif(COMMAND_STAND, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_STAND: -1, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
         break;
     case 4:
-        doReactGif(COMMAND_LAYDOWN, 4, 4, "/imgs/eye2.gif", nullptr);
+        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 4, 4, "/imgs/eye2.gif", nullptr);
         break;
     case 5:
         doReactGif(-1, -1, 4, "/imgs/eye4.gif", nullptr);
         break;
     case 6:
-        doReactGif(COMMAND_LEFTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReactGif(withMove ? COMMAND_LEFTHAND: -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 7:
-        doReactGif(COMMAND_LAYDOWN, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 8:
-        doReactGif(COMMAND_LAYDOWN, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 9:
-        doReactGif(COMMAND_HALFLAYDOWN, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_HALFLAYDOWN: -1, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 10:
         doReactGif(-1, -1, 4, "/imgs/eye5.gif", "/woof1.wav");
         break;
     case 11:
-        doReactGif(COMMAND_RIGHTHAND, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReactGif(withMove ? COMMAND_RIGHTHAND: -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 12:
-        doReactGif(COMMAND_FULLLAYDOWN, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_FULLLAYDOWN: -1, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 13:
-        doReactGif(COMMAND_TAILLEGSSTAND, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_TAILLEGSSTAND: -1, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 14:
-        doReactGif(COMMAND_HALFLAYDOWNTAIL, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_HALFLAYDOWNTAIL: -1, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
         break;
     default:
         doReactGif(-1, -1, 0, "/imgs/eye5.gif", nullptr);

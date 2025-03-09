@@ -92,6 +92,8 @@ public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
     bool pauseEyes = false;
+    static LGFX_Sprite *eyesSprite;
+    static LGFX_Sprite *batterySprite;
     static LGFX_MyDisplay* gfx;
     static LuLuEyes* luluEyes;
     static AnimatedGIF gif;
@@ -125,6 +127,7 @@ public:
     void drawHeart(int x, int y, uint16_t color);
     static bool showMatrixAnimation;
     static void LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
+    void SetEyePosition(int x, int y);
 };
 
 // extern DisplayHelper displayHelper;

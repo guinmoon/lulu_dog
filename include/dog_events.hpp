@@ -112,6 +112,7 @@ public:
     void OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE);
     void OnExternalImpact();
     void OnGyroOrAccEvent();
+    void OnLongPressChPosition(int x, int y);
 
 private:
     LuLuDog *luluDog;

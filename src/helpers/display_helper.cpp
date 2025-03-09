@@ -9,6 +9,8 @@
 
 LGFX_MyDisplay *DisplayHelper::gfx;
 LuLuEyes *DisplayHelper::luluEyes;
+LGFX_Sprite *DisplayHelper::eyesSprite;
+LGFX_Sprite *DisplayHelper::batterySprite;
 
 AnimatedGIF DisplayHelper::gif;
 
@@ -23,6 +25,12 @@ DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
     luluDog = _luluDog;
     luluEyes = new LuLuEyes();
     gfx = new LGFX_MyDisplay();
+    eyesSprite = new LGFX_Sprite(gfx);
+    batterySprite = new LGFX_Sprite(gfx);
+    eyesSprite->setPsram(true);
+    batterySprite->setPsram(true);
+    eyesSprite->createSprite(gfx->width(), gfx->height());
+    batterySprite->createSprite(120, 40);
 }
 
 void DisplayHelper::stopSleepAnimation()
@@ -82,12 +90,15 @@ void DisplayHelper::InitDisplay()
     gfx->setTextColor(TFT_RED);
     gfx->println("Hello World!");
 
-    luluEyes->begin(SCREEN_WIDTH, SCREEN_HEIGHT, 30, gfx); // screen-width, screen-height, max framerate
+    
+
+    luluEyes->begin(gfx->width(), gfx->height(), eyesSprite); // screen-width, screen-height, max framerate
 
     // Define some automated eyes behaviour
     luluEyes->setAutoblinker(ON, 3, 2); // Start auto blinker animation cycle -> bool active, int interval, int variation -> turn on/off, set interval between each blink in full seconds, set range for random interval variation in full seconds
     luluEyes->setIdleMode(ON, 2, 2);
-    luluEyes->setSpacebetween(30);
+    luluEyes->setSpacebetween(40);
+    pauseEyes = true;
     xTaskCreatePinnedToCore(
         this->StartEyesUpdateThread, /* Task function. */
         "Task1",                     /* name of task. */
@@ -96,6 +107,7 @@ void DisplayHelper::InitDisplay()
         2 | portPRIVILEGE_BIT,       /* priority of the task */
         &Task1,                      /* Task handle to keep track of created task */
         0);
+    
     // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
@@ -121,8 +133,16 @@ void DisplayHelper::EyesUpdateTask()
             continue;
         }
         luluEyes->update();
-        delay(50);
+        delay(30);
     }
+}
+
+void DisplayHelper::SetEyePosition(int x, int y)
+{
+    // eyeLxNext = getScreenConstraint_X() / 2;
+    //         eyeLyNext = 0;
+    luluEyes->eyeLxNext = x;
+    luluEyes->eyeLyNext = y;
 }
 // void *DisplayHelper::GIFAlloc(uint32_t u32Size)
 // {
@@ -319,9 +339,9 @@ void DisplayHelper::printOnDisplay(char *text, int x, int y)
 
 void DisplayHelper::drawHeart(int x, int y, uint16_t color)
 {
-    gfx->fillRect(x + 15, y + 15, 10, 10, color);
-    gfx->fillRect(x + 28, y + 15, 10, 10, color);
-    gfx->fillRect(x + 22, y + 21, 10, 10, color);
+    batterySprite->fillRect(x + 15, y + 15, 10, 10, color);
+    batterySprite->fillRect(x + 28, y + 15, 10, 10, color);
+    batterySprite->fillRect(x + 22, y + 21, 10, 10, color);
 }
 
 void DisplayHelper::drawBatteryheart()
@@ -346,6 +366,8 @@ void DisplayHelper::drawBatteryheart()
         drawHeart(60, 0, TFT_BLACK);
     else
         drawHeart(60, 0, heartColor);
+    
+    batterySprite->pushSprite(0,0);
 }
 
 void DisplayHelper::setVoltageBuf(float voltage)

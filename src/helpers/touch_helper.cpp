@@ -58,6 +58,7 @@ void TouchHelper::detectLongOrDoubleTap(int x, int y)
             wasPressed = false;
             released = false;
             pressStartTime = currentTime + 99999;
+            luluDog->dogEvents->EmitDogEvent(luluDog->dogEvents->BuildTouchEvent(x, y, LONG_PRESS_T_END_COUNT));
         }
         longPressActivated = false;
 
@@ -121,19 +122,22 @@ void TouchHelper::TouchReadTask()
             delay(500);
             continue;
         }
-
+        uint8_t touched = 0;
         if (isPressed)
         {
-            uint8_t touched = touch.getPoint(y, x, /*touch.getSupportTouchPoint()*/ 1);
+            touched = touch.getPoint(y, x, /*touch.getSupportTouchPoint()*/ 1);
             if (touched)
             {
                 released = false;
-                log_d("touch event");
+                log_d("touch event");                
             }
         }
         // Вызов функции определения длительного или двойного касания
-        detectLongOrDoubleTap(x[0], y[0]);
+        detectLongOrDoubleTap(x[0], LCD_HEIGHT - y[0]);
         isPressed = false;
+        if (touched && longPressActivated){
+            luluDog->dogEvents->OnLongPressChPosition(x[0], LCD_HEIGHT - y[0]);
+        }
         delay(30);
     }
 }
@@ -182,5 +186,7 @@ void TouchHelper::switchToLVGLTask(bool toLvgl)
         isPressed = false;
     }
 }
+
+
 
 // TouchHelper touchHelper;

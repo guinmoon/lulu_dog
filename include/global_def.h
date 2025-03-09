@@ -51,8 +51,7 @@
 #define LCD_BL 15
 #define LCD_WIDTH 280
 #define LCD_HEIGHT 240
-#define SCREEN_WIDTH LCD_WIDTH
-#define SCREEN_HEIGHT LCD_HEIGHT
+
 
 #define IIC_SDA 11
 #define IIC_SCL 10
@@ -60,6 +59,7 @@
 #define TP_RST 13
 #define TP_INT 14
 #define LONG_PRESS_T_COUNT 33
+#define LONG_PRESS_T_END_COUNT 34
 
 // #define BUZZER_PIN 33
 #define BUZZER_PIN 42

@@ -41,3 +41,11 @@ bool ConfigHelper::SetProperty(char *key, bool value)
     SaveConfig();
     return true;
 }
+
+void ConfigHelper::SaveConfig()
+{
+    File config_file = LittleFS.open(_config_path, "w");
+    serializeJsonPretty(*config, config_file);
+    config_file.close();
+    luluDog->displayHelper->MemInfo();
+}

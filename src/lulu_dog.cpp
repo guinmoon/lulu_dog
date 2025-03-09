@@ -31,8 +31,8 @@ void LuLuDog::Init()
     audioHelper->InitAudio();
     jsRunner->jsInit();
     audioHelper->PlayWav("/audio/woof1.wav");
-    // displayHelper->PlayGif("/imgs/eye5.gif");
-    // dogEvents->StartDogActivitiWatcher();
+    luluCharacter->doRandomReactGif(-1,false);
+    dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
 
     // ShowMenu();

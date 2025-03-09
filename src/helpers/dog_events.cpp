@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "dog_events.hpp"
 #include "lulu_dog.h"
+#include "eyes_drawer.h"
 
 DogEvents::DogEvents(LuLuDog *_luluDog)
 {
@@ -102,7 +103,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     log_d("%i %i %i", args->x, args->y, args->touchCount);
     if (args->touchCount == 1)
     {
-        luluDog->luluCharacter->doRandomReact(-1);
+        luluDog->luluCharacter->doRandomReactGif(-1,true);
         log_d("Single Touch Detected");
     }
     if (args->touchCount == 2)
@@ -114,7 +115,17 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     {
         log_d("Long Press Detected");
         luluDog->displayHelper->StopGif();
-        luluDog->displayHelper->ShowMatrixAnimation();
+        luluDog->displayHelper->pauseResumeEyes(false);
+        luluDog->displayHelper->luluEyes->setMood(0);
+        // luluDog->displayHelper->StopGif();
+        // luluDog->displayHelper->ShowMatrixAnimation();
+    }
+    if (args->touchCount == LONG_PRESS_T_END_COUNT)
+    {
+        log_d("Long Press Detected");        
+        luluDog->displayHelper->pauseResumeEyes(true);
+        luluDog->luluCharacter->doRandomReactGif(-1,false);
+        // luluDog->displayHelper->luluEyes->setMood(HAPPY);
     }
 }
 
@@ -161,12 +172,14 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
         return;
     OnExternalImpact();
-    if (accE->direction == GYRO_D_RIGHT && 
-        (gyroE->direction == GYRO_D_TILT_BACKWARD|| gyroE->direction == GYRO_D_ROTATE_LEFT)){
+    if (accE->direction == GYRO_D_RIGHT &&
+        (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
+    {
         luluDog->luluCharacter->RightHand();
     }
-    if (accE->direction == GYRO_D_LEFT && 
-        (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)){
+    if (accE->direction == GYRO_D_LEFT &&
+        (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
+    {
         luluDog->luluCharacter->LeftHand();
     }
     // luluDog->luluCharacter->doRandomReact(-1);
@@ -174,7 +187,8 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
 
 void DogEvents::OnGyroOrAccEvent()
 {
-    if (luluDog->displayHelper->showMatrixAnimation){
+    if (luluDog->displayHelper->showMatrixAnimation)
+    {
         luluDog->displayHelper->StopMatrixAnimation();
         // luluDog->displayHelper->PlayGif("/imgs/eye5.gif");
     }
@@ -186,13 +200,12 @@ void DogEvents::OnExternalImpact()
     lastImpact = current_time;
     if (!eventsSuspended)
         Wake();
-    
+
     // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
     // {
     //     lastImpact = current_time;
     //     return;
     // }
-
 }
 
 void DogEvents::Wake()
@@ -209,7 +222,7 @@ void DogEvents::Wake()
 
 void DogEvents::SleepPrepare()
 {
-    
+
     luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
     luluDog->displayHelper->StopGif();
@@ -310,3 +323,10 @@ void DogEvents::StartSlavePingThread()
         NULL,             /* Task handle to keep track of created task */
         0);
 }
+
+void DogEvents::OnLongPressChPosition(int x, int y)
+{
+    // log_d("long press at %d,%d ", x, y);
+    luluDog->displayHelper->SetEyePosition(x-40, y-40);
+}
+

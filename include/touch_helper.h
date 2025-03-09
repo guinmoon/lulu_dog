@@ -17,6 +17,7 @@ private:
     static int16_t y[6];
     static bool isPressed ;
     
+    
 
     unsigned long lastTouchTime = 0;
     bool longPressDetected = false;
@@ -34,6 +35,7 @@ private:
     const unsigned long doubleTapTimeout = DOUBLETAPTHRESHOLD;
 
 public:
+    bool eyeWatcherMode = false;
     bool released = true;
     bool suspended = false;
     TouchHelper(LuLuDog* _luluDog);
@@ -42,7 +44,7 @@ public:
     static void TouchReadThread(void *params);
     void TouchReadTask();
     static void LVGLTouchpadRead(lv_indev_drv_t *indev_driver, lv_indev_data_t *data);
-    void switchToLVGLTask(bool toLvgl);
+    void switchToLVGLTask(bool toLvgl);    
     // void (*doubleTapCallback)(int x, int y);
     // void (*longPressCallback)(int x, int y);
 };

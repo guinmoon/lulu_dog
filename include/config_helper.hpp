@@ -41,13 +41,7 @@ public:
         return false;
     }
     bool SetProperty(char *key, bool value);
-    void SaveConfig()
-    {
-        File config_file = LittleFS.open(_config_path, "w");
-        serializeJsonPretty(*config, config_file);
-        config_file.close();
-        luluDog->displayHelper->MemInfo();
-    }
+    void SaveConfig();
     ~ConfigHelper();
 
 private:
