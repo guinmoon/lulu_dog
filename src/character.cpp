@@ -368,9 +368,9 @@ void LuLuCharacter::LeftHand()
     luluDog->displayHelper->StopGif();
     luluDog->displayHelper->setIdleMode(false);
     luluDog->displayHelper->pauseResumeEyes(false);
-    luluDog->displayHelper->luluEyes->setPosition(NE);
-    doReact(COMMAND_LEFTHAND, 4, 6, 0, "/audio/woof3.wav");
-    luluDog->displayHelper->luluEyes->setPosition(NE);
+    luluDog->displayHelper->luluEyes->setPosition(SW);
+    doReact(COMMAND_LEFTHAND, 4, 6, ANGRY, "/audio/woof3.wav");
+    luluDog->displayHelper->luluEyes->setPosition(SW);
 }
 
 void LuLuCharacter::RightHand()
@@ -380,6 +380,6 @@ void LuLuCharacter::RightHand()
     luluDog->displayHelper->setIdleMode(false);
     luluDog->displayHelper->pauseResumeEyes(false);
     luluDog->displayHelper->luluEyes->setPosition(SE);
-    doReact(COMMAND_RIGHTHAND, 4, 0, 0, "/audio/woof3.wav");
+    doReact(COMMAND_RIGHTHAND, 4, 0, ANGRY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SE);
 }
