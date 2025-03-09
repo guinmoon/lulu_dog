@@ -74,7 +74,7 @@ private:
     TaskHandle_t Task1;
     char voltageBuf[15];
 
-    bool play = true;
+    bool playGif = true;
     bool wake = false;
 
     uint8_t *pTurboBuffer;
@@ -128,6 +128,7 @@ public:
     static bool showMatrixAnimation;
     static void LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
     void SetEyePosition(int x, int y);
+    void setIdleMode(bool enable);
 };
 
 // extern DisplayHelper displayHelper;

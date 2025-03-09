@@ -7,10 +7,13 @@
 
 // LuLuCharacter luluCharacter;
 
-LuLuCharacter::LuLuCharacter(LuLuDog* _luluDog){
+LuLuCharacter::LuLuCharacter(LuLuDog *_luluDog)
+{
     luluDog = _luluDog;
     NormalizeProbabilities();
 }
+
+
 
 int LuLuCharacter::generateRandomWithProbabilities(float probabilities[], int size)
 {
@@ -54,7 +57,7 @@ void LuLuCharacter::NormalizeProbabilities()
 
 void LuLuCharacter::sendCommand(int command)
 {
-    WIRE.beginTransmission(8); // Адрес ведомого устройства
+    WIRE.beginTransmission(LULU_SLAVE_ADDRESS); // Адрес ведомого устройства
     WIRE.write(command);
     WIRE.endTransmission();
     log_d("Sended: %i", command);
@@ -63,123 +66,49 @@ void LuLuCharacter::sendCommand(int command)
 void LuLuCharacter::SendCommand(int command, int arg1)
 {
     std::lock_guard<std::mutex> lck(i2c_mutex);
-    WIRE.beginTransmission(8); // Адрес ведомого устройства
+    WIRE.beginTransmission(LULU_SLAVE_ADDRESS); // Адрес ведомого устройства
     WIRE.write(command);
     WIRE.write(arg1);
-    WIRE.endTransmission();
-    log_d("Sended %i:%i", command, arg1);
+    WIRE.endTransmission();    
+    log_d("Sended %i:%i", command, arg1);    
 }
 
-// void LuLuCharacter::_wake()
-// {
-//     if (sleeping)
-//     {
-//         sleeping = false;
-//         log_d("WAKE");
-//         luluDog->displayHelper->stopSleepAnimation();
-//         delay(200);
-//         // SendCommand(RP_SYS_COMMAND_WAKE,0);
-//     }
-// }
 
-// void LuLuCharacter::SleepPrepare()
-// {
-//     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-//     log_d("SLEEP");
-//     luluDog->displayHelper->StopGif();
-//     delay(1000);
-//     SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-// }
+void LuLuCharacter::ConfirmCommand(int command, int arg1)
+{       
+    xTaskCreatePinnedToCore(
+        reciveThread, /* Task function. */
+        "Task11",         /* name of task. */
+        4096,             /* Stack size of task */
+        this,             /* parameter of the task */
+        tskIDLE_PRIORITY, /* priority of the task */
+        NULL,             /* Task handle to keep track of created task */
+        0);
+}
 
-// void LuLuCharacter::GoToDeepSleep()
-// {
-//     if (!DEEP_SLEEP_ON)
-//         return;
-//     log_d("PREPARE to SLEEP: %i ms", 2000);
-//     sleeping = true;
-//     deepSleeping = true;
-//     SleepPrepare();
-//     gpio_deep_sleep_hold_en();
-//     gpio_hold_en((gpio_num_t)SYS_EN_PIN);
-//     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
-//     esp_deep_sleep_start();
-//     log_d("SLEEPING FOR: %i ms", 2000);
-// }
+void LuLuCharacter::reciveThread(void * _this){
+    ((LuLuCharacter *)_this)->reciveTask();
+    vTaskDelete(NULL);
+}
 
-// void LuLuCharacter::GoToSleep()
-// {
-//     if (!SLEEP_ON)
-//         return;
-//     SleepPrepare();
-//     sleeping = true;
-//     luluDog->displayHelper->showSleepAnimation();
-// }
-
-// void LuLuCharacter::DogActivitiWatcherTask()
-// {
-//     while (true)
-//     {
-//         if (suspended){
-//             lastImpact = millis();
-//             delay(1000);
-//             continue;
-//         }
-//         if ((millis() - lastImpact) / 1000 >= SLEEP_AFTER && !sleeping)
-//         {
-//             GoToSleep();
-//         }
-//         if ((millis() - lastImpact) / 1000 >= DEEP_SLEEP_AFTER && !luluDog->batteryHelper->isCharging())
-//         {
-//             GoToDeepSleep();
-//         }
-
-//         delay(1000);
-//     }
-// }
-
-// void LuLuCharacter::DogActivitiWatcherThread(void *_this)
-// {
-//     ((LuLuCharacter *)_this)->DogActivitiWatcherTask();
-//     vTaskDelete(NULL);
-// }
-
-// void LuLuCharacter::RP2040PingTask()
-// {
-//     while (true)
-//     {
-//         if (!pingPaused)
-//             SendCommand(RP_SYS_COMMAND_PING, 0);
-//         delay(2000);
-//     }
-// }
-
-// void LuLuCharacter::RP2040PingThread(void *_this)
-// {
-//     ((LuLuCharacter *)_this)->RP2040PingTask();
-//     vTaskDelete(NULL);
-// }
-
-// void LuLuCharacter::StartDogActivitiWatcher()
-// {
-//     NormalizeProbabilities();
-//     xTaskCreatePinnedToCore(
-//         this->DogActivitiWatcherThread, /* Task function. */
-//         "Task7",                        /* name of task. */
-//         4096,                          /* Stack size of task */
-//         this,                           /* parameter of the task */
-//         tskIDLE_PRIORITY,               /* priority of the task */
-//         NULL,                           /* Task handle to keep track of created task */
-//         0);
-
-//     xTaskCreatePinnedToCore(
-//         this->RP2040PingThread, /* Task function. */
-//         "Task11",               /* name of task. */
-//         4096,                  /* Stack size of task */
-//         this,                   /* parameter of the task */
-//         tskIDLE_PRIORITY,       /* priority of the task */
-//         NULL,                   /* Task handle to keep track of created task */
-//         0);
-// }
+void LuLuCharacter::reciveTask(){
+    delay(1500);    
+    auto res = WIRE.requestFrom(LULU_SLAVE_ADDRESS,1);
+    if (res == 0){
+        log_e("I2C not Received"); 
+        delay(1500);    
+        luluDog->displayHelper->setIdleMode(true);
+        luluDog->gyroHelper->ResumeGyro();
+        return;      
+    }
+    uint8_t buf;
+    int commandId = WIRE.readBytes(&buf, 1);
+    log_d("I2CReceive: %d", buf);   
+    if (buf == 4){
+        luluDog->displayHelper->setIdleMode(true);
+        luluDog->gyroHelper->ResumeGyro();        
+    }
+}
 
 int LuLuCharacter::getAllowedRandomReact()
 {
@@ -211,19 +140,24 @@ int LuLuCharacter::GetAllowedSceneReact()
 }
 
 
+
 void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, char *wav)
 {
+
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
-    luluDog->dogEvents->lastImpact = millis();//Для вызовов не из этого класса
+    luluDog->dogEvents->lastImpact = millis(); // Для вызовов не из этого класса
     luluDog->dogEvents->pingPaused = true;
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
+        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
     }
-    if (command != -1 && luluDog->configHelper->EnableMove){
+    if (command != -1 && luluDog->configHelper->EnableMove)
+    {
+        luluDog->gyroHelper->PauseGyro();
         SendCommand(command, speed);
-    }    
+        ConfirmCommand(command, speed);
+    }
     switch (eye)
     {
     case 0:
@@ -238,7 +172,7 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, cha
     case 3:
         luluDog->displayHelper->luluEyes->setMood(3);
         break;
-    
+
     default:
         break;
     }
@@ -251,16 +185,19 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, cha
 void LuLuCharacter::doReactGif(int command, int speed, int tail_speed, char *eye, char *wav)
 {
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
-    luluDog->dogEvents->lastImpact = millis();//Для вызовов не из этого класса
+    luluDog->dogEvents->lastImpact = millis(); // Для вызовов не из этого класса
     luluDog->dogEvents->pingPaused = true;
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);
+        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
     }
-    if (command != -1 && luluDog->configHelper->EnableMove){
+    if (command != -1 && luluDog->configHelper->EnableMove)
+    {
+        luluDog->gyroHelper->PauseGyro();
         SendCommand(command, speed);
-    }    
+        ConfirmCommand(command, speed);
+    }
     if (eye != nullptr)
         luluDog->displayHelper->PlayGif(eye);
     if (wav != nullptr)
@@ -269,13 +206,11 @@ void LuLuCharacter::doReactGif(int command, int speed, int tail_speed, char *eye
     luluDog->dogEvents->pingPaused = false;
 }
 
-
-
 void LuLuCharacter::doRandomReact(int direction)
 {
 
-
-    if (luluDog->displayHelper->showMatrixAnimation){
+    if (luluDog->displayHelper->showMatrixAnimation)
+    {
         luluDog->displayHelper->StopMatrixAnimation();
     }
 
@@ -337,8 +272,8 @@ void LuLuCharacter::doRandomReact(int direction)
 void LuLuCharacter::doRandomReactGif(int direction, bool withMove)
 {
 
-
-    if (luluDog->displayHelper->showMatrixAnimation){
+    if (luluDog->displayHelper->showMatrixAnimation)
+    {
         luluDog->displayHelper->StopMatrixAnimation();
     }
 
@@ -353,43 +288,43 @@ void LuLuCharacter::doRandomReactGif(int direction, bool withMove)
         doReactGif(withMove ? COMMAND_SIT : -1, 4, 6, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 2:
-        doReactGif(withMove ? COMMAND_SIT: -1, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_SIT : -1, 5, 4, "/imgs/eye1.gif", "/audio/woof2.wav");
         break;
     case 3:
-        doReactGif(withMove ? COMMAND_STAND: -1, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_STAND : -1, 2, 0, "/imgs/eye2.gif", "/audio/woof1.wav");
         break;
     case 4:
-        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 4, 4, "/imgs/eye2.gif", nullptr);
+        doReactGif(withMove ? COMMAND_LAYDOWN : -1, 4, 4, "/imgs/eye2.gif", nullptr);
         break;
     case 5:
         doReactGif(-1, -1, 4, "/imgs/eye4.gif", nullptr);
         break;
     case 6:
-        doReactGif(withMove ? COMMAND_LEFTHAND: -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReactGif(withMove ? COMMAND_LEFTHAND : -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 7:
-        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_LAYDOWN : -1, 3, 6, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 8:
-        doReactGif(withMove ? COMMAND_LAYDOWN: -1, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_LAYDOWN : -1, 3, 0, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 9:
-        doReactGif(withMove ? COMMAND_HALFLAYDOWN: -1, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
+        doReactGif(withMove ? COMMAND_HALFLAYDOWN : -1, 2, 7, "/imgs/eye3.gif", "/audio/woof2.wav");
         break;
     case 10:
         doReactGif(-1, -1, 4, "/imgs/eye5.gif", "/woof1.wav");
         break;
     case 11:
-        doReactGif(withMove ? COMMAND_RIGHTHAND: -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
+        doReactGif(withMove ? COMMAND_RIGHTHAND : -1, 4, 4, "/imgs/eye4.gif", "/audio/woof3.wav");
         break;
     case 12:
-        doReactGif(withMove ? COMMAND_FULLLAYDOWN: -1, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_FULLLAYDOWN : -1, 7, 0, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 13:
-        doReactGif(withMove ? COMMAND_TAILLEGSSTAND: -1, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_TAILLEGSSTAND : -1, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 14:
-        doReactGif(withMove ? COMMAND_HALFLAYDOWNTAIL: -1, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_HALFLAYDOWNTAIL : -1, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
         break;
     default:
         doReactGif(-1, -1, 0, "/imgs/eye5.gif", nullptr);
@@ -427,13 +362,24 @@ void LuLuCharacter::DoSceneReact(int x, int y)
     }
 }
 
-void LuLuCharacter::LeftHand(){
+void LuLuCharacter::LeftHand()
+{
     // doReactGif(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
-    doReact(COMMAND_LEFTHAND, 4, 6, 1, "/audio/woof3.wav");
+    luluDog->displayHelper->StopGif();
+    luluDog->displayHelper->setIdleMode(false);
+    luluDog->displayHelper->pauseResumeEyes(false);
+    luluDog->displayHelper->luluEyes->setPosition(NE);
+    doReact(COMMAND_LEFTHAND, 4, 6, 0, "/audio/woof3.wav");
+    luluDog->displayHelper->luluEyes->setPosition(NE);
 }
 
-
-void LuLuCharacter::RightHand(){
+void LuLuCharacter::RightHand()
+{
     // doReactGif(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
-    doReact(COMMAND_RIGHTHAND, 4, 6, 2, "/audio/woof3.wav");
+    luluDog->displayHelper->StopGif();
+    luluDog->displayHelper->setIdleMode(false);
+    luluDog->displayHelper->pauseResumeEyes(false);
+    luluDog->displayHelper->luluEyes->setPosition(SE);
+    doReact(COMMAND_RIGHTHAND, 4, 0, 0, "/audio/woof3.wav");
+    luluDog->displayHelper->luluEyes->setPosition(SE);
 }

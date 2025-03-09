@@ -23,13 +23,9 @@ int DisplayHelper::yOffset = 0;
 DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
 {
     luluDog = _luluDog;
-    luluEyes = new LuLuEyes();
     gfx = new LGFX_MyDisplay();
-    eyesSprite = new LGFX_Sprite(gfx);
     batterySprite = new LGFX_Sprite(gfx);
-    eyesSprite->setPsram(true);
     batterySprite->setPsram(true);
-    eyesSprite->createSprite(gfx->width(), gfx->height());
     batterySprite->createSprite(120, 40);
 }
 
@@ -90,7 +86,10 @@ void DisplayHelper::InitDisplay()
     gfx->setTextColor(TFT_RED);
     gfx->println("Hello World!");
 
-    
+    luluEyes = new LuLuEyes();    
+    eyesSprite = new LGFX_Sprite(gfx);
+    eyesSprite->setPsram(true);    
+    eyesSprite->createSprite(gfx->width(), gfx->height());        
 
     luluEyes->begin(gfx->width(), gfx->height(), eyesSprite); // screen-width, screen-height, max framerate
 
@@ -112,6 +111,14 @@ void DisplayHelper::InitDisplay()
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
 }
 
+void DisplayHelper::setIdleMode(bool enable){
+    if (enable){
+        this->luluEyes->setIdleMode(ON, 2, 2);
+    }else{
+        this->luluEyes->setIdleMode(OFF, 2, 2);
+    }
+}
+
 void DisplayHelper::pauseResumeEyes(bool pause)
 {
     this->pauseEyes = pause;
@@ -129,7 +136,7 @@ void DisplayHelper::EyesUpdateTask()
     {
         if (pauseEyes)
         {
-            delay(500);
+            delay(100);
             continue;
         }
         luluEyes->update();
@@ -152,7 +159,7 @@ void DisplayHelper::SetEyePosition(int x, int y)
 
 void DisplayHelper::PlayGif(const char *fname)
 {
-    play = false;
+    playGif = false;
     pauseResumeEyes(true);
     delay(100);
     if (gifData != nullptr)
@@ -164,7 +171,7 @@ void DisplayHelper::PlayGif(const char *fname)
     {
         log_d("Failed to load GIF to memory play = false");
         drawBatteryheart();
-        play = false;
+        playGif = false;
         return;
     }
 
@@ -183,7 +190,7 @@ void DisplayHelper::PlayGif(const char *fname)
     // gif.allocFrameBuf(GIFAlloc);
     // gif.allocTurboBuf(GIFAlloc);
 
-    play = true;
+    playGif = true;
     xTaskCreatePinnedToCore(
         this->PlayInfiniteThread, /* Task function. */
         "Task1",                  /* name of task. */
@@ -318,8 +325,8 @@ bool DisplayHelper::loadGIFToMemory(const char *filename)
 
 void DisplayHelper::StopGif()
 {
-    play = false;
-    pauseResumeEyes(true);
+    playGif = false;
+    
 }
 
 void DisplayHelper::fillScreen()
@@ -391,7 +398,7 @@ void DisplayHelper::PlayInfiniteThread(void *_this)
 void DisplayHelper::PlayInfiniteTask()
 {
     int iter = 0;
-    while (play)
+    while (playGif)
     {
         int res = gif.playFrame(true, NULL);
         if (iter == 4)

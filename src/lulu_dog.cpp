@@ -85,6 +85,7 @@ void LuLuDog::Action3()
 void LuLuDog::PauseDog()
 {
     displayHelper->StopGif();
+    displayHelper->pauseResumeEyes(true);
     gyroHelper->PauseGyro();
     dogEvents->eventsSuspended = true;
     touchHelper->switchToLVGLTask(true);
@@ -96,7 +97,8 @@ void LuLuDog::ResumeDog()
     dogEvents->eventsSuspended = false;
     touchHelper->switchToLVGLTask(false);
     audioHelper->PlayWav("/audio/awoof1.wav");
-    displayHelper->pauseResumeEyes(false);
+    luluCharacter->doRandomReactGif(-1,false);
+    // displayHelper->pauseResumeEyes(false);
     // displayHelper->PlayGif("/imgs/eye5.gif");
 }
 

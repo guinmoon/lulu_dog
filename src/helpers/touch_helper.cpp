@@ -135,7 +135,7 @@ void TouchHelper::TouchReadTask()
         // Вызов функции определения длительного или двойного касания
         detectLongOrDoubleTap(x[0], LCD_HEIGHT - y[0]);
         isPressed = false;
-        if (touched && longPressActivated){
+        if (touched ){
             luluDog->dogEvents->OnLongPressChPosition(x[0], LCD_HEIGHT - y[0]);
         }
         delay(30);

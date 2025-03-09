@@ -65,6 +65,7 @@ public:
     void NormalizeProbabilities();
     void sendCommand(int command);
     void SendCommand(int command, int arg1);
+    void ConfirmCommand(int command, int arg1);
     
     int getAllowedRandomReact();
     int GetAllowedSceneReact();
@@ -73,7 +74,8 @@ public:
     void doRandomReact(int direction);
     void doRandomReactGif(int direction, bool withMove);
     void DoSceneReact(int x, int y);
-
+    static void  reciveThread(void * _this);
+    void reciveTask();    
     void LeftHand();
     void RightHand();
     // void Dance1();
