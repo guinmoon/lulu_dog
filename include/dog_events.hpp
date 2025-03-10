@@ -107,11 +107,11 @@ public:
     void EmitDogEvent(DogEvent *e);
     void EmitDogEvent(DogEvent *e1, DogEvent *e2);
     void OnTouchEvent(TouchEvent *args);
-    void OnAccelerometerEvent(AccelerometerEvent *args);
-    void OnGyroEvent(GyroEvent *args);
+    // void OnAccelerometerEvent(AccelerometerEvent *args);
+    // void OnGyroEvent(GyroEvent *args);
     void OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE);
     void OnExternalImpact();
-    void OnGyroOrAccEvent();
+    void GyroOrAccEventPreaction();
     void OnLongPressChPosition(int x, int y);
 
 private:

@@ -96,8 +96,8 @@ void LuLuCharacter::reciveTask(){
     auto res = WIRE.requestFrom(LULU_SLAVE_ADDRESS,1);
     if (res == 0){
         log_e("I2C not Received"); 
-        delay(1500);    
         luluDog->displayHelper->setIdleMode(true);
+        delay(2500);            
         luluDog->gyroHelper->ResumeGyro();
         return;      
     }
@@ -381,6 +381,6 @@ void LuLuCharacter::RightHand()
     luluDog->displayHelper->setIdleMode(false);
     luluDog->displayHelper->resumeEyes();
     luluDog->displayHelper->luluEyes->setPosition(SE);
-    doReact(COMMAND_RIGHTHAND, 4, 0, HAPPY, "/audio/woof3.wav");
+    doReact(COMMAND_RIGHTHAND, 4, 6, HAPPY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SE);
 }

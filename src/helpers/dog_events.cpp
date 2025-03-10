@@ -66,12 +66,12 @@ void DogEvents::EmitDogEvent(DogEvent *e)
     case TOUCH:
         OnTouchEvent((TouchEvent *)e->eventArgs);
         break;
-    case ACCELEROMETER:
-        OnAccelerometerEvent((AccelerometerEvent *)e->eventArgs);
-        break;
-    case GYRO:
-        OnGyroEvent((GyroEvent *)e->eventArgs);
-        break;
+        // case ACCELEROMETER:
+        //     OnAccelerometerEvent((AccelerometerEvent *)e->eventArgs);
+        //     break;
+        // case GYRO:
+        //     OnGyroEvent((GyroEvent *)e->eventArgs);
+        //     break;
 
     default:
         break;
@@ -84,11 +84,11 @@ void DogEvents::EmitDogEvent(DogEvent *e1, DogEvent *e2)
     {
         return;
     }
-    if (e1->eventType == ACCELEROMETER && e2->eventType == GYRO)
+    if ((e1 != NULL && e1->eventType == ACCELEROMETER) || (e2 != NULL && e2->eventType == GYRO))
     {
         OnAccelerometerAndGyroEvent(
-            (AccelerometerEvent *)e1->eventArgs,
-            (GyroEvent *)e2->eventArgs);
+            e1 == NULL ? NULL : (AccelerometerEvent *)e1->eventArgs,
+            e2 == NULL ? NULL : (GyroEvent *)e2->eventArgs);
         return;
     }
 }
@@ -103,7 +103,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     log_d("%i %i %i", args->x, args->y, args->touchCount);
     if (args->touchCount == 1)
     {
-        luluDog->luluCharacter->doRandomReactGif(-1,true);
+        luluDog->luluCharacter->doRandomReactGif(-1, true);
         log_d("Single Touch Detected");
     }
     if (args->touchCount == 2)
@@ -122,41 +122,41 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     }
     if (args->touchCount == LONG_PRESS_T_END_COUNT)
     {
-        log_d("Long Press Ended");        
+        log_d("Long Press Ended");
         luluDog->displayHelper->pauseEyes();
-        luluDog->luluCharacter->doRandomReact(-1,false);
+        luluDog->luluCharacter->doRandomReact(-1, false);
         // luluDog->displayHelper->luluEyes->setMood(HAPPY);
     }
 }
 
-void DogEvents::OnAccelerometerEvent(AccelerometerEvent *e)
-{
-    if (e == NULL)
-    {
-        return;
-    }
-    log_d("\nACC: %f %f %f \nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
-    delay(200);
-    if (!luluDog->gyroHelper->gyroActive)
-        return;
-    OnGyroOrAccEvent();
-    OnExternalImpact();
-    // luluDog->luluCharacter->doRandomReact(-1);
-}
+// void DogEvents::OnAccelerometerEvent(AccelerometerEvent *e)
+// {
+//     if (e == NULL)
+//     {
+//         return;
+//     }
+//     log_d("\nACC: %f %f %f \nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
+//     delay(200);
+//     if (!luluDog->gyroHelper->gyroActive)
+//         return;
+//     OnGyroOrAccEvent();
+//     OnExternalImpact();
+//     // luluDog->luluCharacter->doRandomReact(-1);
+// }
 
-void DogEvents::OnGyroEvent(GyroEvent *e)
-{
-    if (e == NULL)
-    {
-        return;
-    }
-    log_d("\nGYRO: %f %f %f\nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
-    delay(200);
-    if ( !luluDog->gyroHelper->gyroActive)
-        return;
-    OnGyroOrAccEvent();
-    OnExternalImpact();
-}
+// void DogEvents::OnGyroEvent(GyroEvent *e)
+// {
+//     if (e == NULL)
+//     {
+//         return;
+//     }
+//     log_d("\nGYRO: %f %f %f\nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
+//     delay(200);
+//     if ( !luluDog->gyroHelper->gyroActive)
+//         return;
+//     OnGyroOrAccEvent();
+//     OnExternalImpact();
+// }
 
 void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE)
 {
@@ -164,28 +164,48 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     {
         return;
     }
-    OnGyroOrAccEvent();
-    log_d("\nACC: %f %f %f \nD: %i + \nGYRO: %f %f %f\nD: %i",
-          accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
-          gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
+    GyroOrAccEventPreaction();
+    if (accE != NULL && gyroE != NULL)
+    {
+        log_d("\nACC: %f %f %f \nD: %i + \nGYRO: %f %f %f\nD: %i",
+              accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
+              gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
+    }
+    else
+    {
+        if (accE != NULL)
+        {
+            log_d("\nACC: %f %f %f \nD: %i", accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction);
+        }
+        if (gyroE != NULL)
+        {
+            log_d("\nGYRO: %f %f %f\nD: %i", gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
+        }
+    }
+
     delay(200);
-    if ( !luluDog->gyroHelper->gyroActive)
+    if (!luluDog->gyroHelper->gyroActive)
         return;
     OnExternalImpact();
-    if (accE->direction == GYRO_D_RIGHT &&
-        (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
+    if (gyroE != NULL)
     {
-        luluDog->luluCharacter->RightHand();
-    }
-    if (accE->direction == GYRO_D_LEFT &&
-        (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
-    {
-        luluDog->luluCharacter->LeftHand();
+        // if (accE->direction == GYRO_D_RIGHT &&
+        //     (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
+        if (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT)
+        {
+            luluDog->luluCharacter->RightHand();
+        }
+        if (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)
+        // if (accE->direction == GYRO_D_LEFT &&
+        //     (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
+        {
+            luluDog->luluCharacter->LeftHand();
+        }
     }
     // luluDog->luluCharacter->doRandomReact(-1);
 }
 
-void DogEvents::OnGyroOrAccEvent()
+void DogEvents::GyroOrAccEventPreaction()
 {
     if (luluDog->displayHelper->showMatrixAnimation)
     {
@@ -326,7 +346,6 @@ void DogEvents::StartSlavePingThread()
 
 void DogEvents::OnLongPressChPosition(int x, int y)
 {
-    log_d("press at %d,%d ", x, y);
-    luluDog->displayHelper->SetEyePosition(x-40, y-40);
+    // log_d("press at %d,%d ", x, y);
+    luluDog->displayHelper->SetEyePosition(x - 40, y - 40);
 }
-

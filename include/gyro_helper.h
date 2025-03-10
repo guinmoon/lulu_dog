@@ -36,8 +36,13 @@ private:
     IMUdata prevAcc = {0, 0, 0}; // Предыдущее значение ускорений
     IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
-    const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC_X; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-    const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
+    const float impactThresholdAccX = IMPACT_THRESHHOLD_ACC_X;
+    const float impactThresholdAccY = IMPACT_THRESHHOLD_ACC_Y;
+    const float impactThresholdAccZ = IMPACT_THRESHHOLD_ACC_Z;
+     // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
+    const float impactThresholdGyrX = IMPACT_THRESHHOLD_GYR_X;
+    const float impactThresholdGyrY = IMPACT_THRESHHOLD_GYR_Y;
+    const float impactThresholdGyrZ = IMPACT_THRESHHOLD_GYR_Z; // Пороговое значение изменений угловой скорости
 
     unsigned long lastAccActionTime = 0;
     unsigned long lastGyroActionTime = 0;                      // Время последнего вызова doOnGyro
@@ -51,6 +56,8 @@ private:
     int directionAcc = 0;
     int directionGyro = 0;
     LuLuDog* luluDog;
+
+    bool _gyroResumed = false;
 
 public:
     bool gyroActive = true;

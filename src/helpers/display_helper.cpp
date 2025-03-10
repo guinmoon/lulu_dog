@@ -134,8 +134,8 @@ void DisplayHelper::DrawBatteryTask(){
     drawBatteryheart();
     while (1){ 
         delay(1000);
-        if (!playGif &&  eyesPaused)
-           continue;        
+        // if (!playGif &&  eyesPaused)
+        //    continue;        
         drawBatteryheart();
     }
 }
@@ -317,8 +317,9 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
             usTemp[x] = usPalette[s[x]];
         }
         // gfx->pushImage(pDraw->iX, y,  iWidth, 1,(uint16_t *)usTemp);
+        
         gfx->setAddrWindow(pDraw->iX + xOffset, y + yOffset, iWidth, 1);
-        gfx->writePixels(usTemp, iWidth);
+        gfx->writePixels(usTemp, iWidth);        
     }
     gfx->endWrite();
 }
@@ -430,6 +431,7 @@ void DisplayHelper::PlayInfiniteTask()
     int iter = 0;
     while (playGif && iter<GifPlayTime)
     {
+        pauseEyes();
         int res = gif.playFrame(true, NULL);
         if (res == -1)
         {
@@ -445,7 +447,10 @@ void DisplayHelper::PlayInfiniteTask()
             gif.open(gifData, gifSize, GIFDraw);
         }        
     }
-    resumeEyes();
+    if (playGif){
+        resumeEyes();
+        playGif = false;
+    }
     log_d("play ended");
 }
 

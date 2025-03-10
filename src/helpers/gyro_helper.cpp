@@ -13,7 +13,7 @@
 // IMUdata prevGyr = {0, 0, 0}; // Предыдущее значение угловых скоростей
 
 // const float impactThresholdAcc = IMPACT_THRESHHOLD_ACC; // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-// const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR; // Пороговое значение изменений угловой скорости
+// const float impactThresholdGyr = IMPACT_THRESHHOLD_GYR_X; // Пороговое значение изменений угловой скорости
 
 // unsigned long lastGyroActionTime = 0;                      // Время последнего вызова doOnGyro
 // const unsigned long gyroActionPeriod = GYRO_ACTION_PERIOD; // Время в миллисекундах
@@ -47,6 +47,7 @@ void GyroHelper::PauseGyro()
 void GyroHelper::ResumeGyro()
 {
     gyroActive = true;
+    _gyroResumed = true;
 }
 
 bool GyroHelper::InitGyro()
@@ -260,17 +261,17 @@ void GyroHelper::gyroAndAccelReadTask()
                 // log_d("%f %f %f",deltaX,deltaY,deltaZ);
 
                 // Определение направления по акселерометру
-                if (abs(accDeltaX) > impactThresholdAcc)
+                if (abs(accDeltaX) > impactThresholdAccX)
                 {
                     accImpactDetected = true;
                     directionAcc = (accDeltaX > 0) ? GYRO_D_RIGHT : GYRO_D_LEFT;
                 }
-                else if (abs(accDeltaY) > impactThresholdAcc && abs(accDeltaY) > abs(accDeltaX))
+                else if (abs(accDeltaY) > impactThresholdAccY && abs(accDeltaY) > abs(accDeltaX))
                 {
                     accImpactDetected = true;
                     directionAcc = (accDeltaY > 0) ? GYRO_D_FORWARD : GYRO_D_BACKWARD;
                 }
-                else if (abs(accDeltaZ) > impactThresholdAcc && abs(accDeltaZ) > abs(accDeltaY))
+                else if (abs(accDeltaZ) > impactThresholdAccZ && abs(accDeltaZ) > abs(accDeltaY))
                 {
                     accImpactDetected = true;
                     directionAcc = (accDeltaZ > 0) ? GYRO_D_UP : GYRO_D_DOWN;
@@ -287,23 +288,29 @@ void GyroHelper::gyroAndAccelReadTask()
                 deltaGyrZ = gyr.z - prevGyr.z;
 
                 // Определение направления по гироскопу
-                if (abs(deltaGyrX) > impactThresholdGyr)
+                if (abs(deltaGyrX) > impactThresholdGyrX)
                 {
                     gyroImpactDetected = true;
                     directionGyro = (deltaGyrX > 0) ? GYRO_D_ROTATE_RIGHT : GYRO_D_ROTATE_LEFT;
                 }
-                else if (abs(deltaGyrY) > impactThresholdGyr && abs(deltaGyrY) > abs(deltaGyrX))
+                else if (abs(deltaGyrY) > impactThresholdGyrY && abs(deltaGyrY) > abs(deltaGyrX))
                 {
                     gyroImpactDetected = true;
                     directionGyro = (deltaGyrY > 0) ? GYRO_D_TILT_FORWARD : GYRO_D_TILT_BACKWARD;
                 }
-                else if (abs(deltaGyrZ) > impactThresholdGyr && abs(deltaGyrZ) > abs(deltaGyrY))
+                else if (abs(deltaGyrZ) > impactThresholdGyrZ && abs(deltaGyrZ) > abs(deltaGyrY))
                 {
                     gyroImpactDetected = true;
                     directionGyro = (deltaGyrZ > 0) ? GYRO_D_TILT_UP : GYRO_D_TILT_DOWN;
                 }
 
                 prevGyr = gyr;
+            }
+
+            if (_gyroResumed)
+            {
+                _gyroResumed = false;
+                continue;
             }
 
             DogEvent *accEvent = NULL;
@@ -315,39 +322,45 @@ void GyroHelper::gyroAndAccelReadTask()
             }
             if (gyroImpactDetected)
             {
-                gyrEvent = luluDog->dogEvents->BuildGyroEvent(accDeltaX, accDeltaY, accDeltaZ, directionGyro);
+                gyrEvent = luluDog->dogEvents->BuildGyroEvent(deltaGyrX, deltaGyrY, deltaGyrZ, directionGyro);
             }
 
             unsigned long currentMillis = millis();
-            if (accEvent != NULL && gyrEvent != NULL)
+            if (accEvent != NULL || gyrEvent != NULL)
             {
                 if (currentMillis - lastAccActionTime >= gyroActionPeriod ||
                     currentMillis - lastGyroActionTime >= gyroActionPeriod)
                 {
                     luluDog->dogEvents->EmitDogEvent(accEvent, gyrEvent);
-                    lastAccActionTime = currentMillis;
-                    lastGyroActionTime = currentMillis;
-                }
-            }
-            else
-            {
-                if (accEvent != NULL)
-                {
-                    if (currentMillis - lastAccActionTime >= gyroActionPeriod)
+                    if (accEvent != NULL)
                     {
-                        luluDog->dogEvents->EmitDogEvent(accEvent);
                         lastAccActionTime = currentMillis;
                     }
-                }
-                if (gyrEvent != NULL)
-                {
-                    if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
+                    if (gyrEvent != NULL)
                     {
-                        luluDog->dogEvents->EmitDogEvent(gyrEvent);
                         lastGyroActionTime = currentMillis;
                     }
                 }
             }
+            // else
+            // {
+            //     if (accEvent != NULL)
+            //     {
+            //         if (currentMillis - lastAccActionTime >= gyroActionPeriod)
+            //         {
+            //             luluDog->dogEvents->EmitDogEvent(accEvent);
+            //             lastAccActionTime = currentMillis;
+            //         }
+            //     }
+            //     if (gyrEvent != NULL)
+            //     {
+            //         if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
+            //         {
+            //             luluDog->dogEvents->EmitDogEvent(gyrEvent);
+            //             lastGyroActionTime = currentMillis;
+            //         }
+            //     }
+            // }
 
             // // записываем чтобы после детекта
             // // не было детекта в противоположную сторону
