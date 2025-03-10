@@ -70,7 +70,7 @@ class DisplayHelper
 {
 private:
     // File gifFile;
-    static uint16_t usTemp[280];
+    static uint16_t* usTemp;
     uint8_t *gifData = nullptr;
     int32_t gifSize = 0;
     // TaskHandle_t Task1;
@@ -106,7 +106,7 @@ public:
     static void TFTDraw(int x, int y, int w, int h, uint16_t *lBuf);
     static void DrawBatteryThread(void* _this);
     void DrawBatteryTask();
-    static void *GIFAlloc(uint32_t u32Size);
+    // static void *GIFAlloc(uint32_t u32Size);
     // static void GIFDraw_24bit(GIFDRAW *pDraw);
     bool loadGIFToMemory(const char *filename);
     static void PlayInfiniteThread(void *pvParameters);

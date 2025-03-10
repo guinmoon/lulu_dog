@@ -3,6 +3,7 @@
 #include "LittleFS.h"
 #include "global_def.h"
 #include "lulu_dog.h"
+#include <mutex>
 
 // AudioHelper audioHelper;
 
@@ -23,6 +24,10 @@ bool AudioHelper::loadWAVToMemory(const char *filename)
     }
 
     wavSize = file.size();
+
+    if (wavData != nullptr)
+        free(wavData);
+
     log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
     wavData = (uint8_t *)ps_malloc(wavSize);
     luluDog->MemInfo();
@@ -64,7 +69,8 @@ void AudioHelper::audioThread(void * _this)
 void AudioHelper::PlayWav(char *fname)
 {
     // audio.stopSong();    
-    delay(100);
+    delay(50);
+    std::lock_guard<std::mutex> lck(i2s_mutex);
     if (!luluDog->configHelper->EnableAudio)
         return;
     bool res = loadWAVToMemory(fname);

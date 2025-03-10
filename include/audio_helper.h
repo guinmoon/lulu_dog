@@ -3,6 +3,7 @@
 
 
 #include <ESP_I2S.h>
+#include <mutex>
 
 // void PlayWav(char *fname);
 // void InitAudio();
@@ -19,6 +20,8 @@ public:
     const int sampleRate = 8000; // sample rate in Hz
 
     I2SClass i2s;
+
+    std::mutex i2s_mutex;
 
     i2s_data_bit_width_t bps = I2S_DATA_BIT_WIDTH_16BIT;
     i2s_mode_t mode = I2S_MODE_STD;

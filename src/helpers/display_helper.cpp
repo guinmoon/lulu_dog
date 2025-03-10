@@ -20,6 +20,8 @@ LuLuDog *DisplayHelper::luluDog;
 int DisplayHelper::xOffset = 0;
 int DisplayHelper::yOffset = 0;
 
+uint16_t* DisplayHelper::usTemp;
+
 DisplayHelper::DisplayHelper(LuLuDog *_luluDog)
 {
     luluDog = _luluDog;
@@ -120,6 +122,7 @@ void DisplayHelper::InitDisplay()
     // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
     pFrameBuffer = (uint8_t *)ps_malloc(280 * 240 * sizeof(uint32_t));
+    usTemp = (uint16_t *)ps_malloc(sizeof(uint16_t)*280);
 }
 
 void DisplayHelper::DrawBatteryThread(void* _this){
@@ -186,11 +189,11 @@ void DisplayHelper::SetEyePosition(int x, int y)
     luluEyes->eyeLyNext = y;
 }
 
-void *DisplayHelper::GIFAlloc(uint32_t u32Size)
-{
-    // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
-    return (uint8_t *)ps_malloc(u32Size);
-} /* GIFAlloc() */
+// void *DisplayHelper::GIFAlloc(uint32_t u32Size)
+// {
+//     // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
+//     return (uint8_t *)ps_malloc(u32Size);
+// } /* GIFAlloc() */
 
 void DisplayHelper::PlayGif(const char *fname)
 {
@@ -237,7 +240,7 @@ void DisplayHelper::PlayGif(const char *fname)
     // fillScreen();
 }
 
-uint16_t DisplayHelper::usTemp[280];
+
 
 // Turbo COOKED
 //  void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
@@ -401,6 +404,7 @@ void DisplayHelper::drawBatteryheart()
         drawHeart(60, 0, heartColor);
     
     batterySprite->pushSprite(0,0);
+    // batterySprite->deleteSprite();
 }
 
 void DisplayHelper::setVoltageBuf(float voltage)
