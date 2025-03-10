@@ -37,20 +37,20 @@ static void lulu_js_fatal(void *udata, const char *msg)
     abort();
 }
 
-static void* lulu_js_alloc(void *udata, duk_size_t size)
+static void *lulu_js_alloc(void *udata, duk_size_t size)
 {
-  return ps_malloc(size);
+    return ps_malloc(size);
 }
 
-static void* lulu_js_realloc(void *udata, void *ptr, duk_size_t size)
+static void *lulu_js_realloc(void *udata, void *ptr, duk_size_t size)
 {
-  return ps_realloc(ptr, size);
+    return ps_realloc(ptr, size);
 }
 
 static void lulu_js_free(void *udata, void *ptr)
 {
-  free(ptr);
-  return;
+    free(ptr);
+    return;
 }
 
 void JSRunner::jsInit()
@@ -139,4 +139,41 @@ bool JSRunner::jsEvalFile(char *filename)
     duk_pop(ctx);
     return true;
     //  duk_destroy_heap(ctx);
+}
+
+void JSRunner::jsCallFunction4Args(char *filename, char *funcName, int arg1, int arg2, int arg3, int arg4)
+{
+    File file = LittleFS.open(filename, "r");
+    if (!file)
+    {
+        log_d("Failed to open JS file");
+        return;
+    }
+
+    String fileData = file.readString();
+
+    duk_push_string(ctx, fileData.c_str());
+    duk_int_t rc = duk_peval(ctx);
+
+    auto res = duk_get_global_string(ctx, funcName);
+    // auto res = duk_get_prop_string(ctx, -1 /*index*/, funcName);
+    // if (res == false)
+    // {
+    //     log_d("Failed to get global function");
+    //     return;
+    // }
+    duk_push_int(ctx, arg1);
+    duk_push_int(ctx, arg2);
+    duk_push_int(ctx, arg3);
+    duk_push_int(ctx, arg4);
+    if (duk_pcall(ctx, 4 /*nargs*/) != 0)
+    {
+        log_d("Error: %s\n", duk_safe_to_string(ctx, -1));
+    }
+    else
+    {
+        log_d("%s\n", duk_safe_to_string(ctx, -1));
+    }
+    duk_pop(ctx);
+    // duk_call(ctx, 4);
 }

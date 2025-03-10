@@ -189,18 +189,19 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
     OnExternalImpact();
     if (gyroE != NULL)
     {
-        // if (accE->direction == GYRO_D_RIGHT &&
-        //     (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
-        if (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT)
-        {
-            luluDog->luluCharacter->RightHand();
-        }
-        if (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)
-        // if (accE->direction == GYRO_D_LEFT &&
-        //     (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
-        {
-            luluDog->luluCharacter->LeftHand();
-        }
+        luluDog->jsRunner->jsCallFunction4Args("/js/events/onGyroAcc.js","onGyroAcc", 1,2,3,gyroE->direction);
+        // // if (accE->direction == GYRO_D_RIGHT &&
+        // //     (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
+        // if (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT)
+        // {
+        //     luluDog->luluCharacter->RightHand();
+        // }
+        // if (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)
+        // // if (accE->direction == GYRO_D_LEFT &&
+        // //     (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
+        // {
+        //     luluDog->luluCharacter->LeftHand();
+        // }
     }
     // luluDog->luluCharacter->doRandomReact(-1);
 }

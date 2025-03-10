@@ -31,6 +31,7 @@ public:
     void jsInit();
     void jsEval(char *code);
     bool jsEvalFile(char *fname);
+    void jsCallFunction4Args(char *filename, char *funcName, int arg1, int arg2, int arg3, int arg4);
 };
 
 #endif
