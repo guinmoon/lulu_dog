@@ -115,7 +115,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     {
         log_d("Long Press Detected");
         luluDog->displayHelper->StopGif();
-        luluDog->displayHelper->pauseResumeEyes(false);
+        luluDog->displayHelper->resumeEyes();
         luluDog->displayHelper->luluEyes->setMood(0);
         // luluDog->displayHelper->StopGif();
         // luluDog->displayHelper->ShowMatrixAnimation();
@@ -123,8 +123,8 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     if (args->touchCount == LONG_PRESS_T_END_COUNT)
     {
         log_d("Long Press Ended");        
-        luluDog->displayHelper->pauseResumeEyes(true);
-        luluDog->luluCharacter->doRandomReactGif(-1,false);
+        luluDog->displayHelper->pauseEyes();
+        luluDog->luluCharacter->doRandomReact(-1,false);
         // luluDog->displayHelper->luluEyes->setMood(HAPPY);
     }
 }
@@ -137,7 +137,7 @@ void DogEvents::OnAccelerometerEvent(AccelerometerEvent *e)
     }
     log_d("\nACC: %f %f %f \nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
     delay(200);
-    if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
+    if (!luluDog->gyroHelper->gyroActive)
         return;
     OnGyroOrAccEvent();
     OnExternalImpact();
@@ -152,7 +152,7 @@ void DogEvents::OnGyroEvent(GyroEvent *e)
     }
     log_d("\nGYRO: %f %f %f\nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
     delay(200);
-    if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
+    if ( !luluDog->gyroHelper->gyroActive)
         return;
     OnGyroOrAccEvent();
     OnExternalImpact();
@@ -169,7 +169,7 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
           accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
           gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
     delay(200);
-    if (!luluDog->touchHelper->released || !luluDog->gyroHelper->gyroActive)
+    if ( !luluDog->gyroHelper->gyroActive)
         return;
     OnExternalImpact();
     if (accE->direction == GYRO_D_RIGHT &&

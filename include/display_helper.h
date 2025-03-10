@@ -15,6 +15,8 @@
 #include <DigitalRainAnimation.hpp>
 
 
+
+
 class LuLuDog;
 class LuLuEyes;
 
@@ -71,7 +73,7 @@ private:
     static uint16_t usTemp[280];
     uint8_t *gifData = nullptr;
     int32_t gifSize = 0;
-    TaskHandle_t Task1;
+    // TaskHandle_t Task1;
     char voltageBuf[15];
 
     bool playGif = true;
@@ -91,7 +93,8 @@ private:
 public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
-    bool pauseEyes = false;
+    const int GifPlayTime = 3;    
+    bool eyesPaused = false;
     static LGFX_Sprite *eyesSprite;
     static LGFX_Sprite *batterySprite;
     static LGFX_MyDisplay* gfx;
@@ -101,12 +104,15 @@ public:
     DisplayHelper(LuLuDog *_luluDog);
     static void GIFDraw(GIFDRAW *pDraw);
     static void TFTDraw(int x, int y, int w, int h, uint16_t *lBuf);
+    static void DrawBatteryThread(void* _this);
+    void DrawBatteryTask();
+    static void *GIFAlloc(uint32_t u32Size);
     // static void GIFDraw_24bit(GIFDRAW *pDraw);
     bool loadGIFToMemory(const char *filename);
     static void PlayInfiniteThread(void *pvParameters);
-    static void StartEyesUpdateThread(void *_this);
-    void pauseResumeEyes(bool pause);
-    void MemInfo();
+    static void StartEyesUpdateThread(void *_this);    
+    void pauseEyes();    
+    void resumeEyes();    
     void EyesUpdateTask();
     void PlayInfiniteTask();
     void InitDisplay();
@@ -116,7 +122,7 @@ public:
     void showSleepAnimation();
     void StopGif();
     void stopSleepAnimation();
-    void drawBatteryheart();
+    static void drawBatteryheart();
     void fillScreen();
     void DisplayOff();
     void DisplayOn();
@@ -124,7 +130,7 @@ public:
     void InitMatrixAnimation();
     void StopMatrixAnimation();
     static void MatrixAnimationThread(void *_this);
-    void drawHeart(int x, int y, uint16_t color);
+    static void drawHeart(int x, int y, uint16_t color);
     static bool showMatrixAnimation;
     static void LvglDispFlush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
     void SetEyePosition(int x, int y);

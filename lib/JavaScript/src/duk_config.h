@@ -3204,6 +3204,8 @@ typedef struct duk_hthread duk_context;
 #define DUK_USE_STRLEN16                                                                                                                                
 #define DUK_USE_OBJSIZES16                                                                                                                              
 */
+
+////////////////////////////////
 #undef DUK_USE_AUGMENT_ERRORS
 #undef DUK_USE_TRACEBACKS
 /*#undef DUK_USE_VERBOSE_ERRORS*/
@@ -3245,6 +3247,7 @@ typedef struct duk_hthread duk_context;
 
 // #define DUK_USE_EXTERNAL_STRINGS
 
+////////////////////
 /* __OVERRIDE_DEFINES__ */
 
 /*

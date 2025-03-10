@@ -31,18 +31,32 @@ duk_ret_t JSRunner::jsDelay(duk_context *_ctx)
     return 0;
 }
 
-static void my_fatal(void *udata, const char *msg)
+static void lulu_js_fatal(void *udata, const char *msg)
 {
     log_d("*** FATAL ERROR: %s\n", (msg ? msg : "no message"));
     abort();
 }
 
-#define DUK_USE_LIGHTFUNC_BUILTINS
+static void* lulu_js_alloc(void *udata, duk_size_t size)
+{
+  return ps_malloc(size);
+}
+
+static void* lulu_js_realloc(void *udata, void *ptr, duk_size_t size)
+{
+  return ps_realloc(ptr, size);
+}
+
+static void lulu_js_free(void *udata, void *ptr)
+{
+  free(ptr);
+  return;
+}
 
 void JSRunner::jsInit()
 {
-    ctx = duk_create_heap_default();
-    // ctx = duk_create_heap(NULL, NULL, NULL, NULL, my_fatal);
+    // ctx = duk_create_heap_default();
+    ctx = duk_create_heap(lulu_js_alloc, lulu_js_realloc, lulu_js_free, NULL, lulu_js_fatal);
 
     duk_push_c_function(ctx, jsLog, DUK_VARARGS);
     duk_put_global_string(ctx, "log_d");

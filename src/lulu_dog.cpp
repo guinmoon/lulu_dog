@@ -31,7 +31,7 @@ void LuLuDog::Init()
     audioHelper->InitAudio();
     jsRunner->jsInit();
     audioHelper->PlayWav("/audio/woof1.wav");
-    luluCharacter->doRandomReactGif(-1,false);
+    luluCharacter->doRandomReact(-1,false);
     dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
 
@@ -39,7 +39,7 @@ void LuLuDog::Init()
     if (configHelper->EnableWifi)
         fsWebServer->Init();
 
-    displayHelper->MemInfo();
+    MemInfo();
     // jsRunner->jsEvalFile("/js/script1.js");
     // jsRunner->jsEvalFile("/js/demo.js");
 
@@ -85,10 +85,19 @@ void LuLuDog::Action3()
 void LuLuDog::PauseDog()
 {
     displayHelper->StopGif();
-    displayHelper->pauseResumeEyes(true);
+    displayHelper->pauseEyes();
     gyroHelper->PauseGyro();
     dogEvents->eventsSuspended = true;
     touchHelper->switchToLVGLTask(true);
+}
+
+void LuLuDog::MemInfo()
+{
+    log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
+    log_d("Total heap: %d", ESP.getHeapSize());
+    log_d("Free heap: %d", ESP.getFreeHeap());
+    log_d("Total PSRAM: %d", ESP.getPsramSize());
+    log_d("Free PSRAM: %d", ESP.getFreePsram());
 }
 
 void LuLuDog::ResumeDog()
@@ -96,8 +105,9 @@ void LuLuDog::ResumeDog()
     gyroHelper->ResumeGyro();
     dogEvents->eventsSuspended = false;
     touchHelper->switchToLVGLTask(false);
+    displayHelper->resumeEyes();
     audioHelper->PlayWav("/audio/awoof1.wav");
-    luluCharacter->doRandomReactGif(-1,false);
+    luluCharacter->doRandomReact(-1,false);
     // displayHelper->pauseResumeEyes(false);
     // displayHelper->PlayGif("/imgs/eye5.gif");
 }

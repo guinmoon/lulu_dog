@@ -71,7 +71,7 @@ public:
     int GetAllowedSceneReact();
     void doReactGif(int command, int speed, int tail_speed, char *eye, char *wav);
     void doReact(int command, int speed, int tail_speed, int eye, char *wav);
-    void doRandomReact(int direction);
+    void doRandomReact(int direction, bool withMove);
     void doRandomReactGif(int direction, bool withMove);
     void DoSceneReact(int x, int y);
     static void  reciveThread(void * _this);

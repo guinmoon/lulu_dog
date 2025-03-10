@@ -4,6 +4,7 @@
  
  */
 #include "display_helper.h"
+#include "global_def.h"
 
 #ifndef _LULU_EYES_H
 #define _LULU_EYES_H
@@ -790,7 +791,7 @@ public:
 
         // display.startWrite();
         
-        sprite->pushSprite(0,0);
+        sprite->pushSprite(0,EYEBORDER);
         // display.display(); // show drawings on display
         // display.endWrite();
     } // end of drawEyes method

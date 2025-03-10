@@ -51,10 +51,10 @@ lv_obj_t *ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 const lv_img_dsc_t *ui_imgset_back[1] = {&ui_img_back48_png};
-const lv_img_dsc_t *ui_imgset_item1_[1] = {&ui_img_item1_120_png};
-const lv_img_dsc_t *ui_imgset_item2_[1] = {&ui_img_item2_120_png};
-const lv_img_dsc_t *ui_imgset_item3_[1] = {&ui_img_item3_120_png};
 const lv_img_dsc_t *ui_imgset_sleep_dog_[1] = {&ui_img_sleep_dog_100_png};
+const lv_img_dsc_t *ui_imgset_pxart2_[1] = {&ui_img_pxart2_120_png};
+const lv_img_dsc_t *ui_imgset_pxart3_[1] = {&ui_img_pxart3_120_png};
+const lv_img_dsc_t *ui_imgset_pxart1_[1] = {&ui_img_pxart1_120_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16

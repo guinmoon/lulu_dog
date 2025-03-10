@@ -89,26 +89,52 @@ void DisplayHelper::InitDisplay()
     luluEyes = new LuLuEyes();    
     eyesSprite = new LGFX_Sprite(gfx);
     eyesSprite->setPsram(true);    
-    eyesSprite->createSprite(gfx->width(), gfx->height());        
+    eyesSprite->createSprite(gfx->width(), gfx->height() - EYEBORDER * 2);        
 
-    luluEyes->begin(gfx->width(), gfx->height(), eyesSprite); // screen-width, screen-height, max framerate
+    luluEyes->begin(gfx->width(), gfx->height() - EYEBORDER * 2, eyesSprite); // screen-width, screen-height, max framerate
 
     // Define some automated eyes behaviour
     luluEyes->setAutoblinker(ON, 3, 2); // Start auto blinker animation cycle -> bool active, int interval, int variation -> turn on/off, set interval between each blink in full seconds, set range for random interval variation in full seconds
     luluEyes->setIdleMode(ON, 2, 2);
     luluEyes->setSpacebetween(40);
-    pauseEyes = true;
+    // pauseEyes = true;
     xTaskCreatePinnedToCore(
         this->StartEyesUpdateThread, /* Task function. */
         "Task1",                     /* name of task. */
         10000,                       /* Stack size of task */
         this,                        /* parameter of the task */
         2 | portPRIVILEGE_BIT,       /* priority of the task */
-        &Task1,                      /* Task handle to keep track of created task */
+        NULL,                      /* Task handle to keep track of created task */
         0);
     
+
+     xTaskCreatePinnedToCore(
+        DrawBatteryThread, /* Task function. */
+        "Task131",                     /* name of task. */
+        10000,                       /* Stack size of task */
+        this,                        /* parameter of the task */
+        tskIDLE_PRIORITY,       /* priority of the task */
+        NULL,                      /* Task handle to keep track of created task */
+        0);   
+        
     // pTurboBuffer = (uint8_t *)heap_caps_malloc(TURBO_BUFFER_SIZE + (280 * 240), MALLOC_CAP_8BIT);
     // pFrameBuffer = (uint8_t *)heap_caps_malloc(280 * 240 * sizeof(uint16_t), MALLOC_CAP_8BIT);
+    pFrameBuffer = (uint8_t *)ps_malloc(280 * 240 * sizeof(uint32_t));
+}
+
+void DisplayHelper::DrawBatteryThread(void* _this){
+    ((DisplayHelper *)_this)->DrawBatteryTask();
+    vTaskDelete(NULL);
+}
+
+void DisplayHelper::DrawBatteryTask(){
+    drawBatteryheart();
+    while (1){ 
+        delay(1000);
+        if (!playGif &&  eyesPaused)
+           continue;        
+        drawBatteryheart();
+    }
 }
 
 void DisplayHelper::setIdleMode(bool enable){
@@ -119,10 +145,18 @@ void DisplayHelper::setIdleMode(bool enable){
     }
 }
 
-void DisplayHelper::pauseResumeEyes(bool pause)
+
+void DisplayHelper::pauseEyes()
 {
-    this->pauseEyes = pause;
+    this->eyesPaused = true;
 }
+
+void DisplayHelper::resumeEyes()
+{
+    this->eyesPaused = false;
+}
+
+
 
 void DisplayHelper::StartEyesUpdateThread(void *_this)
 {
@@ -134,7 +168,7 @@ void DisplayHelper::EyesUpdateTask()
 {
     while (true)
     {
-        if (pauseEyes)
+        if (eyesPaused)
         {
             delay(100);
             continue;
@@ -151,16 +185,17 @@ void DisplayHelper::SetEyePosition(int x, int y)
     luluEyes->eyeLxNext = x;
     luluEyes->eyeLyNext = y;
 }
-// void *DisplayHelper::GIFAlloc(uint32_t u32Size)
-// {
-//     // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
-//     return (uint8_t *)ps_malloc(u32Size);
-// } /* GIFAlloc() */
+
+void *DisplayHelper::GIFAlloc(uint32_t u32Size)
+{
+    // return heap_caps_malloc(u32Size, MALLOC_CAP_SPIRAM);
+    return (uint8_t *)ps_malloc(u32Size);
+} /* GIFAlloc() */
 
 void DisplayHelper::PlayGif(const char *fname)
 {
     playGif = false;
-    pauseResumeEyes(true);
+    pauseEyes();
     delay(100);
     if (gifData != nullptr)
         free(gifData);
@@ -170,7 +205,7 @@ void DisplayHelper::PlayGif(const char *fname)
     if (!loadGIFToMemory(fname))
     {
         log_d("Failed to load GIF to memory play = false");
-        drawBatteryheart();
+        // drawBatteryheart();
         playGif = false;
         return;
     }
@@ -185,7 +220,7 @@ void DisplayHelper::PlayGif(const char *fname)
         return;
     }
     // gif.setDrawType(GIF_DRAW_COOKED);
-    // gif.setFrameBuf(pFrameBuffer); // for Turbo+cooked, we need to supply a full sized output framebuffer
+    gif.setFrameBuf(pFrameBuffer); // for Turbo+cooked, we need to supply a full sized output framebuffer
     // gif.setTurboBuf(pTurboBuffer);
     // gif.allocFrameBuf(GIFAlloc);
     // gif.allocTurboBuf(GIFAlloc);
@@ -197,7 +232,7 @@ void DisplayHelper::PlayGif(const char *fname)
         10000,                    /* Stack size of task */
         this,                     /* parameter of the task */
         2 | portPRIVILEGE_BIT,    /* priority of the task */
-        &Task1,                   /* Task handle to keep track of created task */
+        NULL,                   /* Task handle to keep track of created task */
         0);
     // fillScreen();
 }
@@ -285,14 +320,7 @@ void DisplayHelper::GIFDraw(GIFDRAW *pDraw)
     gfx->endWrite();
 }
 
-void DisplayHelper::MemInfo()
-{
-    log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
-    log_d("Total heap: %d", ESP.getHeapSize());
-    log_d("Free heap: %d", ESP.getFreeHeap());
-    log_d("Total PSRAM: %d", ESP.getPsramSize());
-    log_d("Free PSRAM: %d", ESP.getFreePsram());
-}
+
 
 bool DisplayHelper::loadGIFToMemory(const char *filename)
 {
@@ -303,14 +331,12 @@ bool DisplayHelper::loadGIFToMemory(const char *filename)
         return false;
     }
 
-    gifSize = file.size();
-    log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
+    gifSize = file.size();    
     gifData = (uint8_t *)ps_malloc(gifSize);
+
+    luluDog->MemInfo();
     log_d("GifSize: %d Used PSRAM: %d", gifSize, ESP.getPsramSize() - ESP.getFreePsram());
-    log_d("Total heap: %d", ESP.getHeapSize());
-    log_d("Free heap: %d", ESP.getFreeHeap());
-    log_d("Total PSRAM: %d", ESP.getPsramSize());
-    log_d("Free PSRAM: %d", ESP.getFreePsram());
+    
     if (!gifData)
     {
         log_d("Failed to allocate memory for GIF");
@@ -326,7 +352,7 @@ bool DisplayHelper::loadGIFToMemory(const char *filename)
 void DisplayHelper::StopGif()
 {
     playGif = false;
-    
+    luluDog->MemInfo();
 }
 
 void DisplayHelper::fillScreen()
@@ -398,15 +424,9 @@ void DisplayHelper::PlayInfiniteThread(void *_this)
 void DisplayHelper::PlayInfiniteTask()
 {
     int iter = 0;
-    while (playGif)
+    while (playGif && iter<GifPlayTime)
     {
         int res = gif.playFrame(true, NULL);
-        if (iter == 4)
-        {
-
-            drawBatteryheart();
-            iter = 0;
-        }
         if (res == -1)
         {
             log_d("play error");
@@ -416,11 +436,12 @@ void DisplayHelper::PlayInfiniteTask()
         if (res == 0)
         {
             log_d("play ended reopen");
+            iter++;
             gif.close();
             gif.open(gifData, gifSize, GIFDraw);
-        }
-        iter++;
+        }        
     }
+    resumeEyes();
     log_d("play ended");
 }
 
@@ -449,7 +470,7 @@ void DisplayHelper::ShowMatrixAnimation()
         10000,                       /* Stack size of task */
         this,                        /* parameter of the task */
         2 | portPRIVILEGE_BIT,       /* priority of the task */
-        &Task1,                      /* Task handle to keep track of created task */
+        NULL,                      /* Task handle to keep track of created task */
         0);
 }
 

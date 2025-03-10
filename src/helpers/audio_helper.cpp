@@ -25,11 +25,8 @@ bool AudioHelper::loadWAVToMemory(const char *filename)
     wavSize = file.size();
     log_d("Used PSRAM: %d", ESP.getPsramSize() - ESP.getFreePsram());
     wavData = (uint8_t *)ps_malloc(wavSize);
-    log_d("WAV Size: %d Used PSRAM: %d", wavSize, ESP.getPsramSize() - ESP.getFreePsram());
-    log_d("Total heap: %d", ESP.getHeapSize());
-    log_d("Free heap: %d", ESP.getFreeHeap());
-    log_d("Total PSRAM: %d", ESP.getPsramSize());
-    log_d("Free PSRAM: %d", ESP.getFreePsram());
+    luluDog->MemInfo();
+    
     if (!wavData)
     {
         log_d("Failed to allocate memory for WAV");

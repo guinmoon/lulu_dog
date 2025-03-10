@@ -95,7 +95,7 @@ lv_obj_add_flag( ui_ButtonAction1, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
 lv_obj_clear_flag( ui_ButtonAction1, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
 lv_obj_set_style_bg_color(ui_ButtonAction1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_bg_opa(ui_ButtonAction1, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_bg_img_src( ui_ButtonAction1, &ui_img_item2_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_bg_img_src( ui_ButtonAction1, &ui_img_pxart2_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_color(ui_ButtonAction1, lv_color_hex(0x355599), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_opa(ui_ButtonAction1, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_border_width(ui_ButtonAction1, 4, LV_PART_MAIN| LV_STATE_DEFAULT);
@@ -115,7 +115,7 @@ lv_obj_add_flag( ui_ButtonAction2, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
 lv_obj_clear_flag( ui_ButtonAction2, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
 lv_obj_set_style_bg_color(ui_ButtonAction2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_bg_opa(ui_ButtonAction2, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_bg_img_src( ui_ButtonAction2, &ui_img_item1_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_bg_img_src( ui_ButtonAction2, &ui_img_pxart1_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_color(ui_ButtonAction2, lv_color_hex(0x355599), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_opa(ui_ButtonAction2, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_border_width(ui_ButtonAction2, 4, LV_PART_MAIN| LV_STATE_DEFAULT);
@@ -141,7 +141,7 @@ lv_obj_add_flag( ui_ButtonAction3, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
 lv_obj_clear_flag( ui_ButtonAction3, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
 lv_obj_set_style_bg_color(ui_ButtonAction3, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_bg_opa(ui_ButtonAction3, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_bg_img_src( ui_ButtonAction3, &ui_img_item3_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_bg_img_src( ui_ButtonAction3, &ui_img_pxart3_120_png, LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_color(ui_ButtonAction3, lv_color_hex(0x355599), LV_PART_MAIN | LV_STATE_DEFAULT );
 lv_obj_set_style_border_opa(ui_ButtonAction3, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_border_width(ui_ButtonAction3, 4, LV_PART_MAIN| LV_STATE_DEFAULT);

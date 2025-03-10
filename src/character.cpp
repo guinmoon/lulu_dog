@@ -147,6 +147,7 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, cha
     // log_d("doReact: command: %i speed: %i tail_speed: %i eye: %s wav: %s",command,speed,tail_speed,eye,wav);
     luluDog->dogEvents->lastImpact = millis(); // Для вызовов не из этого класса
     luluDog->dogEvents->pingPaused = true;
+    luluDog->displayHelper->StopGif();    
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
@@ -206,7 +207,7 @@ void LuLuCharacter::doReactGif(int command, int speed, int tail_speed, char *eye
     luluDog->dogEvents->pingPaused = false;
 }
 
-void LuLuCharacter::doRandomReact(int direction)
+void LuLuCharacter::doRandomReact(int direction, bool withMove)
 {
 
     if (luluDog->displayHelper->showMatrixAnimation)
@@ -222,46 +223,46 @@ void LuLuCharacter::doRandomReact(int direction)
         doReact(-1, -1, 0, 0, nullptr);
         break;
     case 1:
-        doReact(COMMAND_SIT, 4, 6, 1, "/audio/woof2.wav");
+        doReact(withMove ? COMMAND_SIT: -1, 4, 6, 1, "/audio/woof2.wav");
         break;
     case 2:
-        doReact(COMMAND_SIT, 5, 4, 2, "/audio/woof2.wav");
+        doReact(withMove ? COMMAND_SIT: -1, 5, 4, 2, "/audio/woof2.wav");
         break;
     case 3:
-        doReact(COMMAND_STAND, 2, 0, 3, "/audio/woof1.wav");
+        doReact(withMove ? COMMAND_STAND: -1, 2, 0, 3, "/audio/woof1.wav");
         break;
     case 4:
-        doReact(COMMAND_LAYDOWN, 4, 4, 0, nullptr);
+        doReact(withMove ? COMMAND_LAYDOWN: -1, 4, 4, 0, nullptr);
         break;
     case 5:
         doReact(-1, -1, 4, 1, nullptr);
         break;
     case 6:
-        doReact(COMMAND_LEFTHAND, 4, 4, 2, "/audio/woof3.wav");
+        doReact(withMove ? COMMAND_LEFTHAND: -1, 4, 4, 2, "/audio/woof3.wav");
         break;
     case 7:
-        doReact(COMMAND_LAYDOWN, 3, 6, 3, "/audio/woof2.wav");
+        doReact(withMove ? COMMAND_LAYDOWN: -1, 3, 6, 3, "/audio/woof2.wav");
         break;
     case 8:
-        doReact(COMMAND_LAYDOWN, 3, 0, 0, "/audio/woof2.wav");
+        doReact(withMove ? COMMAND_LAYDOWN: -1, 3, 0, 0, "/audio/woof2.wav");
         break;
     case 9:
-        doReact(COMMAND_HALFLAYDOWN, 2, 7, 1, "/audio/woof2.wav");
+        doReact(withMove ? COMMAND_HALFLAYDOWN: -1, 2, 7, 1, "/audio/woof2.wav");
         break;
     case 10:
         doReact(-1, -1, 4, 2, "/woof1.wav");
         break;
     case 11:
-        doReact(COMMAND_RIGHTHAND, 4, 4, 3, "/audio/woof3.wav");
+        doReact(withMove ? COMMAND_RIGHTHAND: -1, 4, 4, 3, "/audio/woof3.wav");
         break;
     case 12:
-        doReact(COMMAND_FULLLAYDOWN, 7, 0, 0, "/audio/woof1.wav");
+        doReact(withMove ? COMMAND_FULLLAYDOWN: -1, 7, 0, 0, "/audio/woof1.wav");
         break;
     case 13:
-        doReact(COMMAND_TAILLEGSSTAND, 4, 4, 1, "/audio/woof1.wav");
+        doReact(withMove ? COMMAND_TAILLEGSSTAND: -1, 4, 4, 1, "/audio/woof1.wav");
         break;
     case 14:
-        doReact(COMMAND_HALFLAYDOWNTAIL, 4, 6, 3, "//audio/woof1.wav");
+        doReact(withMove ? COMMAND_HALFLAYDOWNTAIL: -1, 4, 6, 3, "/audio/woof1.wav");
         break;
     default:
         doReact(-1, -1, 0, 0, nullptr);
@@ -367,9 +368,9 @@ void LuLuCharacter::LeftHand()
     // doReactGif(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
     luluDog->displayHelper->StopGif();
     luluDog->displayHelper->setIdleMode(false);
-    luluDog->displayHelper->pauseResumeEyes(false);
+    luluDog->displayHelper->resumeEyes();
     luluDog->displayHelper->luluEyes->setPosition(SW);
-    doReact(COMMAND_LEFTHAND, 4, 6, ANGRY, "/audio/woof3.wav");
+    doReact(COMMAND_LEFTHAND, 4, 6, HAPPY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SW);
 }
 
@@ -378,8 +379,8 @@ void LuLuCharacter::RightHand()
     // doReactGif(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
     luluDog->displayHelper->StopGif();
     luluDog->displayHelper->setIdleMode(false);
-    luluDog->displayHelper->pauseResumeEyes(false);
+    luluDog->displayHelper->resumeEyes();
     luluDog->displayHelper->luluEyes->setPosition(SE);
-    doReact(COMMAND_RIGHTHAND, 4, 0, ANGRY, "/audio/woof3.wav");
+    doReact(COMMAND_RIGHTHAND, 4, 0, HAPPY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SE);
 }
