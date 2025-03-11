@@ -64,9 +64,17 @@ void JSRunner::jsInit()
     duk_put_global_string(ctx, "delay");
     duk_push_c_function(ctx, jsRunLuLuCommand, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_command");
+    duk_push_c_function(ctx, jsLuLuDoRnadomCommand, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_random_command");    
     duk_push_c_function(ctx, jsLuLuCOMMAND_LEFTHAND, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_leftHand");
-    duk_push_c_function(ctx, jsLuLuCOMMAND_HALFLAYDOWN, DUK_VARARGS);
+    duk_push_c_function(ctx, jsLuLuCOMMAND_RIGHTHAND, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_rightHand");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_LEFTHAND_LONG, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_leftHand_long");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_RIGHTHAND_LONG, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_rightHand_long");
+    duk_push_c_function(ctx, jsLuLuCOMMAND_HALFLAYDOWN, DUK_VARARGS); 
     duk_put_global_string(ctx, "lulu_halfLayDown");
     duk_push_c_function(ctx, jsLuLuCOMMAND_SET_TAIL_SPEED, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_setTailSpeed");
@@ -84,8 +92,7 @@ void JSRunner::jsInit()
     duk_put_global_string(ctx, "lulu_tailLegsStand");
     duk_push_c_function(ctx, jsLuLuCOMMAND_FULLLAYDOWN, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_fullLayDown");
-    duk_push_c_function(ctx, jsLuLuCOMMAND_RIGHTHAND, DUK_VARARGS);
-    duk_put_global_string(ctx, "lulu_rightHand");
+    
 }
 
 void JSRunner::jsEval(char *code)
@@ -141,7 +148,7 @@ bool JSRunner::jsEvalFile(char *filename)
     //  duk_destroy_heap(ctx);
 }
 
-void JSRunner::jsCallFunction4Args(char *filename, char *funcName, int arg1, int arg2, int arg3, int arg4)
+void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv)
 {
     File file = LittleFS.open(filename, "r");
     if (!file)
@@ -156,17 +163,16 @@ void JSRunner::jsCallFunction4Args(char *filename, char *funcName, int arg1, int
     duk_int_t rc = duk_peval(ctx);
 
     auto res = duk_get_global_string(ctx, funcName);
-    // auto res = duk_get_prop_string(ctx, -1 /*index*/, funcName);
-    // if (res == false)
-    // {
-    //     log_d("Failed to get global function");
-    //     return;
-    // }
-    duk_push_int(ctx, arg1);
-    duk_push_int(ctx, arg2);
-    duk_push_int(ctx, arg3);
-    duk_push_int(ctx, arg4);
-    if (duk_pcall(ctx, 4 /*nargs*/) != 0)
+    if (res == false)
+    {
+        log_d("Failed to get global function");
+        return;
+    }
+    for (int i =0 ;i<argc;i++)
+    {
+        duk_push_int(ctx, argv[i]);    
+    }
+    if (duk_pcall(ctx, argc /*nargs*/) != 0)
     {
         log_d("Error: %s\n", duk_safe_to_string(ctx, -1));
     }
@@ -174,6 +180,5 @@ void JSRunner::jsCallFunction4Args(char *filename, char *funcName, int arg1, int
     {
         log_d("%s\n", duk_safe_to_string(ctx, -1));
     }
-    duk_pop(ctx);
-    // duk_call(ctx, 4);
+    duk_pop(ctx);    
 }

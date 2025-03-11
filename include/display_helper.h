@@ -93,7 +93,7 @@ private:
 public:
     // static Arduino_DataBus *bus;
     // static Arduino_GFX *gfx;
-    const int GifPlayTime = 3;    
+    const int GifPlayTime = 2;    
     bool eyesPaused = false;
     static LGFX_Sprite *eyesSprite;
     static LGFX_Sprite *batterySprite;

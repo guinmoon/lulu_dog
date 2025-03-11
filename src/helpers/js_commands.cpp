@@ -38,6 +38,27 @@ duk_ret_t JSRunner::jsLuLuCOMMAND_RIGHTHAND(duk_context *_ctx)
     return 0;
 }
 
+duk_ret_t JSRunner::jsLuLuCOMMAND_LEFTHAND_LONG(duk_context *_ctx)
+{
+    duk_get_top(_ctx);    
+    int speed = duk_to_int(_ctx, 0);
+    int tail_speed = duk_to_int(_ctx, 1);    
+    luluDog->luluCharacter->LeftHand();
+    // luluDog->luluCharacter->doReactGif(COMMAND_LEFTHAND_LONG, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
+    return 0;
+}
+
+
+duk_ret_t JSRunner::jsLuLuCOMMAND_RIGHTHAND_LONG(duk_context *_ctx)
+{
+    duk_get_top(_ctx);    
+    int speed = duk_to_int(_ctx, 0);
+    int tail_speed = duk_to_int(_ctx, 1);    
+    luluDog->luluCharacter->RightHand();
+    // luluDog->luluCharacter->doReactGif(COMMAND_RIGHTHAND_LONG, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
+    return 0;
+}
+
 duk_ret_t JSRunner::jsLuLuCOMMAND_HALFLAYDOWN(duk_context *_ctx)
 {
     duk_get_top(_ctx);    
@@ -125,5 +146,14 @@ duk_ret_t JSRunner::jsLuLuCOMMAND_TAILLEGSSTAND(duk_context *_ctx)
     int tail_speed = duk_to_int(_ctx, 1);    
 
     luluDog->luluCharacter->doReactGif(COMMAND_TAILLEGSSTAND, speed, tail_speed, "/imgs/eye6.gif", nullptr);
+    return 0;
+}
+
+
+duk_ret_t JSRunner::jsLuLuDoRnadomCommand(duk_context *_ctx)
+{
+    duk_get_top(_ctx);    
+    bool withMove = duk_to_boolean(_ctx, 0);
+    luluDog->luluCharacter->doRandomReact(-1,withMove);
     return 0;
 }

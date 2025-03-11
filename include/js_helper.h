@@ -19,6 +19,8 @@ public:
     static duk_ret_t jsRunLuLuCommand(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_LEFTHAND(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_RIGHTHAND(duk_context *_ctx);
+    static duk_ret_t jsLuLuCOMMAND_LEFTHAND_LONG(duk_context *_ctx);
+    static duk_ret_t jsLuLuCOMMAND_RIGHTHAND_LONG(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_HALFLAYDOWN(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_SET_TAIL_SPEED(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_SIT(duk_context *_ctx);
@@ -28,10 +30,12 @@ public:
     static duk_ret_t jsLuLuCOMMAND_DANCE1(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_TAILLEGSSTAND(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_FULLLAYDOWN(duk_context *_ctx);
+    static duk_ret_t jsLuLuDoRnadomCommand(duk_context *_ctx);    
+
     void jsInit();
     void jsEval(char *code);
     bool jsEvalFile(char *fname);
-    void jsCallFunction4Args(char *filename, char *funcName, int arg1, int arg2, int arg3, int arg4);
+    void jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv);
 };
 
 #endif

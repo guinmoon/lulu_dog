@@ -78,6 +78,7 @@ public:
     void reciveTask();    
     void LeftHand();
     void RightHand();
+    void SitDown();
     // void Dance1();
 
     

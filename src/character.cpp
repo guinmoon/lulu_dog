@@ -70,6 +70,9 @@ void LuLuCharacter::SendCommand(int command, int arg1)
     WIRE.write(command);
     WIRE.write(arg1);
     WIRE.endTransmission();    
+    if (command<100){//Not system command
+       luluDog->lastAction = command;       
+    }
     log_d("Sended %i:%i", command, arg1);    
 }
 
@@ -370,7 +373,7 @@ void LuLuCharacter::LeftHand()
     luluDog->displayHelper->setIdleMode(false);
     luluDog->displayHelper->resumeEyes();
     luluDog->displayHelper->luluEyes->setPosition(SW);
-    doReact(COMMAND_LEFTHAND, 4, 6, HAPPY, "/audio/woof3.wav");
+    doReact(COMMAND_LEFTHAND_LONG, 4, 6, HAPPY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SW);
 }
 
@@ -381,6 +384,16 @@ void LuLuCharacter::RightHand()
     luluDog->displayHelper->setIdleMode(false);
     luluDog->displayHelper->resumeEyes();
     luluDog->displayHelper->luluEyes->setPosition(SE);
-    doReact(COMMAND_RIGHTHAND, 4, 6, HAPPY, "/audio/woof3.wav");
+    doReact(COMMAND_RIGHTHAND_LONG, 4, 6, HAPPY, "/audio/woof3.wav");
     luluDog->displayHelper->luluEyes->setPosition(SE);
+}
+
+void LuLuCharacter::SitDown()
+{
+    // doReactGif(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
+    
+    luluDog->displayHelper->setIdleMode(true);
+    luluDog->displayHelper->resumeEyes();
+    doReact(COMMAND_SIT, 4, 6, -1, nullptr);
+    
 }

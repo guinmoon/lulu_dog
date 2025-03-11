@@ -33,6 +33,8 @@ public:
     LuLuWebServer* fsWebServer;
     static ConfigHelper* configHelper;
     DogEvents* dogEvents;
+
+    int lastAction;
     
     LuLuDog();
     void Init();
