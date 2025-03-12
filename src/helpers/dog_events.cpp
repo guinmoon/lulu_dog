@@ -125,9 +125,9 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     if (args->touchCount == LONG_PRESS_T_END_COUNT)
     {
         log_d("Long Press Ended");
-        luluDog->displayHelper->pauseEyes();
+        // luluDog->displayHelper->pauseEyes();
         luluDog->luluCharacter->doRandomReact(-1, false);
-        // luluDog->displayHelper->luluEyes->setMood(HAPPY);
+        luluDog->displayHelper->luluEyes->setMood(-1);
     }
 }
 
@@ -187,6 +187,7 @@ void DogEvents::OnExternalImpact()
     lastImpact = current_time;
     if (!eventsSuspended)
         Wake();
+    luluDog->displayHelper->luluEyes->setMood(random(4));
     if (luluDog->lastAction == COMMAND_LEFTHAND_LONG || luluDog->lastAction == COMMAND_RIGHTHAND_LONG)
     {
         luluDog->luluCharacter->SitDown();

@@ -34,7 +34,7 @@ void TouchHelper::detectLongOrDoubleTap(int x, int y)
 {
     unsigned long currentTime = millis();
 
-    if (!longPressActivated && !singleDetected && released && currentTime - lastReleaseTime > longPressThreshold + 200)
+    if (!longPressActivated && !singleDetected && released && currentTime - lastReleaseTime > longPressThreshold + 50)
     {
 
         log_d("currentTime - lastReleaseTime: %lu \n%lu %lu", currentTime - lastReleaseTime, currentTime, lastReleaseTime);
