@@ -28,9 +28,9 @@ void InitPWR()
     pinMode(SYS_EN_PIN, OUTPUT);
     digitalWrite(SYS_EN_PIN, HIGH);
     // WakeUp RP2040 via i2C
-    pinMode(IIC_SDA, OUTPUT);
-    digitalWrite(IIC_SDA, HIGH);
+    pinMode(IIC_SDA, OUTPUT);    
     pinMode(IIC_SCL, OUTPUT);
+    digitalWrite(IIC_SDA, HIGH);
     digitalWrite(IIC_SCL, HIGH);
 }
 

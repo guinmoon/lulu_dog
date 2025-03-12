@@ -148,22 +148,22 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
         log_d("\nACC: %f %f %f \nD: %i + \nGYRO: %f %f %f\nD: %i",
               accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
               gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
-        int args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
-        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+        float args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
+        luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
     }
     else
     {
         if (accE != NULL)
         {
             log_d("\nACC: %f %f %f \nD: %i", accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction);
-            int args[] = {0, 0, 0, -1, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
-            luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+            float args[] = {0, 0, 0, -1, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
+            luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
         }
         if (gyroE != NULL)
         {
             log_d("\nGYRO: %f %f %f\nD: %i", gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
-            int args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, 0, 0, 0, -1};
-            luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+            float args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, 0, 0, 0, -1};
+            luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
         }
     }
 
@@ -197,7 +197,12 @@ void DogEvents::Wake()
 {
     if (sleeping)
     {
+        // Wire.end();
+        // digitalWrite(IIC_SDA, HIGH);
+        // digitalWrite(IIC_SCL, HIGH);
+        // Wire.begin();
         sleeping = false;
+        pingPaused = false;
         log_d("WAKE");
         luluDog->displayHelper->stopSleepAnimation();
         luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);
@@ -207,20 +212,20 @@ void DogEvents::Wake()
 }
 
 void DogEvents::SleepPrepare()
-{
-
+{    
     luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
     luluDog->displayHelper->StopGif();
     delay(1000);
     luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+    
 }
 
 void DogEvents::GoToDeepSleep()
 {
     if (!DEEP_SLEEP_ON)
         return;
-    log_d("PREPARE to SLEEP: %i ms", 2000);
+    log_d("PREPARE to deep SLEEP");
     sleeping = true;
     deepSleeping = true;
     SleepPrepare();
@@ -228,7 +233,8 @@ void DogEvents::GoToDeepSleep()
     gpio_hold_en((gpio_num_t)SYS_EN_PIN);
     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
     esp_deep_sleep_start();
-    log_d("SLEEPING FOR: %i ms", 2000);
+    log_d("SLEEPING until pin: %i", 2000);
+    
 }
 
 void DogEvents::GoToSleep()
@@ -239,6 +245,7 @@ void DogEvents::GoToSleep()
     sleeping = true;
     luluDog->displayHelper->showSleepAnimation();
     luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onSleep.js", "onSleep", 0, NULL);
+    // pingPaused = true;
 }
 
 void DogEvents::DogActivitiWatcherTask()

@@ -11,6 +11,8 @@ class JSRunner
 private:
     static LuLuDog *luluDog;
     static duk_context *ctx;
+    bool _jsCallFunctionPre(char *filename, char *funcName);
+    bool _jsCallFunctionPost(int argc);
 
 public:
     JSRunner(LuLuDog *_luluDog);
@@ -37,6 +39,9 @@ public:
     void jsEval(char *code);
     bool jsEvalFile(char *fname);
     void jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv);
+    void jsCallFunctionNFloatArgs(char *filename, char *funcName,int argc, float* argv);
+    void jsCallFunctionNIntKFloatArgs(char *filename, char *funcName,int argcInt, int* argvInt,int argcFloat, int* argvFloat);
+    void jsCallFunctionKFloatNIntArgs(char *filename, char *funcName,int argcFloat, int* argvFloat,int argcInt, int* argvInt);
 };
 
 #endif

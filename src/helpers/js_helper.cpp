@@ -150,13 +150,12 @@ bool JSRunner::jsEvalFile(char *filename)
     //  duk_destroy_heap(ctx);
 }
 
-void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv)
-{
+bool JSRunner::_jsCallFunctionPre(char *filename, char *funcName){
     File file = LittleFS.open(filename, "r");
     if (!file)
     {
         log_d("Failed to open JS file");
-        return;
+        return false;
     }
 
     String fileData = file.readString();
@@ -168,12 +167,13 @@ void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, i
     if (res == false)
     {
         log_d("Failed to get global function");
-        return;
+        return false;
     }
-    for (int i =0 ;i<argc;i++)
-    {
-        duk_push_int(ctx, argv[i]);    
-    }
+    return true;
+}
+
+bool JSRunner::_jsCallFunctionPost(int argc){
+    bool  res = false;
     if (duk_pcall(ctx, argc /*nargs*/) != 0)
     {
         log_d("Error: %s\n", duk_safe_to_string(ctx, -1));
@@ -181,6 +181,72 @@ void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, i
     else
     {
         log_d("%s\n", duk_safe_to_string(ctx, -1));
+        res = true;
     }
-    duk_pop(ctx);    
+    duk_pop(ctx);  
+    return res; 
+}
+
+void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv)
+{
+    if(!_jsCallFunctionPre(filename, funcName))
+        return;
+
+    for (int i =0 ;i<argc;i++)
+    {
+        duk_push_int(ctx, argv[i]);    
+    }
+    
+    _jsCallFunctionPost(argc);
+}
+
+
+void JSRunner::jsCallFunctionNFloatArgs(char *filename, char *funcName,int argc, float* argv)
+{
+    if(!_jsCallFunctionPre(filename, funcName))
+        return;
+
+    for (int i =0 ;i<argc;i++)
+    {
+        duk_push_number(ctx, argv[i]);    
+    }
+    
+    _jsCallFunctionPost(argc);
+}
+
+
+void JSRunner::jsCallFunctionNIntKFloatArgs(char *filename, char *funcName,int argcInt, int* argvInt,int argcFloat, int* argvFloat)
+{
+    if(!_jsCallFunctionPre(filename, funcName))
+        return;
+
+    for (int i =0 ;i<argcInt;i++)
+    {
+        duk_push_int(ctx, argvInt[i]);    
+    }
+
+    for (int i =0 ;i<argcFloat;i++)
+    {
+        duk_push_number(ctx, argvFloat[i]);    
+    }
+    
+    _jsCallFunctionPost(argcInt+argcFloat);
+}
+
+void JSRunner::jsCallFunctionKFloatNIntArgs(char *filename, char *funcName,int argcFloat, int* argvFloat,int argcInt, int* argvInt)
+{
+    if(!_jsCallFunctionPre(filename, funcName))
+        return;
+
+    for (int i =0 ;i<argcFloat;i++)
+    {
+        duk_push_number(ctx, argvFloat[i]);    
+    }
+
+    for (int i =0 ;i<argcInt;i++)
+    {
+        duk_push_int(ctx, argvInt[i]);    
+    }
+    
+    _jsCallFunctionPost(argcInt+argcFloat);
 }
