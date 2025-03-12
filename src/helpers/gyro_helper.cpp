@@ -310,6 +310,10 @@ void GyroHelper::gyroAndAccelReadTask()
             if (_gyroResumed)
             {
                 _gyroResumed = false;
+                unsigned long currentMillis = millis();
+                lastAccActionTime = currentMillis;
+                lastGyroActionTime = currentMillis;
+                log_d("Gyro was resumed");
                 continue;
             }
 

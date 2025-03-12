@@ -66,6 +66,7 @@ public:
     void sendCommand(int command);
     void SendCommand(int command, int arg1);
     void ConfirmCommand(int command, int arg1);
+    uint8_t requestI2CByte();
     
     int getAllowedRandomReact();
     int GetAllowedSceneReact();

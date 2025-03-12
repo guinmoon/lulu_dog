@@ -94,20 +94,34 @@ void LuLuCharacter::reciveThread(void * _this){
     vTaskDelete(NULL);
 }
 
-void LuLuCharacter::reciveTask(){
-    delay(1500);    
+uint8_t LuLuCharacter::requestI2CByte(){
     auto res = WIRE.requestFrom(LULU_SLAVE_ADDRESS,1);
     if (res == 0){
         log_e("I2C not Received"); 
         luluDog->displayHelper->setIdleMode(true);
         delay(2500);            
         luluDog->gyroHelper->ResumeGyro();
-        return;      
+        return 0;      
     }
     uint8_t buf;
     int commandId = WIRE.readBytes(&buf, 1);
     log_d("I2CReceive: %d", buf);   
-    if (buf == 4){
+    return buf;
+}
+
+void LuLuCharacter::reciveTask(){
+    delay(1500);    
+    uint8_t response = requestI2CByte();
+    
+
+    if (response == 3){
+        while (response == 3){ 
+            delay(1000); 
+            uint8_t response = requestI2CByte();
+        }
+    }
+
+    if (response == 4){
         luluDog->displayHelper->setIdleMode(true);
         luluDog->gyroHelper->ResumeGyro();        
     }

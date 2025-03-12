@@ -22,9 +22,9 @@
 
 // GYRO CONFIG
  // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
-#define IMPACT_THRESHHOLD_ACC_X 0.1
-#define IMPACT_THRESHHOLD_ACC_Y 0.04
-#define IMPACT_THRESHHOLD_ACC_Z 0.03
+#define IMPACT_THRESHHOLD_ACC_X 0.12
+#define IMPACT_THRESHHOLD_ACC_Y 0.12
+#define IMPACT_THRESHHOLD_ACC_Z 0.1
 
 #define IMPACT_THRESHHOLD_GYR_X 36
 #define IMPACT_THRESHHOLD_GYR_Y 36

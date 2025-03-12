@@ -100,7 +100,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
         return;
     }
     OnExternalImpact();
-    log_d("%i %i %i", args->x, args->y, args->touchCount);
+    log_d("Touch: %i %i %i", args->x, args->y, args->touchCount);
     if (args->touchCount == 1)
     {
         // luluDog->luluCharacter->doRandomReactGif(-1, true);
@@ -201,7 +201,7 @@ void DogEvents::Wake()
         log_d("WAKE");
         luluDog->displayHelper->stopSleepAnimation();
         luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);
-        delay(200);
+        // delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
 }
