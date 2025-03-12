@@ -99,10 +99,18 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     {
         return;
     }
-    OnExternalImpact();
     log_d("Touch: %i %i %i", args->x, args->y, args->touchCount);
+    if (luluDog->lastAction == COMMAND_LEFTHAND_LONG || luluDog->lastAction == COMMAND_RIGHTHAND_LONG)
+    {
+        luluDog->luluCharacter->SitDown();
+        return;
+    }
+    OnExternalImpact();
+
     if (args->touchCount == 1)
     {
+        log_d("last action %i", luluDog->lastAction);
+
         // luluDog->luluCharacter->doRandomReactGif(-1, true);
         int ar[] = {args->x, args->y, args->touchCount};
         luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onTouch.js", "onTouch", 3, ar);
@@ -130,8 +138,6 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
         luluDog->displayHelper->luluEyes->setMood(-1);
     }
 }
-
-
 
 void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE)
 {
@@ -166,10 +172,6 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
             luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
         }
     }
-
-    
-    
-
 }
 
 void DogEvents::GyroOrAccEventPreaction()
@@ -213,13 +215,12 @@ void DogEvents::Wake()
 }
 
 void DogEvents::SleepPrepare()
-{    
+{
     luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
     luluDog->displayHelper->StopGif();
     delay(1000);
     luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
-    
 }
 
 void DogEvents::GoToDeepSleep()
@@ -235,7 +236,6 @@ void DogEvents::GoToDeepSleep()
     esp_sleep_enable_ext0_wakeup((gpio_num_t)TP_INT, 0);
     esp_deep_sleep_start();
     log_d("SLEEPING until pin: %i", 2000);
-    
 }
 
 void DogEvents::GoToSleep()
@@ -300,7 +300,7 @@ void DogEvents::StartDogActivitiWatcher()
     xTaskCreatePinnedToCore(
         DogActivitiWatcherThread, /* Task function. */
         "Task7",                  /* name of task. */
-        4096,                     /* Stack size of task */
+        10000,                    /* Stack size of task */
         this,                     /* parameter of the task */
         tskIDLE_PRIORITY,         /* priority of the task */
         NULL,                     /* Task handle to keep track of created task */

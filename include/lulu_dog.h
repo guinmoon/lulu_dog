@@ -34,7 +34,7 @@ public:
     static ConfigHelper* configHelper;
     DogEvents* dogEvents;
 
-    int lastAction;
+    int lastAction = -1;
     
     LuLuDog();
     void Init();
