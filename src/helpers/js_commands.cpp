@@ -157,3 +157,11 @@ duk_ret_t JSRunner::jsLuLuDoRnadomCommand(duk_context *_ctx)
     luluDog->luluCharacter->doRandomReact(-1,withMove);
     return 0;
 }
+
+duk_ret_t JSRunner::jsLuLuDoRnadomCommandGif(duk_context *_ctx)
+{
+    duk_get_top(_ctx);    
+    bool withMove = duk_to_boolean(_ctx, 0);
+    luluDog->luluCharacter->doRandomReactGif(-1,withMove);
+    return 0;
+}

@@ -342,32 +342,7 @@ void GyroHelper::gyroAndAccelReadTask()
                     }
                 }
             }
-            // else
-            // {
-            //     if (accEvent != NULL)
-            //     {
-            //         if (currentMillis - lastAccActionTime >= gyroActionPeriod)
-            //         {
-            //             luluDog->dogEvents->EmitDogEvent(accEvent);
-            //             lastAccActionTime = currentMillis;
-            //         }
-            //     }
-            //     if (gyrEvent != NULL)
-            //     {
-            //         if (currentMillis - lastGyroActionTime >= gyroActionPeriod)
-            //         {
-            //             luluDog->dogEvents->EmitDogEvent(gyrEvent);
-            //             lastGyroActionTime = currentMillis;
-            //         }
-            //     }
-            // }
 
-            // // записываем чтобы после детекта
-            // // не было детекта в противоположную сторону
-            // if (qmi.getGyroscope(gyr.x, gyr.y, gyr.z))
-            //     prevGyr = gyr;
-            // if (qmi.getAccelerometer(acc.x, acc.y, acc.z))
-            //     prevAcc = acc;
         }
 
         delay(gyroDelay); // Пауза для снижения частоты опроса

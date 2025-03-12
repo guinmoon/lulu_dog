@@ -31,6 +31,7 @@ public:
     static duk_ret_t jsLuLuCOMMAND_TAILLEGSSTAND(duk_context *_ctx);
     static duk_ret_t jsLuLuCOMMAND_FULLLAYDOWN(duk_context *_ctx);
     static duk_ret_t jsLuLuDoRnadomCommand(duk_context *_ctx);    
+    static duk_ret_t jsLuLuDoRnadomCommandGif(duk_context *_ctx);    
 
     void jsInit();
     void jsEval(char *code);

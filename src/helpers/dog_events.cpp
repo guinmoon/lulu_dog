@@ -103,7 +103,9 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     log_d("%i %i %i", args->x, args->y, args->touchCount);
     if (args->touchCount == 1)
     {
-        luluDog->luluCharacter->doRandomReactGif(-1, true);
+        // luluDog->luluCharacter->doRandomReactGif(-1, true);
+        int ar[] = {args->x, args->y, args->touchCount};
+        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onTouch.js", "onTouch", 3, ar);
         log_d("Single Touch Detected");
     }
     if (args->touchCount == 2)
@@ -129,34 +131,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     }
 }
 
-// void DogEvents::OnAccelerometerEvent(AccelerometerEvent *e)
-// {
-//     if (e == NULL)
-//     {
-//         return;
-//     }
-//     log_d("\nACC: %f %f %f \nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
-//     delay(200);
-//     if (!luluDog->gyroHelper->gyroActive)
-//         return;
-//     OnGyroOrAccEvent();
-//     OnExternalImpact();
-//     // luluDog->luluCharacter->doRandomReact(-1);
-// }
 
-// void DogEvents::OnGyroEvent(GyroEvent *e)
-// {
-//     if (e == NULL)
-//     {
-//         return;
-//     }
-//     log_d("\nGYRO: %f %f %f\nD: %i", e->deltaX, e->deltaY, e->deltaZ, e->direction);
-//     delay(200);
-//     if ( !luluDog->gyroHelper->gyroActive)
-//         return;
-//     OnGyroOrAccEvent();
-//     OnExternalImpact();
-// }
 
 void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent *gyroE)
 {
@@ -165,6 +140,9 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
         return;
     }
     GyroOrAccEventPreaction();
+    if (!luluDog->gyroHelper->gyroActive)
+        return;
+    OnExternalImpact();
     if (accE != NULL && gyroE != NULL)
     {
         log_d("\nACC: %f %f %f \nD: %i + \nGYRO: %f %f %f\nD: %i",
@@ -189,28 +167,9 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
         }
     }
 
-    delay(200);
-    if (!luluDog->gyroHelper->gyroActive)
-        return;
-    OnExternalImpact();
-    // if (gyroE != NULL)
-    // {
-    //     int args[] = {1, 2, 3, gyroE->direction};
-    //     luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onGyroAcc.js", "onGyroAcc", 4, args);
-    //     // // if (accE->direction == GYRO_D_RIGHT &&
-    //     // //     (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT))
-    //     // if (gyroE->direction == GYRO_D_TILT_BACKWARD || gyroE->direction == GYRO_D_ROTATE_LEFT)
-    //     // {
-    //     //     luluDog->luluCharacter->RightHand();
-    //     // }
-    //     // if (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT)
-    //     // // if (accE->direction == GYRO_D_LEFT &&
-    //     // //     (gyroE->direction == GYRO_D_TILT_FORWARD || gyroE->direction == GYRO_D_ROTATE_RIGHT))
-    //     // {
-    //     //     luluDog->luluCharacter->LeftHand();
-    //     // }
-    // }
-    // luluDog->luluCharacter->doRandomReact(-1);
+    
+    
+
 }
 
 void DogEvents::GyroOrAccEventPreaction()
@@ -232,11 +191,6 @@ void DogEvents::OnExternalImpact()
     {
         luluDog->luluCharacter->SitDown();
     }
-    // if (current_time - lastImpact < LAST_IMPACT_MIN_PERIOD || suspended)
-    // {
-    //     lastImpact = current_time;
-    //     return;
-    // }
 }
 
 void DogEvents::Wake()
@@ -246,6 +200,7 @@ void DogEvents::Wake()
         sleeping = false;
         log_d("WAKE");
         luluDog->displayHelper->stopSleepAnimation();
+        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);
         delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
@@ -283,6 +238,7 @@ void DogEvents::GoToSleep()
     SleepPrepare();
     sleeping = true;
     luluDog->displayHelper->showSleepAnimation();
+    luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onSleep.js", "onSleep", 0, NULL);
 }
 
 void DogEvents::DogActivitiWatcherTask()

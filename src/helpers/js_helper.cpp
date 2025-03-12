@@ -66,6 +66,8 @@ void JSRunner::jsInit()
     duk_put_global_string(ctx, "lulu_command");
     duk_push_c_function(ctx, jsLuLuDoRnadomCommand, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_random_command");    
+    duk_push_c_function(ctx, jsLuLuDoRnadomCommandGif, DUK_VARARGS);
+    duk_put_global_string(ctx, "lulu_random_command_gif");    
     duk_push_c_function(ctx, jsLuLuCOMMAND_LEFTHAND, DUK_VARARGS);
     duk_put_global_string(ctx, "lulu_leftHand");
     duk_push_c_function(ctx, jsLuLuCOMMAND_RIGHTHAND, DUK_VARARGS);
