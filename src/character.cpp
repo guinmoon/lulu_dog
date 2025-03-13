@@ -3,7 +3,7 @@
 #include "lulu_dog.h"
 #include "eyes_drawer.h"
 
-#include <mutex>
+
 
 // LuLuCharacter luluCharacter;
 
@@ -55,77 +55,6 @@ void LuLuCharacter::NormalizeProbabilities()
     }
 }
 
-void LuLuCharacter::sendCommand(int command)
-{
-    WIRE.beginTransmission(LULU_SLAVE_ADDRESS); // Адрес ведомого устройства
-    WIRE.write(command);
-    WIRE.endTransmission();
-    log_d("Sended: %i", command);
-}
-
-void LuLuCharacter::SendCommand(int command, int arg1)
-{
-    std::lock_guard<std::mutex> lck(i2c_mutex);
-    WIRE.beginTransmission(LULU_SLAVE_ADDRESS); // Адрес ведомого устройства
-    WIRE.write(command);
-    WIRE.write(arg1);
-    WIRE.endTransmission();    
-    if (command<100){//Not system command
-       luluDog->lastAction = command;       
-    }
-    log_d("Sended %i:%i", command, arg1);    
-}
-
-
-void LuLuCharacter::ConfirmCommand(int command, int arg1)
-{       
-    xTaskCreatePinnedToCore(
-        reciveThread, /* Task function. */
-        "Task11",         /* name of task. */
-        4096,             /* Stack size of task */
-        this,             /* parameter of the task */
-        tskIDLE_PRIORITY, /* priority of the task */
-        NULL,             /* Task handle to keep track of created task */
-        0);
-}
-
-void LuLuCharacter::reciveThread(void * _this){
-    ((LuLuCharacter *)_this)->reciveTask();
-    vTaskDelete(NULL);
-}
-
-uint8_t LuLuCharacter::requestI2CByte(){
-    auto res = WIRE.requestFrom(LULU_SLAVE_ADDRESS,1);
-    if (res == 0){
-        log_e("I2C not Received"); 
-        luluDog->displayHelper->setIdleMode(true);
-        delay(2500);            
-        luluDog->gyroHelper->ResumeGyro();
-        return 0;      
-    }
-    uint8_t buf;
-    int commandId = WIRE.readBytes(&buf, 1);
-    log_d("I2CReceive: %d", buf);   
-    return buf;
-}
-
-void LuLuCharacter::reciveTask(){
-    delay(1500);    
-    uint8_t response = requestI2CByte();
-    
-
-    if (response == 3){
-        while (response == 3){ 
-            delay(1000); 
-            uint8_t response = requestI2CByte();
-        }
-    }
-
-    if (response == 4){
-        luluDog->displayHelper->setIdleMode(true);
-        luluDog->gyroHelper->ResumeGyro();        
-    }
-}
 
 int LuLuCharacter::getAllowedRandomReact()
 {
@@ -168,13 +97,13 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, cha
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
+        luluDog->i2cSlaveHelper->SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
     }
     if (command != -1 && luluDog->configHelper->EnableMove)
     {
         luluDog->gyroHelper->PauseGyro();
-        SendCommand(command, speed);
-        ConfirmCommand(command, speed);
+        luluDog->i2cSlaveHelper->SendCommand(command, speed);
+        luluDog->i2cSlaveHelper->ConfirmCommand(command, speed);
     }
     switch (eye)
     {
@@ -208,13 +137,13 @@ void LuLuCharacter::doReactGif(int command, int speed, int tail_speed, char *eye
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
-        SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
+        luluDog->i2cSlaveHelper->SendCommand(COMMAND_SET_TAIL_SPEED, tail_speed);        
     }
     if (command != -1 && luluDog->configHelper->EnableMove)
     {
         luluDog->gyroHelper->PauseGyro();
-        SendCommand(command, speed);
-        ConfirmCommand(command, speed);
+        luluDog->i2cSlaveHelper->SendCommand(command, speed);
+        luluDog->i2cSlaveHelper->ConfirmCommand(command, speed);
     }
     if (eye != nullptr)
         luluDog->displayHelper->PlayGif(eye);

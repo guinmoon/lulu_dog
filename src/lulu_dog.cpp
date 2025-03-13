@@ -6,6 +6,7 @@ ConfigHelper *LuLuDog::configHelper;
 LuLuDog::LuLuDog()
 {
     configHelper = new ConfigHelper(this);
+    i2cSlaveHelper = new I2CSlaveHeler(this);
     dogEvents = new DogEvents(this);
     audioHelper = new AudioHelper(this);
     batteryHelper = new BatteryHelper(this);

@@ -14,6 +14,7 @@
 #include "web_server.h"
 #include "config_helper.hpp"
 #include "dog_events.hpp"
+#include "i2c_slave_helper.hpp"
 
 
 class LuLuDog
@@ -33,6 +34,7 @@ public:
     LuLuWebServer* fsWebServer;
     static ConfigHelper* configHelper;
     DogEvents* dogEvents;
+    I2CSlaveHeler* i2cSlaveHelper;
 
     int lastAction = -1;
     

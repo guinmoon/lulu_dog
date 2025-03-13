@@ -216,11 +216,11 @@ void DogEvents::Wake()
 
 void DogEvents::SleepPrepare()
 {
-    luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+    luluDog->i2cSlaveHelper->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
     log_d("SLEEP");
     luluDog->displayHelper->StopGif();
     delay(1000);
-    luluDog->luluCharacter->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
+    luluDog->i2cSlaveHelper->SendCommand(COMMAND_SET_TAIL_SPEED, 0);
 }
 
 void DogEvents::GoToDeepSleep()
@@ -283,7 +283,7 @@ void DogEvents::RP2040PingTask()
     while (true)
     {
         if (!pingPaused)
-            luluDog->luluCharacter->SendCommand(RP_SYS_COMMAND_PING, 0);
+            luluDog->i2cSlaveHelper->SendCommand(RP_SYS_COMMAND_PING, 0);
         delay(2000);
     }
 }

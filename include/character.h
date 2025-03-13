@@ -26,7 +26,7 @@ private:
     // bool sleeping = false;
     int allowedOnCharging[4] = {0, 10, 11, 12};
     int maxChoise = 13;
-    std::mutex i2c_mutex;
+    
     // bool pingPaused = false;
     float probabilities[15] = {
         0.5, /*sendCommand(COMMAND_SET_TAIL_SPEED, 0);*/
@@ -51,23 +51,9 @@ private:
 public:
     // bool suspended = false;
     LuLuCharacter(LuLuDog* _luluDog);
-    // static void DogActivitiWatcherThread(void *args);
-    // static void RP2040PingThread(void *args);
-    // void Wake();    
-    // void SleepPrepare();
-    // void GoToDeepSleep();
-    // void GoToSleep();    
-    // void StartDogActivitiWatcher();
-    // void RP2040PingTask();
-    // void DogActivitiWatcherTask();
-    
+
     int generateRandomWithProbabilities(float probabilities[], int size);
     void NormalizeProbabilities();
-    void sendCommand(int command);
-    void SendCommand(int command, int arg1);
-    void ConfirmCommand(int command, int arg1);
-    uint8_t requestI2CByte();
-    
     int getAllowedRandomReact();
     int GetAllowedSceneReact();
     void doReactGif(int command, int speed, int tail_speed, char *eye, char *wav);
@@ -75,8 +61,6 @@ public:
     void doRandomReact(int direction, bool withMove);
     void doRandomReactGif(int direction, bool withMove);
     void DoSceneReact(int x, int y);
-    static void  reciveThread(void * _this);
-    void reciveTask();    
     void LeftHand();
     void RightHand();
     void SitDown();
