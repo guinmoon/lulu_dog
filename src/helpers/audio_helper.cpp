@@ -47,7 +47,8 @@ bool AudioHelper::loadWAVToMemory(const char *filename)
 void AudioHelper::InitAudio()
 {
     i2s.setPins( I2S_BCLK,I2S_LRC, I2S_DOUT);
-    if (!i2s.begin(I2S_MODE_STD, 44100, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO, I2S_STD_SLOT_BOTH))
+    // i2s.begin(mode, sampleRate, bps, slot)
+    if (!i2s.begin(I2S_MODE_STD, 44100, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO))
     {
         log_d("Failed to initialize I2S bus!");
         return;

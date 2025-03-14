@@ -113,7 +113,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
 
         // luluDog->luluCharacter->doRandomReactGif(-1, true);
         int ar[] = {args->x, args->y, args->touchCount};
-        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onTouch.js", "onTouch", 3, ar);
+        luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_TOUCH, JS_ON_TOUCH_FUNC, 3, ar);
         log_d("Single Touch Detected");
     }
     if (args->touchCount == 2)
@@ -155,7 +155,7 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
               accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction,
               gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
         float args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
-        luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+        luluDog->jsRunner->jsCallFunctionNFloatArgs(JS_ON_GYRO_ACC, JS_ON_GYRO_ACC_FUNC, 8, args);
     }
     else
     {
@@ -163,13 +163,13 @@ void DogEvents::OnAccelerometerAndGyroEvent(AccelerometerEvent *accE, GyroEvent 
         {
             log_d("\nACC: %f %f %f \nD: %i", accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction);
             float args[] = {0, 0, 0, -1, accE->deltaX, accE->deltaY, accE->deltaZ, accE->direction};
-            luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+            luluDog->jsRunner->jsCallFunctionNFloatArgs(JS_ON_GYRO_ACC, JS_ON_GYRO_ACC_FUNC, 8, args);
         }
         if (gyroE != NULL)
         {
             log_d("\nGYRO: %f %f %f\nD: %i", gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction);
             float args[] = {gyroE->deltaX, gyroE->deltaY, gyroE->deltaZ, gyroE->direction, 0, 0, 0, -1};
-            luluDog->jsRunner->jsCallFunctionNFloatArgs("/js/events/onGyroAcc.js", "onGyroAcc", 8, args);
+            luluDog->jsRunner->jsCallFunctionNFloatArgs(JS_ON_GYRO_ACC, JS_ON_GYRO_ACC_FUNC, 8, args);
         }
     }
 }
@@ -209,7 +209,7 @@ void DogEvents::Wake()
         pingPaused = false;
         log_d("WAKE");
         luluDog->displayHelper->stopSleepAnimation();
-        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);        
+        luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_WAKE, JS_ON_WAKE_FUNC, 0, NULL);        
         // delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
@@ -246,7 +246,7 @@ void DogEvents::GoToSleep()
     SleepPrepare();
     sleeping = true;
     luluDog->displayHelper->showSleepAnimation();
-    luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onSleep.js", "onSleep", 0, NULL);
+    luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_SLEEP, JS_ON_SLEEP_FUNC, 0, NULL);
     luluDog->LowPowMode();
     // pingPaused = true;
 }

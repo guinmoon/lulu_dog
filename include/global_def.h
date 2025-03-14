@@ -1,9 +1,10 @@
 
+#include "events_js.h"
 #define WIRE Wire
 
 #define LULU_SLAVE_ADDRESS 8
 
-#define AUDIO_ON 0
+#define AUDIO_ON 1
 #define MOVE_ON 1
 #define SLEEP_ON 1
 #define WIFI_ON 0

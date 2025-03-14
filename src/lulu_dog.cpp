@@ -40,7 +40,7 @@ void LuLuDog::Init()
     dogEvents->StartSlavePingThread();
 
     // ShowMenu();
-    if (configHelper->EnableWifi)
+    // if (configHelper->EnableWifi)
         fsWebServer->Init();
 
     NormalPowMode();
@@ -71,19 +71,19 @@ void LuLuDog::setVoltageBuf(float voltage)
 void LuLuDog::Action1()
 {
     ExitMenu();
-    jsRunner->jsEvalFile("/js/script1.js");
+    jsRunner->jsEvalFile(JS_ACTION1);
 }
 
 void LuLuDog::Action2()
 {
     ExitMenu();
-    jsRunner->jsEvalFile("/js/script2.js");
+    jsRunner->jsEvalFile(JS_ACTION2);
 }
 
 void LuLuDog::Action3()
 {
     ExitMenu();
-    jsRunner->jsEvalFile("/js/script3.js");
+    jsRunner->jsEvalFile(JS_ACTION3);
 }
 
 void LuLuDog::PauseDog()
