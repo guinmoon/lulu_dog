@@ -6,10 +6,10 @@ ConfigHelper *LuLuDog::configHelper;
 LuLuDog::LuLuDog()
 {
     configHelper = new ConfigHelper(this);
-    i2cSlaveHelper = new I2CSlaveHeler(this);
     dogEvents = new DogEvents(this);
-    audioHelper = new AudioHelper(this);
+    i2cSlaveHelper = new I2CSlaveHeler(this);    
     batteryHelper = new BatteryHelper(this);
+    audioHelper = new AudioHelper(this);    
     displayHelper = new DisplayHelper(this);
     luluCharacter = new LuLuCharacter(this);
     gyroHelper = new GyroHelper(this);
@@ -18,12 +18,15 @@ LuLuDog::LuLuDog()
     jsRunner = new JSRunner(this);
     fsWebServer = new LuLuWebServer(this);    
     instance = this;
+    
     // touchHelper = new TouchHelper();
 }
 
+
+
 void LuLuDog::Init()
 {
-
+    HighPowMode();    
     configHelper->LoadConfig("/config.json");
     batteryHelper->InitBattery();
     displayHelper->InitDisplay();
@@ -40,7 +43,7 @@ void LuLuDog::Init()
     if (configHelper->EnableWifi)
         fsWebServer->Init();
 
-    MemInfo();
+    NormalPowMode();
     // jsRunner->jsEvalFile("/js/script1.js");
     // jsRunner->jsEvalFile("/js/demo.js");
 
@@ -98,7 +101,12 @@ void LuLuDog::MemInfo()
     log_d("Total heap: %d", ESP.getHeapSize());
     log_d("Free heap: %d", ESP.getFreeHeap());
     log_d("Total PSRAM: %d", ESP.getPsramSize());
-    log_d("Free PSRAM: %d", ESP.getFreePsram());
+    log_d("Free PSRAM: %d", ESP.getFreePsram());    
+    log_d("CPU F: %d", getCpuFrequencyMhz());
+    log_d("Xtal F: %d", getXtalFrequencyMhz());    
+    log_d("Apb F: %d", getApbFrequency());
+    
+    // uint32_t getXtalFrequencyMhz();
 }
 
 void LuLuDog::ResumeDog()
@@ -131,4 +139,19 @@ void LuLuDog::ShowMenu()
 
     lvglHelper->InitDisplayLVGL();
     lvglHelper->ShowMenu();
+}
+
+void LuLuDog::LowPowMode(){
+    setCpuFrequencyMhz(80);
+    MemInfo();
+}
+
+void LuLuDog::NormalPowMode(){
+    setCpuFrequencyMhz(160);
+    MemInfo();
+}
+
+void LuLuDog::HighPowMode(){
+    setCpuFrequencyMhz(240);
+    MemInfo();
 }

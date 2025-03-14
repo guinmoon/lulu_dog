@@ -61,8 +61,8 @@ public:
     void doRandomReact(int direction, bool withMove);
     void doRandomReactGif(int direction, bool withMove);
     void DoSceneReact(int x, int y);
-    void LeftHand();
-    void RightHand();
+    void LeftHandLong();
+    void RightHandLong();
     void SitDown();
     // void Dance1();
 

@@ -204,11 +204,12 @@ void DogEvents::Wake()
         // digitalWrite(IIC_SDA, HIGH);
         // digitalWrite(IIC_SCL, HIGH);
         // Wire.begin();
+        luluDog->NormalPowMode();
         sleeping = false;
         pingPaused = false;
         log_d("WAKE");
         luluDog->displayHelper->stopSleepAnimation();
-        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);
+        luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onWake.js", "onWake", 0, NULL);        
         // delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
@@ -246,6 +247,7 @@ void DogEvents::GoToSleep()
     sleeping = true;
     luluDog->displayHelper->showSleepAnimation();
     luluDog->jsRunner->jsCallFunctionNIntArgs("/js/events/onSleep.js", "onSleep", 0, NULL);
+    luluDog->LowPowMode();
     // pingPaused = true;
 }
 

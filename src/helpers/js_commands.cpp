@@ -13,7 +13,7 @@ duk_ret_t JSRunner::jsRunLuLuCommand(duk_context *_ctx)
     const char* wav = duk_to_string(_ctx, 4);
 
     luluDog->luluCharacter->doReactGif(command, speed, tail_speed, const_cast<char*>(eye), const_cast<char*>(wav));
-        
+    
     return 0;
 }
 
@@ -22,6 +22,8 @@ duk_ret_t JSRunner::jsLuLuCOMMAND_LEFTHAND(duk_context *_ctx)
     duk_get_top(_ctx);    
     int speed = duk_to_int(_ctx, 0);
     int tail_speed = duk_to_int(_ctx, 1);    
+    int command = COMMAND_LEFTHAND;
+    
 
     luluDog->luluCharacter->doReactGif(COMMAND_LEFTHAND, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
     return 0;
@@ -43,7 +45,7 @@ duk_ret_t JSRunner::jsLuLuCOMMAND_LEFTHAND_LONG(duk_context *_ctx)
     duk_get_top(_ctx);    
     int speed = duk_to_int(_ctx, 0);
     int tail_speed = duk_to_int(_ctx, 1);    
-    luluDog->luluCharacter->LeftHand();
+    luluDog->luluCharacter->LeftHandLong();
     // luluDog->luluCharacter->doReactGif(COMMAND_LEFTHAND_LONG, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
     return 0;
 }
@@ -54,7 +56,7 @@ duk_ret_t JSRunner::jsLuLuCOMMAND_RIGHTHAND_LONG(duk_context *_ctx)
     duk_get_top(_ctx);    
     int speed = duk_to_int(_ctx, 0);
     int tail_speed = duk_to_int(_ctx, 1);    
-    luluDog->luluCharacter->RightHand();
+    luluDog->luluCharacter->RightHandLong();
     // luluDog->luluCharacter->doReactGif(COMMAND_RIGHTHAND_LONG, speed, tail_speed, "/imgs/eye3.gif", "/audio/woof3.wav");
     return 0;
 }

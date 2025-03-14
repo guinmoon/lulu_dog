@@ -94,6 +94,8 @@ void LuLuCharacter::doReact(int command, int speed, int tail_speed, int eye, cha
     luluDog->dogEvents->lastImpact = millis(); // Для вызовов не из этого класса
     luluDog->dogEvents->pingPaused = true;
     luluDog->displayHelper->StopGif();    
+    
+
     if (tail_speed != -1 && luluDog->configHelper->EnableMove)
     {
         delay(200);
@@ -271,7 +273,7 @@ void LuLuCharacter::doRandomReactGif(int direction, bool withMove)
         doReactGif(withMove ? COMMAND_TAILLEGSSTAND : -1, 4, 4, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     case 14:
-        doReactGif(withMove ? COMMAND_HALFLAYDOWNTAIL : -1, 4, 6, "/imgs/eye3.gif", "//audio/woof1.wav");
+        doReactGif(withMove ? COMMAND_HALFLAYDOWNTAIL : -1, 4, 6, "/imgs/eye3.gif", "/audio/woof1.wav");
         break;
     default:
         doReactGif(-1, -1, 0, "/imgs/eye5.gif", nullptr);
@@ -309,7 +311,7 @@ void LuLuCharacter::DoSceneReact(int x, int y)
     }
 }
 
-void LuLuCharacter::LeftHand()
+void LuLuCharacter::LeftHandLong()
 {
     // doReactGif(COMMAND_LEFTHAND, 4, 6, "/imgs/eye4.gif", "/audio/woof3.wav");
     luluDog->displayHelper->StopGif();
@@ -320,7 +322,7 @@ void LuLuCharacter::LeftHand()
     luluDog->displayHelper->luluEyes->setPosition(SW);
 }
 
-void LuLuCharacter::RightHand()
+void LuLuCharacter::RightHandLong()
 {
     // doReactGif(COMMAND_RIGHTHAND, 4, 6, "/imgs/eye5.gif", "/audio/woof3.wav");
     luluDog->displayHelper->StopGif();

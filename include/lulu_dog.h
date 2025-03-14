@@ -50,7 +50,11 @@ public:
     void ExitMenu();
     static void DoubleTapCallBack(int x, int y);
     static void LongPressCallBack(int x, int y);
+
     void MemInfo();
+    void LowPowMode();
+    void NormalPowMode();
+    void HighPowMode();
 
 };
 

@@ -130,10 +130,10 @@ bool JSRunner::jsEvalFile(char *filename)
     }
 
     String fileData = file.readString();
-
+    luluDog->HighPowMode();
     duk_push_string(ctx, fileData.c_str());
     duk_int_t rc = duk_peval(ctx);
-
+    luluDog->NormalPowMode();
     if (rc != 0)
     {
         duk_safe_to_stacktrace(ctx, -1);
@@ -173,6 +173,7 @@ bool JSRunner::_jsCallFunctionPre(char *filename, char *funcName){
 }
 
 bool JSRunner::_jsCallFunctionPost(int argc){
+    luluDog->HighPowMode();
     bool  res = false;
     if (duk_pcall(ctx, argc /*nargs*/) != 0)
     {
@@ -184,6 +185,7 @@ bool JSRunner::_jsCallFunctionPost(int argc){
         res = true;
     }
     duk_pop(ctx);  
+    luluDog->NormalPowMode();
     return res; 
 }
 
@@ -198,6 +200,7 @@ void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, i
     }
     
     _jsCallFunctionPost(argc);
+    
 }
 
 
