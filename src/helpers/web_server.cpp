@@ -10,7 +10,7 @@
 // #define LED_BUILTIN 2
 // #endif
 // const uint8_t ledPin = LED_BUILTIN;
-
+#define FILESYSTEM LittleFS
 LuLuDog *LuLuWebServer::luluDog;
 // AsyncFsWebServer LuLuWebServer::server(80, LittleFS, "myServer");
 WebServer *LuLuWebServer::server;
@@ -20,12 +20,26 @@ bool LuLuWebServer::serverRunning = false;
 LuLuWebServer::LuLuWebServer(LuLuDog *_luluDog)
 {
     this->luluDog = _luluDog;
-    
 }
 
-LuLuWebServer::~LuLuWebServer()
-{
-}
+// void LuLuWebServer::getFsInfo(fsInfo_t* fsInfo) {
+// 	fsInfo->fsName = "LittleFS";
+// 	fsInfo->totalBytes = LittleFS.totalBytes();
+// 	fsInfo->usedBytes = LittleFS.usedBytes();
+// }
+
+// bool LuLuWebServer::startFilesystem()
+// {
+//     if (!FILESYSTEM.begin())
+//     {
+//         log_d("ERROR on mounting filesystem. It will be formmatted!");
+//         // FILESYSTEM.format();
+//         // ESP.restart();
+//         return false;
+//     }
+//     myWebServer->printFileList(LittleFS, Serial, "/", 2);
+//     return true;
+// }
 
 // FILESYSTEM INIT
 bool LuLuWebServer::startFilesystem()
@@ -59,22 +73,37 @@ bool LuLuWebServer::startFilesystem()
 
 void LuLuWebServer::handleLed()
 {
-    // If new led state is specified - http://xxx.xxx.xxx.xxx/led?val=1
-    // if (myWebServer->webserver->hasArg("val"))
-    // {
-    //     int value = myWebServer->webserver->arg("val").toInt();
-    //     digitalWrite(ledPin, value);
-    // }
-    // // else simple toggle the actual state
-    // else
-    // {
-    //     digitalWrite(ledPin, !digitalRead(ledPin));
-    // }
-    String reply = "LED is now ";
-    // reply += digitalRead(ledPin) ? "OFF" : "ON";
-    myWebServer->webserver->send(200, "text/plain", reply);
+
+    // String reply = "LED is now ";
+
+    // myWebServer->webserver->send(200, "text/plain", reply);
 }
 
+// void LuLuWebServer::Init()
+// {
+//     startFilesystem();
+
+//     // Try to connect to stored SSID, start AP if fails after timeout
+//     // myWebServer->setAP("LuLu_RoboDog", "123456789");
+//     log_d("Webserver started.");
+
+//     IPAddress myIP = myWebServer->startWiFi(15000);    
+
+//     // Add custom page handlers to webserver
+//     myWebServer->on("/led", HTTP_GET, handleLed);
+
+//     // set /setup and /edit page authentication
+//     // myWebServer->setAuthentication("admin", "admin");
+
+//     // Enable ACE FS file web editor and add FS info callback function
+//     myWebServer->enableFsCodeEditor(getFsInfo);
+
+//     // Start webserver
+//     myWebServer->begin();
+//     log_d("ESP Web Server started on IP Address: %s",myIP.toString());    
+//     log_d("Open /setup page to configure optional parameters");
+//     log_d("Open /edit page to view and edit files");
+// }
 void LuLuWebServer::Init()
 {
     server = new WebServer(80);
@@ -109,9 +138,10 @@ void LuLuWebServer::Deinit()
 {
     serverRunning = false;
     myWebServer->webserver->stop();
+    // myWebServer->stop();
 
     delete myWebServer;
-    delete server;
+    // delete server;
 
     WiFi.disconnect();
     WiFi.mode(WIFI_OFF);

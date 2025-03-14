@@ -35,7 +35,7 @@ void LuLuDog::Init()
     audioHelper->InitAudio();
     jsRunner->jsInit();
     audioHelper->PlayWav("/audio/woof1.wav");
-    luluCharacter->doRandomReact(-1,false);
+    // luluCharacter->doRandomReact(-1,false);
     dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
 
@@ -115,7 +115,7 @@ void LuLuDog::ResumeDog()
     dogEvents->eventsSuspended = false;
     touchHelper->switchToLVGLTask(false);
     displayHelper->resumeEyes();
-    audioHelper->PlayWav("/audio/awoof1.wav");
+    audioHelper->PlayWav("/audio/woof1.wav");
     luluCharacter->doRandomReact(-1,false);
     // displayHelper->pauseResumeEyes(false);
     // displayHelper->PlayGif("/imgs/eye5.gif");

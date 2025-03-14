@@ -27,7 +27,9 @@ public:
     // static void getFsInfo(fsInfo_t* fsInfo);
     static bool startFilesystem();
     static void ServerThread(void * _this);
+    // static void getFsInfo(fsInfo_t* fsInfo);
     static bool serverRunning;
+    bool apMode = false;
 };
 
 
