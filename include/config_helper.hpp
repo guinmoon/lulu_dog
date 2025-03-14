@@ -20,26 +20,7 @@ public:
     {
         this->luluDog = luluDog;
     }
-    bool LoadConfig(char *config_path)
-    {
-        _config_path = config_path;
-        File config_file = LittleFS.open(config_path, "r");
-        if (config_file)
-        {
-            config =  new DynamicJsonDocument(config_file.size() * 1.33);
-            deserializeJson(*config, config_file);
-
-            EnableAudio = (*config)["dog"]["audio"]["enable"].as<bool>();
-            EnableMove = (*config)["dog"]["move"]["enable"].as<bool>();
-            EnableSleep = (*config)["dog"]["sleep"]["enable"].as<bool>();            
-            EnableWifi = (*config)["dog"]["wifi"]["enable"].as<bool>();
-            log_d("Config loaded");
-            log_d("EnableAudio: %d, EnableMove: %d, EnableSleep: %d, EnableDeepSleep: %d, EnableWifi: %d", EnableAudio,
-                 EnableMove, EnableSleep, EnableDeepSleep, EnableWifi);            
-            return true;
-        }
-        return false;
-    }
+    bool LoadConfig(char *config_path);
     bool SetProperty(char *key, bool value);
     void SaveConfig();
     ~ConfigHelper();

@@ -124,6 +124,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     if (args->touchCount == LONG_PRESS_T_COUNT)
     {
         log_d("Long Press Detected");
+        luluDog->HighPowMode();
         luluDog->displayHelper->StopGif();
         luluDog->displayHelper->resumeEyes();
         luluDog->displayHelper->luluEyes->setMood(0);
@@ -133,6 +134,7 @@ void DogEvents::OnTouchEvent(TouchEvent *args)
     if (args->touchCount == LONG_PRESS_T_END_COUNT)
     {
         log_d("Long Press Ended");
+        luluDog->NormalPowMode();
         // luluDog->displayHelper->pauseEyes();
         luluDog->luluCharacter->doRandomReact(-1, false);
         luluDog->displayHelper->luluEyes->setMood(-1);
@@ -324,5 +326,6 @@ void DogEvents::StartSlavePingThread()
 void DogEvents::OnLongPressChPosition(int x, int y)
 {
     // log_d("press at %d,%d ", x, y);
+    
     luluDog->displayHelper->SetEyePosition(x - 40, y - 40);
 }
