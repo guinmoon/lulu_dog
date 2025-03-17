@@ -17,9 +17,9 @@
 
 #define EYEBORDER 40
 
-#define SLEEP_AFTER 15
+#define SLEEP_AFTER 45
 
-#define DEEP_SLEEP_AFTER 120
+#define DEEP_SLEEP_AFTER 180
 
 // GYRO CONFIG
  // Пороговое значение изменений ускорения (низкое из-за минимальных изменений)
@@ -86,4 +86,4 @@
 
 // TOUCH CONFIG
 #define LONGPRESSTHRESHOLD 500
-#define DOUBLETAPTHRESHOLD 600
+#define DOUBLETAPTHRESHOLD 800

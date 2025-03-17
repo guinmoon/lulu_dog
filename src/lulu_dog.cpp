@@ -7,7 +7,7 @@ LuLuDog::LuLuDog()
 {
     configHelper = new ConfigHelper(this);
     dogEvents = new DogEvents(this);
-    i2cSlaveHelper = new I2CSlaveHeler(this);    
+    i2cSlaveHelper = new I2CSlaveHelper(this);    
     batteryHelper = new BatteryHelper(this);
     audioHelper = new AudioHelper(this);    
     displayHelper = new DisplayHelper(this);
@@ -38,7 +38,7 @@ void LuLuDog::Init()
     // luluCharacter->doRandomReact(-1,false);
     dogEvents->StartDogActivitiWatcher();
     dogEvents->StartSlavePingThread();
-
+    i2cSlaveHelper->StartReciveThread();
     // ShowMenu();
     // if (configHelper->EnableWifi)
         fsWebServer->Init();

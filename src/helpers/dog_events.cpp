@@ -329,3 +329,18 @@ void DogEvents::OnLongPressChPosition(int x, int y)
     
     luluDog->displayHelper->SetEyePosition(x - 40, y - 40);
 }
+
+void DogEvents::OnSlaveTouchEvent(){
+    // log_d("dog being petted");
+}
+
+
+void DogEvents::OnSlaveIntensiveTouchEvent(int count){
+    log_d("dog being petted intensive");
+    int args[] = {count};
+    luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_HEAD_INTENSIVE_TOUCH, JS_ON_HEAD_INTENSIVE_TOUCH_FUNC, 1, args);
+}
+
+void DogEvents::OnSlaveDoubleTouchEvent(){
+    // log_d("dog being petted");
+}

@@ -113,6 +113,9 @@ public:
     void OnExternalImpact();
     void GyroOrAccEventPreaction();
     void OnLongPressChPosition(int x, int y);
+    void OnSlaveTouchEvent();
+    void OnSlaveIntensiveTouchEvent(int count);
+    void OnSlaveDoubleTouchEvent();
 
 private:
     LuLuDog *luluDog;

@@ -9,3 +9,5 @@
 #define JS_ON_WAKE_FUNC "onWake"
 #define JS_ON_SLEEP "/js/events/onSleep.js"
 #define JS_ON_SLEEP_FUNC "onSleep"
+#define JS_ON_HEAD_INTENSIVE_TOUCH "/js/events/onHeadIntensiveTouch.js"
+#define JS_ON_HEAD_INTENSIVE_TOUCH_FUNC "onHeadIntensiveTouch"

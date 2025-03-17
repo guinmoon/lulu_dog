@@ -1,0 +1,13 @@
+{
+    "dog": {
+      "audio": {
+        "enable": true
+      },
+      "move": {
+        "enable": true
+      },
+      "wifi": {
+        "enable": false
+      }
+    }
+  }

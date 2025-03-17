@@ -34,7 +34,7 @@ public:
     LuLuWebServer* fsWebServer;
     static ConfigHelper* configHelper;
     DogEvents* dogEvents;
-    I2CSlaveHeler* i2cSlaveHelper;
+    I2CSlaveHelper* i2cSlaveHelper;
 
     int lastAction = -1;
     

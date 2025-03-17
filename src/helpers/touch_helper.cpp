@@ -138,7 +138,7 @@ void TouchHelper::TouchReadTask()
         if (touched ){
             luluDog->dogEvents->OnLongPressChPosition(x[0], LCD_HEIGHT - y[0]);
         }
-        delay(30);
+        delay(20);
     }
 }
 

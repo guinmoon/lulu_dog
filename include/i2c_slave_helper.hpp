@@ -8,15 +8,32 @@
 
 class LuLuDog;
 
-class I2CSlaveHeler
+class I2CSlaveHelper
 {
 
 private:
     LuLuDog *luluDog;
     std::mutex i2c_mutex;
+    bool _reciveSuspended = false;
+    bool _isCommandFinished = true;
+
+    const int N = 5;                              // Минимальное количество касаний для интенсивности
+    const unsigned long maxPause = 500;           // Максимальная пауза между касаниями (в миллисекундах)
+    const unsigned long doubleTapThreshold = 300; // Пауза для двойного нажатия (в миллисекундах)
+
+    unsigned long lastTouchTime = 0; // Время последнего касания
+    int slaveTouchCount = 0;         // Количество касаний
+
+    // Флаг для отслеживания потенциального двойного нажатия
+    bool potentialDoubleTap = false;
 
 public:
-    I2CSlaveHeler(LuLuDog *luluDog)
+    bool IsCommandFinished()
+    {
+        return _isCommandFinished;
+    }
+
+    I2CSlaveHelper(LuLuDog *luluDog)
     {
         this->luluDog = luluDog;
     }
@@ -27,13 +44,19 @@ public:
 
     void ConfirmCommand(int command, int arg1);
 
-    static void reciveThread(void *_this);
+    static void commandConfirmThread(void *_this);
 
-    uint8_t requestI2CByte();
+    // uint8_t requestI2CByte();
 
-    void reciveTask();
+    void commandConfirmTask();
 
-    ~I2CSlaveHeler();
+    void StartReciveThread();
+    static void I2CReciveThread(void *_this);
+    void I2CReciveTask();
+
+    void OnSlaveTouchEvent();
+
+    ~I2CSlaveHelper();
 };
 
 #endif
