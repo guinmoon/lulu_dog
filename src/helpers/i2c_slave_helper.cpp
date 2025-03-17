@@ -65,7 +65,7 @@ void I2CSlaveHelper::StartReciveThread(){
     xTaskCreatePinnedToCore(
         I2CReciveThread,     /* Task function. */
         "Task2icRecive",         /* name of task. */
-        4096,             /* Stack size of task */
+        20000,             /* Stack size of task */
         this,             /* parameter of the task */
         tskIDLE_PRIORITY, /* priority of the task */
         NULL,             /* Task handle to keep track of created task */
