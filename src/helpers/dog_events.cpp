@@ -190,12 +190,23 @@ void DogEvents::OnExternalImpact()
     int current_time = millis();
     lastImpact = current_time;
     if (!eventsSuspended)
+    {
         Wake();
+    }
     luluDog->displayHelper->luluEyes->setMood(random(4));
     if (luluDog->lastAction == COMMAND_LEFTHAND_LONG || luluDog->lastAction == COMMAND_RIGHTHAND_LONG)
     {
         luluDog->luluCharacter->SitDown();
     }
+}
+
+void DogEvents::_PreWake()
+{
+    luluDog->NormalPowMode();
+    sleeping = false;
+    pingPaused = false;
+    log_d("WAKE");
+    luluDog->displayHelper->stopSleepAnimation();
 }
 
 void DogEvents::Wake()
@@ -206,12 +217,8 @@ void DogEvents::Wake()
         // digitalWrite(IIC_SDA, HIGH);
         // digitalWrite(IIC_SCL, HIGH);
         // Wire.begin();
-        luluDog->NormalPowMode();
-        sleeping = false;
-        pingPaused = false;
-        log_d("WAKE");
-        luluDog->displayHelper->stopSleepAnimation();
-        luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_WAKE, JS_ON_WAKE_FUNC, 0, NULL);        
+        _PreWake();
+        luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_WAKE, JS_ON_WAKE_FUNC, 0, NULL);
         // delay(200);
         // SendCommand(RP_SYS_COMMAND_WAKE,0);
     }
@@ -326,21 +333,29 @@ void DogEvents::StartSlavePingThread()
 void DogEvents::OnLongPressChPosition(int x, int y)
 {
     // log_d("press at %d,%d ", x, y);
-    
+
     luluDog->displayHelper->SetEyePosition(x - 40, y - 40);
 }
 
-void DogEvents::OnSlaveTouchEvent(){
+void DogEvents::OnSlaveTouchEvent()
+{
     // log_d("dog being petted");
 }
 
-
-void DogEvents::OnSlaveIntensiveTouchEvent(int count){
-    log_d("dog being petted intensive");
-    int args[] = {count};
-    luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_HEAD_INTENSIVE_TOUCH, JS_ON_HEAD_INTENSIVE_TOUCH_FUNC, 1, args);
+void DogEvents::OnSlaveIntensiveTouchEvent(int count)
+{
+    log_d("dog being petted intensive %i", count);
+    auto currentTime = millis();
+    if (currentTime - IntensiveTouchEventLastCall >= IntensiveTouchEventMinCallInterval)
+    {
+        _PreWake();
+        int args[] = {count};
+        luluDog->jsRunner->jsCallFunctionNIntArgs(JS_ON_HEAD_INTENSIVE_TOUCH, JS_ON_HEAD_INTENSIVE_TOUCH_FUNC, 1, args);
+        IntensiveTouchEventLastCall = currentTime;
+    }
 }
 
-void DogEvents::OnSlaveDoubleTouchEvent(){
+void DogEvents::OnSlaveDoubleTouchEvent()
+{
     // log_d("dog being petted");
 }

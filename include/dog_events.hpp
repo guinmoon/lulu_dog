@@ -81,6 +81,12 @@ struct DogEvent
 
 class DogEvents
 {
+private:
+    LuLuDog *luluDog;
+    unsigned long IntensiveTouchEventLastCall = 0;
+    unsigned long IntensiveTouchEventMinCallInterval = 200;
+    void _PreWake();
+
 public:
     unsigned long lastImpact = millis();
     bool deepSleeping = false;
@@ -117,8 +123,7 @@ public:
     void OnSlaveIntensiveTouchEvent(int count);
     void OnSlaveDoubleTouchEvent();
 
-private:
-    LuLuDog *luluDog;
+
 };
 
 #endif

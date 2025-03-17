@@ -143,15 +143,15 @@ void LuLuDog::ShowMenu()
 
 void LuLuDog::LowPowMode(){
     setCpuFrequencyMhz(80);
-    MemInfo();
+    // MemInfo();
 }
 
 void LuLuDog::NormalPowMode(){
     setCpuFrequencyMhz(160);
-    MemInfo();
+    // MemInfo();
 }
 
 void LuLuDog::HighPowMode(){
     setCpuFrequencyMhz(240);
-    MemInfo();
+    // MemInfo();
 }

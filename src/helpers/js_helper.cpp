@@ -161,9 +161,9 @@ bool JSRunner::_jsCallFunctionPre(char *filename, char *funcName){
     String fileData = file.readString();
 
     duk_push_string(ctx, fileData.c_str());
-    log_d("duk_peval pre");
+    // log_d("duk_peval pre");
     duk_int_t rc = duk_peval(ctx);
-    log_d("duk_peval post");
+    // log_d("duk_peval post");
 
     auto res = duk_get_global_string(ctx, funcName);
     if (res == false)
@@ -194,15 +194,15 @@ bool JSRunner::_jsCallFunctionPost(int argc){
 
 void JSRunner::jsCallFunctionNIntArgs(char *filename, char *funcName,int argc, int* argv)
 {
-    log_d("jsCallFunctionNIntArgs");
+    // log_d("jsCallFunctionNIntArgs");
     if(!_jsCallFunctionPre(filename, funcName))
         return;
-    log_d("function loaded");
+    // log_d("function loaded");
     for (int i =0 ;i<argc;i++)
     {
         duk_push_int(ctx, argv[i]);    
     }
-    log_d("args loaded");
+    // log_d("args loaded");
     _jsCallFunctionPost(argc);
     
 }
