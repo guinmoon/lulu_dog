@@ -84,7 +84,7 @@ class DogEvents
 private:
     LuLuDog *luluDog;
     unsigned long IntensiveTouchEventLastCall = 0;
-    unsigned long IntensiveTouchEventMinCallInterval = 200;
+    unsigned long IntensiveTouchEventMinCallInterval = 500;
     void _PreWake();
 
 public:

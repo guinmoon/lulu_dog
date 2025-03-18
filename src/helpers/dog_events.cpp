@@ -357,5 +357,5 @@ void DogEvents::OnSlaveIntensiveTouchEvent(int count)
 
 void DogEvents::OnSlaveDoubleTouchEvent()
 {
-    // log_d("dog being petted");
+    log_d("dog being double petted");
 }

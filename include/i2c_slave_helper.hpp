@@ -18,7 +18,7 @@ private:
     bool _isCommandFinished = true;
 
     const int N = 5;                              // Минимальное количество касаний для интенсивности
-    const unsigned long maxPause = 500;           // Максимальная пауза между касаниями (в миллисекундах)
+    const unsigned long maxPause = 700;           // Максимальная пауза между касаниями (в миллисекундах)
     const unsigned long doubleTapThreshold = 300; // Пауза для двойного нажатия (в миллисекундах)
 
     unsigned long lastTouchTime = 0; // Время последнего касания
