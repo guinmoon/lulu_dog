@@ -127,10 +127,12 @@ void LuLuDog::ExitMenu()
     displayHelper->fillScreen();
     ResumeDog();
     delay(200);
+    NormalPowMode();
 }
 
 void LuLuDog::ShowMenu()
 {
+    HighPowMode();
     PauseDog();
     // displayHelper->ShowMatrixAnimation();
     // delay(1500);
