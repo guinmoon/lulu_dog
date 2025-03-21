@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Wire.h>
+// #include <Wire.h>
 #include "LittleFS.h"
 #include "hw_init.h"
 #include "global_def.h"
@@ -32,7 +32,9 @@ void InitPWR()
     pinMode(IIC_SCL, OUTPUT);
     digitalWrite(IIC_SDA, HIGH);
     digitalWrite(IIC_SCL, HIGH);
-
+    delay(500);
+    digitalWrite(IIC_SDA, LOW);
+    digitalWrite(IIC_SCL, LOW);
     // pinMode(2, OUTPUT);    
     // digitalWrite(2, HIGH);
     

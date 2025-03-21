@@ -52,7 +52,7 @@ void GyroHelper::ResumeGyro()
 
 bool GyroHelper::InitGyro()
 {
-    if (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
+    while (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
     {
 
         log_d("QMI8658_L_SLAVE_ADDRESS error: %d");
