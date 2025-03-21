@@ -35,6 +35,8 @@ void InitPWR()
     delay(500);
     digitalWrite(IIC_SDA, LOW);
     digitalWrite(IIC_SCL, LOW);
+    pinMode(IIC_SDA, INPUT);    
+    pinMode(IIC_SCL, INPUT);
     // pinMode(2, OUTPUT);    
     // digitalWrite(2, HIGH);
     
