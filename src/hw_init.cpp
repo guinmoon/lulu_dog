@@ -34,11 +34,11 @@ void InitPWR()
     digitalWrite(2, HIGH);
     delay(500);
     // WakeUp RP2040 via i2C
-    Wire.end();
-    pinMode(IIC_SDA, OUTPUT);    
-    pinMode(IIC_SCL, OUTPUT);
-    digitalWrite(IIC_SDA, HIGH);
-    digitalWrite(IIC_SCL, HIGH);
+    // Wire.end();
+    // pinMode(IIC_SDA, OUTPUT);    
+    // pinMode(IIC_SCL, OUTPUT);
+    // digitalWrite(IIC_SDA, HIGH);
+    // digitalWrite(IIC_SCL, HIGH);
     
     // digitalWrite(IIC_SDA, LOW);
     // digitalWrite(IIC_SCL, LOW);
